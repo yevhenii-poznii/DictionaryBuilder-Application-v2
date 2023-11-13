@@ -6,6 +6,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -13,6 +15,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -39,8 +42,9 @@ public class Word {
     @Column
     private LocalDateTime editedAt;
 
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "word", orphanRemoval = true)
-    private WordTranslation wordTranslation;
+    @JoinColumn(name = "wordId")
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<WordTranslation> wordTranslations;
 
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "word", orphanRemoval = true)
     private WordHint wordHint;
