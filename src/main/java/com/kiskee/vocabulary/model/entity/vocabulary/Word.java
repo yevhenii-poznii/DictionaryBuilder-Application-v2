@@ -40,6 +40,9 @@ public class Word {
     private LocalDateTime editedAt;
 
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "word", orphanRemoval = true)
+    private WordTranslation wordTranslation;
+
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "word", orphanRemoval = true)
     private WordHint wordHint;
 
 }

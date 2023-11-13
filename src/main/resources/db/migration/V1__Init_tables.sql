@@ -16,7 +16,7 @@ create table user_profile (
 
 create table user_preference (
     user_id uuid not null primary key,
-    profile_vision varchar(20) not null check (profile_vision IN ('PRIVATE', 'PUBLIC_FOR_FRIEND', 'PUBLIC')),
+    profile_visibility varchar(20) not null check (profile_visibility IN ('PRIVATE', 'PUBLIC_FOR_FRIEND', 'PUBLIC')),
     right_answers_to_disable_in_repetition integer not null,
 
     constraint fk_user_id foreign key (user_id) references user_vocabulary_application(id)

@@ -1,6 +1,7 @@
 package com.kiskee.vocabulary.model.entity.user;
 
 import com.kiskee.vocabulary.model.entity.vocabulary.Dictionary;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -11,7 +12,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -22,8 +22,7 @@ import java.util.UUID;
 @Entity
 @Getter
 @AllArgsConstructor
-@EqualsAndHashCode(of = "userId")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PACKAGE)
 public class UserProfile {
 
     @Id
@@ -36,7 +35,7 @@ public class UserProfile {
     private LocalDateTime createdAt;
 
     @MapsId
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private UserVocabularyApplication user;
 
     @OneToMany

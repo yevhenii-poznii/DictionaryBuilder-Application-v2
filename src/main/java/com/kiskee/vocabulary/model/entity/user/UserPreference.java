@@ -1,6 +1,7 @@
 package com.kiskee.vocabulary.model.entity.user;
 
 import com.kiskee.vocabulary.enums.user.ProfileVisibility;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -11,7 +12,6 @@ import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -20,8 +20,7 @@ import java.util.UUID;
 @Entity
 @Getter
 @AllArgsConstructor
-@EqualsAndHashCode(of = "userId")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PACKAGE)
 public class UserPreference {
 
     @Id
@@ -29,13 +28,13 @@ public class UserPreference {
 
     @Column(nullable = false)
     @Enumerated(value = EnumType.STRING)
-    private ProfileVisibility profileVision;
+    private ProfileVisibility profileVisibility;
 
     @Column(nullable = false)
     private int rightAnswersToDisableInRepetition;
 
     @MapsId
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private UserVocabularyApplication user;
 
 }

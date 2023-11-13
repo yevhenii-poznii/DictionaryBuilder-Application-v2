@@ -10,10 +10,8 @@ import jakarta.persistence.OneToOne;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.hibernate.annotations.UuidGenerator;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -25,16 +23,14 @@ import java.util.UUID;
 
 @Entity
 @Getter
-@Setter
 @AllArgsConstructor
-@EqualsAndHashCode(of = "id")
 @Builder(setterPrefix = "set")
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 public class UserVocabularyApplication implements UserDetails {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     @UuidGenerator(style = UuidGenerator.Style.TIME)
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private UUID id;
 
     @Column(nullable = false, unique = true)
