@@ -1,5 +1,7 @@
 package com.kiskee.vocabulary.model.entity.user;
 
+import com.kiskee.vocabulary.model.entity.user.preference.UserPreference;
+import com.kiskee.vocabulary.model.entity.user.profile.UserProfile;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
