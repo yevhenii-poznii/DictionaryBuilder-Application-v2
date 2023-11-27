@@ -8,7 +8,6 @@ import lombok.Getter;
 public enum ProfileVisibility {
 
     PRIVATE("private"),
-    PUBLIC_FOR_FRIEND("public_for_friend"),
     PUBLIC("public");
 
     private final String profileVisibility;

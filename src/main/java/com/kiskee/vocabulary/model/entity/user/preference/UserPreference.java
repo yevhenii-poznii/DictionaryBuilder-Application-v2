@@ -1,6 +1,8 @@
-package com.kiskee.vocabulary.model.entity.user;
+package com.kiskee.vocabulary.model.entity.user.preference;
 
 import com.kiskee.vocabulary.enums.user.ProfileVisibility;
+import com.kiskee.vocabulary.model.entity.user.UserProfilePreferenceType;
+import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -21,7 +23,7 @@ import java.util.UUID;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
-public class UserPreference {
+public class UserPreference implements UserProfilePreferenceType {
 
     @Id
     private UUID userId;

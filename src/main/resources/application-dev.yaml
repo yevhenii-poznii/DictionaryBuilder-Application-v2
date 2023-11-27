@@ -1,0 +1,22 @@
+server:
+  port: 8080
+  servlet.context-path: /api/v1
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:${POSTGRES_PORT:5438}/${POSTGRES_DB:vocabulary_database}
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD:root}
+  jpa:
+    show-sql: true
+    hibernate:
+      show_sql: false
+      use_sql_comments: false
+      format_sql: false
+logging:
+  level:
+    org.springframework.security: DEBUG
+vocabulary:
+  user:
+    preference:
+      right-answers-to-disable-in-repetition: ${RIGHT_ANSWERS_TO_DISABLE_IN_REPETITION:10}
