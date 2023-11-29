@@ -19,9 +19,9 @@ import java.util.List;
 public class UserProfileService extends AbstractUserProfilePreferenceInitializationService
         implements Initializable<UserProfileService> {
 
-    private final VocabularyService vocabularyService;
     @Getter
     private final UserProfileRepository repository;
+    private final VocabularyService vocabularyService;
 
     @Override
     public void initDefault(UserVocabularyApplication user) {
