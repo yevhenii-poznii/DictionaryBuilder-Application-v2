@@ -1,6 +1,7 @@
 package com.kiskee.vocabulary.web.advice;
 
 import com.kiskee.vocabulary.exception.DuplicateUserException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -14,8 +15,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 @ControllerAdvice
 public class GlobalExceptionHandler {
+
+    private final String logMessage = "[{}] request has received with [{}] at [{}]";
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException exception) {
@@ -31,6 +35,8 @@ public class GlobalExceptionHandler {
 
         ErrorResponse response = new ErrorResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(), errors, timestamp);
 
+        log.info(logMessage, response.getStatus(), errors, timestamp);
+
         return ResponseEntity.badRequest().body(response);
     }
 
@@ -44,6 +50,8 @@ public class GlobalExceptionHandler {
 
         ErrorResponse response = new ErrorResponse(HttpStatus.UNPROCESSABLE_ENTITY.getReasonPhrase(), errors,
                 timestamp);
+
+        log.info(logMessage, response.getStatus(), errors, timestamp);
 
         return ResponseEntity.unprocessableEntity().body(response);
     }

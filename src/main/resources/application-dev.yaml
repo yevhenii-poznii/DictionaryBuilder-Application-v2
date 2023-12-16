@@ -4,19 +4,33 @@ server:
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:${POSTGRES_PORT:5438}/${POSTGRES_DB:vocabulary_database}
-    username: ${POSTGRES_USER:postgres}
-    password: ${POSTGRES_PASSWORD:root}
+    url: ${DATASOURCE_URL:jdbc:postgresql://localhost:5438/vocabulary_database}
+    username: ${DATASOURCE_USERNAME:postgres}
+    password: ${DATASOURCE_PASSWORD:root}
   jpa:
     show-sql: true
     hibernate:
       show_sql: false
       use_sql_comments: false
       format_sql: false
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_SENDER}
+    password: ${MAIL_SENDER_PASSWORD}
+    properties.mail.smtp:
+      auth: true
+      starttls.enable: true
 logging:
   level:
     org.springframework.security: DEBUG
 vocabulary:
+  email.sender.context:
+    registration:
+      from: ${MAIL_SENDER}
+      subject: "Please verify your registration"
+      template-location: email/confirm-registration.html
+      confirmation-url: http://localhost/signup?token=
   user:
     preference:
       right-answers-to-disable-in-repetition: ${RIGHT_ANSWERS_TO_DISABLE_IN_REPETITION:10}

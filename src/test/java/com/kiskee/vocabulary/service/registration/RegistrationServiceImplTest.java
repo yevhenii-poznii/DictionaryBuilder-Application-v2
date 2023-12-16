@@ -5,6 +5,7 @@ import com.kiskee.vocabulary.exception.DuplicateUserException;
 import com.kiskee.vocabulary.model.dto.registration.UserRegisterRequestDto;
 import com.kiskee.vocabulary.model.dto.registration.UserRegisterResponseDto;
 import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
+import com.kiskee.vocabulary.service.event.OnRegistrationCompleteEvent;
 import com.kiskee.vocabulary.service.user.UserCreationService;
 import com.kiskee.vocabulary.service.user.preference.UserPreferenceService;
 import com.kiskee.vocabulary.service.user.profile.UserProfileService;
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,6 +36,8 @@ public class RegistrationServiceImplTest {
     private Initializable<UserProfileService> userProfileServiceInitializable;
     @Mock
     private Initializable<UserPreferenceService> userPreferenceServiceInitializable;
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
 
     @Test
     void testRegisterUserAccount_WhenValidUserRegisterRequestDto_ThenRegisterNewUserAccount() {
@@ -54,11 +58,12 @@ public class RegistrationServiceImplTest {
         UserRegisterResponseDto result = service.registerUserAccount(userRegisterRequestDto);
 
         assertThat(result.getResponseMessage()).isEqualTo(String.format(
-                RegistrationStatus.USER_SUCCESSFULLY_CREATED.toString(),
+                RegistrationStatus.USER_SUCCESSFULLY_CREATED.getStatus(),
                 userRegisterRequestDto.getEmail()));
 
         verify(passwordEncoder).encode(userRegisterRequestDto.getRawPassword());
         verify(userCreationService).createNewUser(userRegisterRequestDto);
+        verify(eventPublisher).publishEvent(new OnRegistrationCompleteEvent(createdUser));
     }
 
     @Test
@@ -69,7 +74,7 @@ public class RegistrationServiceImplTest {
 
         when(passwordEncoder.encode(userRegisterRequestDto.getRawPassword())).thenReturn(hashedPassword);
         when(userCreationService.createNewUser(userRegisterRequestDto))
-                .thenThrow(new DuplicateUserException(RegistrationStatus.USER_ALREADY_EXISTS.toString()));
+                .thenThrow(new DuplicateUserException(RegistrationStatus.USER_ALREADY_EXISTS.getStatus()));
 
         assertThatExceptionOfType(DuplicateUserException.class)
                 .isThrownBy(() -> service.registerUserAccount(userRegisterRequestDto))

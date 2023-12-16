@@ -22,6 +22,9 @@ public class UserServiceImpl implements UserCreationService {
 
         UserVocabularyApplication user = buildNewUser(userRegisterRequestDto);
 
+        log.info("[{} has been successfully created for [{}]", UserVocabularyApplication.class.getSimpleName(),
+                userRegisterRequestDto.getUsername());
+
         return userVocabularyApplicationRepository.save(user);
     }
 
@@ -29,7 +32,7 @@ public class UserServiceImpl implements UserCreationService {
         boolean userExists = userVocabularyApplicationRepository.existsByUsernameOrEmail(username, email);
 
         if (userExists) {
-            throw new DuplicateUserException(RegistrationStatus.USER_ALREADY_EXISTS.toString());
+            throw new DuplicateUserException(RegistrationStatus.USER_ALREADY_EXISTS.getStatus());
         }
     }
 

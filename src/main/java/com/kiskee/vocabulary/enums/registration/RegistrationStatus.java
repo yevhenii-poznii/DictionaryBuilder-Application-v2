@@ -1,7 +1,9 @@
 package com.kiskee.vocabulary.enums.registration;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
+@Getter
 @AllArgsConstructor
 public enum RegistrationStatus {
 
@@ -10,10 +12,5 @@ public enum RegistrationStatus {
             "Message with link to confirm registration was sent to %s");
 
     private final String status;
-
-    @Override
-    public String toString() {
-        return status;
-    }
 
 }
