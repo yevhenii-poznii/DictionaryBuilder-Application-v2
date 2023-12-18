@@ -61,7 +61,7 @@ public class RegistrationControllerTest {
                 "p#Ssword1", null);
 
         UserRegisterResponseDto expectedResponseBody = new UserRegisterResponseDto(String.format(
-                RegistrationStatus.USER_SUCCESSFULLY_CREATED.toString(), requestBody.getEmail()));
+                RegistrationStatus.USER_SUCCESSFULLY_CREATED.getStatus(), requestBody.getEmail()));
         when(registrationService.registerUserAccount(requestBody)).thenReturn(expectedResponseBody);
 
         MvcResult result = mockMvc.perform(post("/signup")
@@ -82,7 +82,7 @@ public class RegistrationControllerTest {
                 "p@Ssword1", null);
 
         when(registrationService.registerUserAccount(requestBody))
-                .thenThrow(new DuplicateUserException(RegistrationStatus.USER_ALREADY_EXISTS.toString()));
+                .thenThrow(new DuplicateUserException(RegistrationStatus.USER_ALREADY_EXISTS.getStatus()));
 
         mockMvc.perform(post("/signup")
                         .contentType(MediaType.APPLICATION_JSON)

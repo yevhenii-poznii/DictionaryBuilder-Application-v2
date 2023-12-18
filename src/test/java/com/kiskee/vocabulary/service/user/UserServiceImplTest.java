@@ -66,7 +66,7 @@ public class UserServiceImplTest {
 
         assertThatExceptionOfType(DuplicateUserException.class)
                 .isThrownBy(() -> service.createNewUser(userRegisterRequestDto))
-                .withMessage(RegistrationStatus.USER_ALREADY_EXISTS.toString());
+                .withMessage(RegistrationStatus.USER_ALREADY_EXISTS.getStatus());
 
         verifyNoMoreInteractions(repository);
     }

@@ -1,4 +1,4 @@
-package com.kiskee.vocabulary.config.properties;
+package com.kiskee.vocabulary.config.properties.user;
 
 import lombok.Getter;
 import lombok.Setter;

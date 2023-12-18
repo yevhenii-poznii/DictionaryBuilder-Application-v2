@@ -2,6 +2,7 @@ package com.kiskee.vocabulary.model.entity.user;
 
 import com.kiskee.vocabulary.model.entity.user.preference.UserPreference;
 import com.kiskee.vocabulary.model.entity.user.profile.UserProfile;
+import com.kiskee.vocabulary.repository.user.projections.UserSecureProjection;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -27,8 +28,8 @@ import java.util.UUID;
 @Getter
 @AllArgsConstructor
 @Builder(setterPrefix = "set")
-@NoArgsConstructor(access = AccessLevel.PACKAGE)
-public class UserVocabularyApplication implements UserDetails {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class UserVocabularyApplication implements UserDetails, UserSecureProjection {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

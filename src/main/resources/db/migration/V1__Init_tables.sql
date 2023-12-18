@@ -57,3 +57,10 @@ create table word_hint (
 
     constraint fk_word_id foreign key (word_id) references word(id)
 );
+
+create table verification_token (
+    id bigserial not null primary key,
+    verification_token varchar(255) not null,
+    user_id uuid not null,
+    timestamp timestamp(6) not null
+);

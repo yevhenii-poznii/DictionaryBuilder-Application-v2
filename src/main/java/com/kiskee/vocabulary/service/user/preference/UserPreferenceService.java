@@ -1,6 +1,6 @@
 package com.kiskee.vocabulary.service.user.preference;
 
-import com.kiskee.vocabulary.config.properties.DefaultUserPreferenceProperties;
+import com.kiskee.vocabulary.config.properties.user.DefaultUserPreferenceProperties;
 import com.kiskee.vocabulary.enums.user.ProfileVisibility;
 import com.kiskee.vocabulary.model.entity.user.UserProfilePreferenceType;
 import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
