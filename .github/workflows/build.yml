@@ -22,7 +22,7 @@ jobs:
     - name: Set up JDK
       uses: actions/setup-java@v4
       with:
-        java-version: '17'
+        java-version: '19'
         distribution: 'temurin'
     - name: Build with Maven
       run: mvn -B clean install
