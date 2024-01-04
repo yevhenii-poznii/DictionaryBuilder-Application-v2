@@ -1,6 +1,8 @@
 package com.kiskee.vocabulary.web.advice;
 
-import com.kiskee.vocabulary.exception.DuplicateUserException;
+import com.kiskee.vocabulary.exception.user.DuplicateUserException;
+import com.kiskee.vocabulary.exception.token.VerificationTokenNotFoundException;
+import com.kiskee.vocabulary.exception.user.UserNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,18 +44,26 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DuplicateUserException.class)
     public ResponseEntity<ErrorResponse> handleDuplicateUserException(DuplicateUserException exception) {
+        return handleCustomException(exception, HttpStatus.UNPROCESSABLE_ENTITY);
+    }
+
+    @ExceptionHandler({VerificationTokenNotFoundException.class, UserNotFoundException.class})
+    public ResponseEntity<ErrorResponse> handleVerificationTokenNotFoundException(Exception notFoundException) {
+        return handleCustomException(notFoundException, HttpStatus.NOT_FOUND);
+    }
+
+    private ResponseEntity<ErrorResponse> handleCustomException(Throwable exception, HttpStatus status) {
         String responseMessage = exception.getMessage();
 
         Map<String, String> errors = Map.of("responseMessage", responseMessage);
 
         LocalDateTime timestamp = LocalDateTime.now();
 
-        ErrorResponse response = new ErrorResponse(HttpStatus.UNPROCESSABLE_ENTITY.getReasonPhrase(), errors,
-                timestamp);
+        ErrorResponse response = new ErrorResponse(status.getReasonPhrase(), errors, timestamp);
 
         log.info(logMessage, response.getStatus(), errors, timestamp);
 
-        return ResponseEntity.unprocessableEntity().body(response);
+        return ResponseEntity.status(status).body(response);
     }
 
 }

@@ -25,7 +25,7 @@ public class SecurityConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/signup", "/login").anonymous()
+                        .requestMatchers("/signup/**", "/login", "/actuator/**").anonymous()
                         .anyRequest().authenticated())
                 .build();
     }

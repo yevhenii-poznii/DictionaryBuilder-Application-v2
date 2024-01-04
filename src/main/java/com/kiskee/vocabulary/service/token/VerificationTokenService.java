@@ -1,5 +1,6 @@
 package com.kiskee.vocabulary.service.token;
 
+import com.kiskee.vocabulary.exception.token.VerificationTokenNotFoundException;
 import com.kiskee.vocabulary.mapper.token.VerificationTokenMapper;
 import com.kiskee.vocabulary.model.dto.token.VerificationTokenDto;
 import com.kiskee.vocabulary.model.entity.token.VerificationToken;
@@ -11,12 +12,13 @@ import org.springframework.stereotype.Service;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.Base64;
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
 @Service
 @AllArgsConstructor
-public class VerificationTokenService implements TokenService {
+public class VerificationTokenService implements TokenGeneratorService, TokenConfirmationService {
 
     private final VerificationTokenRepository verificationTokenRepository;
     private final VerificationTokenMapper verificationTokenMapper;
@@ -27,6 +29,22 @@ public class VerificationTokenService implements TokenService {
         VerificationToken verificationToken = buildAndSaveVerificationToken(userId, verificationTokenString);
 
         return verificationTokenMapper.toDto(verificationToken);
+    }
+
+    @Override
+    public VerificationToken findVerificationTokenOrThrow(String verificationToken) {
+        Optional<VerificationToken> token = verificationTokenRepository.findByVerificationToken(verificationToken);
+
+        return token.orElseThrow(() -> new VerificationTokenNotFoundException(String.format(
+                "Verification token [%s] hasn't been found", verificationToken)));
+    }
+
+    @Override
+    public void deleteUnnecessaryVerificationToken(VerificationToken verificationToken) {
+        verificationTokenRepository.delete(verificationToken);
+
+        log.info("Unnecessary verification token [{}] for user [{}] has been successfully deleted",
+                verificationToken.getVerificationToken(), verificationToken.getUserId());
     }
 
     private String generateVerificationToken() {

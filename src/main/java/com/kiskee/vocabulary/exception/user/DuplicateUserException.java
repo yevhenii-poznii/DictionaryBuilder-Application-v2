@@ -1,4 +1,4 @@
-package com.kiskee.vocabulary.exception;
+package com.kiskee.vocabulary.exception.user;
 
 public class DuplicateUserException extends RuntimeException {
 

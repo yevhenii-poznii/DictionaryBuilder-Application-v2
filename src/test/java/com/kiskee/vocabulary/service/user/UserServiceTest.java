@@ -1,7 +1,7 @@
 package com.kiskee.vocabulary.service.user;
 
 import com.kiskee.vocabulary.enums.registration.RegistrationStatus;
-import com.kiskee.vocabulary.exception.DuplicateUserException;
+import com.kiskee.vocabulary.exception.user.DuplicateUserException;
 import com.kiskee.vocabulary.model.dto.registration.UserRegisterRequestDto;
 import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
 import com.kiskee.vocabulary.repository.user.UserVocabularyApplicationRepository;
@@ -20,10 +20,10 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class UserServiceImplTest {
+public class UserServiceTest {
 
     @InjectMocks
-    private UserServiceImpl service;
+    private UserService service;
     @Mock
     private UserVocabularyApplicationRepository repository;
     @Captor

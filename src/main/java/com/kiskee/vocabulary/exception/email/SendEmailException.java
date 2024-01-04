@@ -1,4 +1,4 @@
-package com.kiskee.vocabulary.exception;
+package com.kiskee.vocabulary.exception.email;
 
 public class SendEmailException extends RuntimeException {
 

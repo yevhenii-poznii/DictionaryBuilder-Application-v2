@@ -15,6 +15,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.UuidGenerator;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -26,6 +27,7 @@ import java.util.UUID;
 
 @Entity
 @Getter
+@Setter
 @AllArgsConstructor
 @Builder(setterPrefix = "set")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

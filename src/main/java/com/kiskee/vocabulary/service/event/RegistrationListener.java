@@ -3,7 +3,7 @@ package com.kiskee.vocabulary.service.event;
 import com.kiskee.vocabulary.model.dto.token.VerificationTokenDto;
 import com.kiskee.vocabulary.repository.user.projections.UserSecureProjection;
 import com.kiskee.vocabulary.service.email.EmailSenderService;
-import com.kiskee.vocabulary.service.token.TokenService;
+import com.kiskee.vocabulary.service.token.TokenGeneratorService;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 @AllArgsConstructor
 public class RegistrationListener implements ApplicationListener<OnRegistrationCompleteEvent> {
 
-    private final TokenService tokenService;
+    private final TokenGeneratorService tokenService;
     private final EmailSenderService emailSenderService;
 
     @Async
