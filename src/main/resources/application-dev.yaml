@@ -30,7 +30,7 @@ vocabulary:
       from: ${MAIL_SENDER}
       subject: "Please verify your registration"
       template-location: email/confirm-registration.html
-      confirmation-url: http://localhost/signup?token=
+      confirmation-url: http://localhost/signup/activate?verificationToken=
   user:
     preference:
       right-answers-to-disable-in-repetition: ${RIGHT_ANSWERS_TO_DISABLE_IN_REPETITION:10}

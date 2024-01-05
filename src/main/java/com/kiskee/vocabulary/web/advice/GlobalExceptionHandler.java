@@ -1,8 +1,7 @@
 package com.kiskee.vocabulary.web.advice;
 
+import com.kiskee.vocabulary.exception.ResourceNotFoundException;
 import com.kiskee.vocabulary.exception.user.DuplicateUserException;
-import com.kiskee.vocabulary.exception.token.VerificationTokenNotFoundException;
-import com.kiskee.vocabulary.exception.user.UserNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -47,7 +46,7 @@ public class GlobalExceptionHandler {
         return handleCustomException(exception, HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
-    @ExceptionHandler({VerificationTokenNotFoundException.class, UserNotFoundException.class})
+    @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleVerificationTokenNotFoundException(Exception notFoundException) {
         return handleCustomException(notFoundException, HttpStatus.NOT_FOUND);
     }

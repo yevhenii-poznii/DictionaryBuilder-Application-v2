@@ -1,6 +1,7 @@
 package com.kiskee.vocabulary.service.token;
 
-import com.kiskee.vocabulary.exception.token.VerificationTokenNotFoundException;
+import com.kiskee.vocabulary.enums.ExceptionStatusesEnum;
+import com.kiskee.vocabulary.exception.ResourceNotFoundException;
 import com.kiskee.vocabulary.mapper.token.VerificationTokenMapper;
 import com.kiskee.vocabulary.model.dto.token.VerificationTokenDto;
 import com.kiskee.vocabulary.model.entity.token.VerificationToken;
@@ -35,8 +36,9 @@ public class VerificationTokenService implements TokenGeneratorService, TokenCon
     public VerificationToken findVerificationTokenOrThrow(String verificationToken) {
         Optional<VerificationToken> token = verificationTokenRepository.findByVerificationToken(verificationToken);
 
-        return token.orElseThrow(() -> new VerificationTokenNotFoundException(String.format(
-                "Verification token [%s] hasn't been found", verificationToken)));
+        return token.orElseThrow(() -> new ResourceNotFoundException(String.format(
+                ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(), VerificationToken.class.getSimpleName(),
+                verificationToken)));
     }
 
     @Override

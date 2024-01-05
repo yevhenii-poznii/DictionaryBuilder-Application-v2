@@ -1,8 +1,9 @@
 package com.kiskee.vocabulary.service.user;
 
+import com.kiskee.vocabulary.enums.ExceptionStatusesEnum;
 import com.kiskee.vocabulary.enums.registration.RegistrationStatus;
+import com.kiskee.vocabulary.exception.ResourceNotFoundException;
 import com.kiskee.vocabulary.exception.user.DuplicateUserException;
-import com.kiskee.vocabulary.exception.user.UserNotFoundException;
 import com.kiskee.vocabulary.model.dto.registration.UserRegisterRequestDto;
 import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
 import com.kiskee.vocabulary.repository.user.UserVocabularyApplicationRepository;
@@ -37,7 +38,8 @@ public class UserService implements UserRegistrationService {
         Optional<UserVocabularyApplication> userAccountOpt = userVocabularyApplicationRepository.findById(userId);
 
         UserVocabularyApplication userAccount = userAccountOpt.orElseThrow(
-                () -> new UserNotFoundException(String.format("User account [%s] hasn't been found", userId)));
+                () -> new ResourceNotFoundException(String.format(ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(),
+                        UserVocabularyApplication.class.getSimpleName(), userId)));
 
         userAccount.setActive(true);
 
