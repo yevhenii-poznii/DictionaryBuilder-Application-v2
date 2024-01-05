@@ -4,7 +4,7 @@ import com.kiskee.vocabulary.model.dto.token.VerificationTokenDto;
 
 import java.util.UUID;
 
-public interface TokenService {
+public interface TokenGeneratorService {
 
     VerificationTokenDto generateToken(UUID userId);
 

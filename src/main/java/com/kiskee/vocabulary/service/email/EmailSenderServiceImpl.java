@@ -1,7 +1,7 @@
 package com.kiskee.vocabulary.service.email;
 
 import com.kiskee.vocabulary.config.properties.email.EmailContextProperties;
-import com.kiskee.vocabulary.exception.SendEmailException;
+import com.kiskee.vocabulary.exception.email.SendEmailException;
 import com.kiskee.vocabulary.model.dto.token.VerificationTokenDto;
 import com.kiskee.vocabulary.repository.user.projections.UserSecureProjection;
 import jakarta.mail.MessagingException;

@@ -4,7 +4,7 @@ import com.kiskee.vocabulary.model.dto.token.VerificationTokenDto;
 import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
 import com.kiskee.vocabulary.repository.user.projections.UserSecureProjection;
 import com.kiskee.vocabulary.service.email.EmailSenderService;
-import com.kiskee.vocabulary.service.token.TokenService;
+import com.kiskee.vocabulary.service.token.TokenGeneratorService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,7 +23,7 @@ public class RegistrationListenerTest {
     private RegistrationListener registrationListener;
 
     @Mock
-    private TokenService tokenService;
+    private TokenGeneratorService tokenService;
     @Mock
     private EmailSenderService emailSenderService;
 

@@ -2,7 +2,7 @@ package com.kiskee.vocabulary.web.controller.registration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kiskee.vocabulary.enums.registration.RegistrationStatus;
-import com.kiskee.vocabulary.exception.DuplicateUserException;
+import com.kiskee.vocabulary.exception.user.DuplicateUserException;
 import com.kiskee.vocabulary.model.dto.registration.UserRegisterRequestDto;
 import com.kiskee.vocabulary.model.dto.registration.UserRegisterResponseDto;
 import com.kiskee.vocabulary.service.registration.RegistrationService;
