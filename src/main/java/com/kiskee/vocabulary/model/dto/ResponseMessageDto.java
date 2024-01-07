@@ -1,4 +1,4 @@
-package com.kiskee.vocabulary.model.dto.registration;
+package com.kiskee.vocabulary.model.dto;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
-public class UserCompleteRegistrationResponseDto {
+public class ResponseMessageDto {
 
     private String responseMessage;
 
