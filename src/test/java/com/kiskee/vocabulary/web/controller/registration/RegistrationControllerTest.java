@@ -1,10 +1,13 @@
 package com.kiskee.vocabulary.web.controller.registration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kiskee.vocabulary.enums.ExceptionStatusesEnum;
 import com.kiskee.vocabulary.enums.registration.RegistrationStatus;
+import com.kiskee.vocabulary.exception.ResourceNotFoundException;
 import com.kiskee.vocabulary.exception.user.DuplicateUserException;
+import com.kiskee.vocabulary.model.dto.ResponseMessageDto;
 import com.kiskee.vocabulary.model.dto.registration.UserRegisterRequestDto;
-import com.kiskee.vocabulary.model.dto.registration.UserRegisterResponseDto;
+import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
 import com.kiskee.vocabulary.service.registration.RegistrationService;
 import com.kiskee.vocabulary.web.advice.ErrorResponse;
 import lombok.SneakyThrows;
@@ -32,6 +35,7 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -60,7 +64,7 @@ public class RegistrationControllerTest {
         UserRegisterRequestDto requestBody = new UserRegisterRequestDto("email@gmail.com", "username",
                 "p#Ssword1", null);
 
-        UserRegisterResponseDto expectedResponseBody = new UserRegisterResponseDto(String.format(
+        ResponseMessageDto expectedResponseBody = new ResponseMessageDto(String.format(
                 RegistrationStatus.USER_SUCCESSFULLY_CREATED.getStatus(), requestBody.getEmail()));
         when(registrationService.registerUserAccount(requestBody)).thenReturn(expectedResponseBody);
 
@@ -120,6 +124,56 @@ public class RegistrationControllerTest {
         assertThat(errorResponse.getErrors())
                 .extractingFromEntries(Map.Entry::getValue)
                 .containsExactlyElementsOf(errors.stream().map(Object::toString).collect(Collectors.toList()));
+    }
+
+    @Test
+    @SneakyThrows
+    void testConfirmRegistration_WhenGivenCorrectVerificationTokenRequestParam_ThenReturnStatusOkAndResponseMessage() {
+        String verificationTokenRequestParam = "some_verification_token";
+
+        ResponseMessageDto expectedResponseBody = new ResponseMessageDto(
+                RegistrationStatus.USER_SUCCESSFULLY_ACTIVATED.getStatus());
+        when(registrationService.completeRegistration(verificationTokenRequestParam)).thenReturn(expectedResponseBody);
+
+        MvcResult result = mockMvc.perform(get("/signup/activate")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("verificationToken", verificationTokenRequestParam))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String actualResponseBody = result.getResponse().getContentAsString();
+        assertThat(actualResponseBody).isEqualTo(objectMapper.writeValueAsString(expectedResponseBody));
+    }
+
+    @Test
+    @SneakyThrows
+    void testConfirmRegistration_WhenVerificationTokenRequestParamNotProvided_ThenReturnBadRequestStatus() {
+        mockMvc.perform(get("/signup/activate")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andReturn().getResponse();
+    }
+
+    @Test
+    @SneakyThrows
+    void testConfirmRegistration_WhenVerificationTokenOrUserNotFound_ThenReturnNotFoundStatusAndResponseMessage() {
+        String verificationTokenRequestParam = "some_verification_token";
+
+        when(registrationService.completeRegistration(verificationTokenRequestParam))
+                .thenThrow(new ResourceNotFoundException(String.format(ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(),
+                        UserVocabularyApplication.class.getSimpleName(), "userId")));
+
+        mockMvc.perform(get("/signup/activate")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("verificationToken", verificationTokenRequestParam))
+                .andDo(print())
+                .andExpectAll(
+                        status().isNotFound(),
+                        jsonPath("$.status").value("Not Found"),
+                        jsonPath("$.errors.responseMessage")
+                                .value("[UserVocabularyApplication] [userId] does not exist."));
     }
 
     static Stream<Tuple> invalidRequestBody() {

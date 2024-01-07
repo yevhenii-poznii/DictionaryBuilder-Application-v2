@@ -1,8 +1,7 @@
 package com.kiskee.vocabulary.web.controller.registration;
 
-import com.kiskee.vocabulary.model.dto.registration.UserCompleteRegistrationResponseDto;
 import com.kiskee.vocabulary.model.dto.registration.UserRegisterRequestDto;
-import com.kiskee.vocabulary.model.dto.registration.UserRegisterResponseDto;
+import com.kiskee.vocabulary.model.dto.ResponseMessageDto;
 import com.kiskee.vocabulary.service.registration.RegistrationService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -25,13 +24,13 @@ public class RegistrationController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public UserRegisterResponseDto signUp(@RequestBody @Valid UserRegisterRequestDto userRegisterRequestDto) {
+    public ResponseMessageDto signUp(@RequestBody @Valid UserRegisterRequestDto userRegisterRequestDto) {
 
         return registrationService.registerUserAccount(userRegisterRequestDto);
     }
 
     @GetMapping("/activate")
-    public UserCompleteRegistrationResponseDto confirmRegistration(@RequestParam @NotBlank String verificationToken) {
+    public ResponseMessageDto confirmRegistration(@RequestParam @Valid @NotBlank String verificationToken) {
 
         return registrationService.completeRegistration(verificationToken);
     }

@@ -1,11 +1,15 @@
 package com.kiskee.vocabulary.service.registration;
 
+import com.kiskee.vocabulary.enums.ExceptionStatusesEnum;
 import com.kiskee.vocabulary.enums.registration.RegistrationStatus;
+import com.kiskee.vocabulary.exception.ResourceNotFoundException;
 import com.kiskee.vocabulary.exception.user.DuplicateUserException;
+import com.kiskee.vocabulary.model.dto.ResponseMessageDto;
 import com.kiskee.vocabulary.model.dto.registration.UserRegisterRequestDto;
-import com.kiskee.vocabulary.model.dto.registration.UserRegisterResponseDto;
+import com.kiskee.vocabulary.model.entity.token.VerificationToken;
 import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
 import com.kiskee.vocabulary.service.event.OnRegistrationCompleteEvent;
+import com.kiskee.vocabulary.service.token.TokenConfirmationService;
 import com.kiskee.vocabulary.service.user.UserRegistrationService;
 import com.kiskee.vocabulary.service.user.preference.UserPreferenceService;
 import com.kiskee.vocabulary.service.user.profile.UserProfileService;
@@ -17,14 +21,22 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.UUID;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class RegistrationServiceImplTest {
+
+    private static final UUID USER_ID = UUID.fromString("78c87bb3-01b6-41ca-8329-247a72162868");
 
     @InjectMocks
     private RegistrationServiceImpl service;
@@ -38,6 +50,8 @@ public class RegistrationServiceImplTest {
     private Initializable<UserPreferenceService> userPreferenceServiceInitializable;
     @Mock
     private ApplicationEventPublisher eventPublisher;
+    @Mock
+    private TokenConfirmationService tokenConfirmationService;
 
     @Test
     void testRegisterUserAccount_WhenValidUserRegisterRequestDto_ThenRegisterNewUserAccount() {
@@ -55,7 +69,7 @@ public class RegistrationServiceImplTest {
                 .build();
         when(userRegistrationService.createNewUser(userRegisterRequestDto)).thenReturn(createdUser);
 
-        UserRegisterResponseDto result = service.registerUserAccount(userRegisterRequestDto);
+        ResponseMessageDto result = service.registerUserAccount(userRegisterRequestDto);
 
         assertThat(result.getResponseMessage()).isEqualTo(String.format(
                 RegistrationStatus.USER_SUCCESSFULLY_CREATED.getStatus(),
@@ -82,6 +96,64 @@ public class RegistrationServiceImplTest {
 
         verifyNoInteractions(userProfileServiceInitializable);
         verifyNoInteractions(userPreferenceServiceInitializable);
+    }
+
+    @Test
+    void testCompleteRegistration_WhenGivenCorrectVerificationToken_ThenActivateUserAccount() {
+        String verificationToken = "some_verification_token";
+
+        VerificationToken verificationTokenMock = mock(VerificationToken.class);
+        when(verificationTokenMock.getUserId()).thenReturn(USER_ID);
+
+        when(tokenConfirmationService.findVerificationTokenOrThrow(verificationToken))
+                .thenReturn(verificationTokenMock);
+
+        ResponseMessageDto responseMessageDto = service.completeRegistration(verificationToken);
+
+        verify(userRegistrationService).updateUserAccountToActive(USER_ID);
+        verify(tokenConfirmationService).deleteUnnecessaryVerificationToken(verificationTokenMock);
+
+        assertThat(responseMessageDto.getResponseMessage())
+                .isEqualTo(RegistrationStatus.USER_SUCCESSFULLY_ACTIVATED.getStatus());
+    }
+
+    @Test
+    void testCompleteRegistration_WhenVerificationTokenNotFound_ThenThrowResourceNotFoundException() {
+        String verificationToken = "some_verification_token";
+
+        when(tokenConfirmationService.findVerificationTokenOrThrow(verificationToken))
+                .thenThrow(new ResourceNotFoundException(String.format(
+                        ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(), VerificationToken.class.getSimpleName(),
+                        verificationToken)));
+
+        assertThatExceptionOfType(ResourceNotFoundException.class)
+                .isThrownBy(() -> service.completeRegistration(verificationToken))
+                .withMessage("[VerificationToken] [some_verification_token] does not exist.");
+
+        verifyNoInteractions(userRegistrationService);
+        verifyNoMoreInteractions(tokenConfirmationService);
+    }
+
+    @Test
+    void testCompleteRegistration_WhenUserNotFound_ThenThrowResourceNotFoundException() {
+        String verificationToken = "some_verification_token";
+
+        VerificationToken verificationTokenMock = mock(VerificationToken.class);
+        when(verificationTokenMock.getUserId()).thenReturn(USER_ID);
+
+        when(tokenConfirmationService.findVerificationTokenOrThrow(verificationToken))
+                .thenReturn(verificationTokenMock);
+
+        doThrow(new ResourceNotFoundException(String.format(
+                ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(), UserVocabularyApplication.class.getSimpleName(),
+                verificationToken)))
+                .when(userRegistrationService).updateUserAccountToActive(eq(USER_ID));
+
+        assertThatExceptionOfType(ResourceNotFoundException.class)
+                .isThrownBy(() -> service.completeRegistration(verificationToken))
+                .withMessage("[UserVocabularyApplication] [some_verification_token] does not exist.");
+
+        verifyNoMoreInteractions(tokenConfirmationService);
     }
 
 }

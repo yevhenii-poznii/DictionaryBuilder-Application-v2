@@ -35,15 +35,19 @@ public class UserService implements UserRegistrationService {
 
     @Override
     public void updateUserAccountToActive(UUID userId) {
-        Optional<UserVocabularyApplication> userAccountOpt = userVocabularyApplicationRepository.findById(userId);
-
-        UserVocabularyApplication userAccount = userAccountOpt.orElseThrow(
-                () -> new ResourceNotFoundException(String.format(ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(),
-                        UserVocabularyApplication.class.getSimpleName(), userId)));
+        UserVocabularyApplication userAccount = getUserByUserIdOrThrow(userId);
 
         userAccount.setActive(true);
 
         userVocabularyApplicationRepository.save(userAccount);
+    }
+
+    private UserVocabularyApplication getUserByUserIdOrThrow(UUID userId) {
+        Optional<UserVocabularyApplication> userAccountOpt = userVocabularyApplicationRepository.findById(userId);
+
+        return userAccountOpt.orElseThrow(
+                () -> new ResourceNotFoundException(String.format(ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(),
+                        UserVocabularyApplication.class.getSimpleName(), userId)));
     }
 
     private void ensureUniqueUser(String username, String email) {

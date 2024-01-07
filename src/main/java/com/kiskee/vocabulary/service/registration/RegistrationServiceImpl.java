@@ -1,9 +1,8 @@
 package com.kiskee.vocabulary.service.registration;
 
 import com.kiskee.vocabulary.enums.registration.RegistrationStatus;
-import com.kiskee.vocabulary.model.dto.registration.UserCompleteRegistrationResponseDto;
 import com.kiskee.vocabulary.model.dto.registration.UserRegisterRequestDto;
-import com.kiskee.vocabulary.model.dto.registration.UserRegisterResponseDto;
+import com.kiskee.vocabulary.model.dto.ResponseMessageDto;
 import com.kiskee.vocabulary.model.entity.token.VerificationToken;
 import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
 import com.kiskee.vocabulary.service.event.OnRegistrationCompleteEvent;
@@ -32,7 +31,7 @@ public class RegistrationServiceImpl implements RegistrationService {
 
     @Override
     @Transactional
-    public UserRegisterResponseDto registerUserAccount(UserRegisterRequestDto userRegisterRequestDto) {
+    public ResponseMessageDto registerUserAccount(UserRegisterRequestDto userRegisterRequestDto) {
         String hashedPassword = passwordEncoder.encode(userRegisterRequestDto.getRawPassword());
         userRegisterRequestDto.setHashedPassword(hashedPassword);
 
@@ -40,13 +39,13 @@ public class RegistrationServiceImpl implements RegistrationService {
 
         eventPublisher.publishEvent(new OnRegistrationCompleteEvent(userAccount));
 
-        return new UserRegisterResponseDto(String.format(RegistrationStatus.USER_SUCCESSFULLY_CREATED.getStatus(),
+        return new ResponseMessageDto(String.format(RegistrationStatus.USER_SUCCESSFULLY_CREATED.getStatus(),
                 userAccount.getEmail()));
     }
 
     @Override
     @Transactional
-    public UserCompleteRegistrationResponseDto completeRegistration(String verificationToken) {
+    public ResponseMessageDto completeRegistration(String verificationToken) {
         VerificationToken findedVerificationToken = tokenConfirmationService.findVerificationTokenOrThrow(verificationToken);
 
         userRegistrationService.updateUserAccountToActive(findedVerificationToken.getUserId());
@@ -55,7 +54,7 @@ public class RegistrationServiceImpl implements RegistrationService {
 
         log.info("User account [{}] has been successfully activated", findedVerificationToken.getUserId());
 
-        return new UserCompleteRegistrationResponseDto(RegistrationStatus.USER_SUCCESSFULLY_ACTIVATED.getStatus());
+        return new ResponseMessageDto(RegistrationStatus.USER_SUCCESSFULLY_ACTIVATED.getStatus());
     }
 
     private UserVocabularyApplication buildUserAccount(UserRegisterRequestDto userRegisterRequestDto) {
