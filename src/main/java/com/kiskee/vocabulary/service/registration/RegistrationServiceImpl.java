@@ -46,7 +46,8 @@ public class RegistrationServiceImpl implements RegistrationService {
     @Override
     @Transactional
     public ResponseMessageDto completeRegistration(String verificationToken) {
-        VerificationToken findedVerificationToken = tokenConfirmationService.findVerificationTokenOrThrow(verificationToken);
+        VerificationToken findedVerificationToken = tokenConfirmationService.findVerificationTokenOrThrow(
+                verificationToken);
 
         userRegistrationService.updateUserAccountToActive(findedVerificationToken.getUserId());
 

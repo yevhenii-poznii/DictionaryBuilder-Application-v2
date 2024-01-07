@@ -44,7 +44,8 @@ public class EmailSenderServiceImpl implements EmailSenderService {
 
     }
 
-    private void sendEmail(UserSecureProjection userInfo, VerificationTokenDto verificationToken) throws MessagingException {
+    private void sendEmail(UserSecureProjection userInfo, VerificationTokenDto verificationToken)
+            throws MessagingException {
         String confirmationLink = emailContext.getConfirmationUrl() + verificationToken.getVerificationToken();
 
         Context context = buildMessageContext(userInfo.getUsername(), confirmationLink);
