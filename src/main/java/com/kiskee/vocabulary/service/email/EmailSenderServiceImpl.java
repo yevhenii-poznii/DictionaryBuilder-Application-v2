@@ -2,7 +2,6 @@ package com.kiskee.vocabulary.service.email;
 
 import com.kiskee.vocabulary.config.properties.email.EmailContextProperties;
 import com.kiskee.vocabulary.exception.email.SendEmailException;
-import com.kiskee.vocabulary.model.dto.token.VerificationTokenDto;
 import com.kiskee.vocabulary.repository.user.projections.UserSecureProjection;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -30,9 +29,9 @@ public class EmailSenderServiceImpl implements EmailSenderService {
     @Async
     @Override
     @Retryable
-    public void sendVerificationEmail(UserSecureProjection userInfo, VerificationTokenDto confirmationToken) {
+    public void sendVerificationEmail(UserSecureProjection userInfo, String verificationToken) {
         try {
-            sendEmail(userInfo, confirmationToken);
+            sendEmail(userInfo, verificationToken);
 
             log.info("Verification email has been successfully sent to [{}]", userInfo.getEmail());
         } catch (MessagingException e) {
@@ -44,9 +43,9 @@ public class EmailSenderServiceImpl implements EmailSenderService {
 
     }
 
-    private void sendEmail(UserSecureProjection userInfo, VerificationTokenDto verificationToken)
+    private void sendEmail(UserSecureProjection userInfo, String verificationToken)
             throws MessagingException {
-        String confirmationLink = emailContext.getConfirmationUrl() + verificationToken.getVerificationToken();
+        String confirmationLink = emailContext.getConfirmationUrl() + verificationToken;
 
         Context context = buildMessageContext(userInfo.getUsername(), confirmationLink);
 

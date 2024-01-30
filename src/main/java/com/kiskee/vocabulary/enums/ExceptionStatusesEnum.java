@@ -7,7 +7,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum ExceptionStatusesEnum {
 
-    RESOURCE_NOT_FOUND("[%s] [%s] does not exist.");
+    RESOURCE_NOT_FOUND("%s [%s] hasn't been found");
 
     private final String status;
 

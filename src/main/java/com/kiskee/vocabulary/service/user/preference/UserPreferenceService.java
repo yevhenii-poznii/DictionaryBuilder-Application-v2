@@ -6,8 +6,8 @@ import com.kiskee.vocabulary.model.entity.user.UserProfilePreferenceType;
 import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
 import com.kiskee.vocabulary.model.entity.user.preference.UserPreference;
 import com.kiskee.vocabulary.repository.user.preference.UserPreferenceRepository;
-import com.kiskee.vocabulary.service.registration.Initializable;
 import com.kiskee.vocabulary.service.user.AbstractUserProfilePreferenceInitializationService;
+import com.kiskee.vocabulary.service.user.UserProvisioningService;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.stereotype.Service;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 @Service
 @AllArgsConstructor
 public class UserPreferenceService extends AbstractUserProfilePreferenceInitializationService
-        implements Initializable<UserPreferenceService> {
+        implements UserProvisioningService {
 
     @Getter
     private final UserPreferenceRepository repository;
