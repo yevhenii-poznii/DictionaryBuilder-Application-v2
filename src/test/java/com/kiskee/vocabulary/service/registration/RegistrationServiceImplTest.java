@@ -4,15 +4,15 @@ import com.kiskee.vocabulary.enums.ExceptionStatusesEnum;
 import com.kiskee.vocabulary.enums.registration.RegistrationStatus;
 import com.kiskee.vocabulary.exception.ResourceNotFoundException;
 import com.kiskee.vocabulary.exception.user.DuplicateUserException;
-import com.kiskee.vocabulary.model.dto.ResponseMessageDto;
-import com.kiskee.vocabulary.model.dto.registration.UserRegisterRequestDto;
+import com.kiskee.vocabulary.model.dto.ResponseMessage;
+import com.kiskee.vocabulary.model.dto.registration.RegistrationRequest;
+import com.kiskee.vocabulary.model.entity.token.Token;
 import com.kiskee.vocabulary.model.entity.token.VerificationToken;
 import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
 import com.kiskee.vocabulary.service.event.OnRegistrationCompleteEvent;
-import com.kiskee.vocabulary.service.token.TokenConfirmationService;
+import com.kiskee.vocabulary.service.token.TokenInvalidatorService;
+import com.kiskee.vocabulary.service.user.UserProvisioningService;
 import com.kiskee.vocabulary.service.user.UserRegistrationService;
-import com.kiskee.vocabulary.service.user.preference.UserPreferenceService;
-import com.kiskee.vocabulary.service.user.profile.UserProfileService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -21,6 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -45,75 +46,71 @@ public class RegistrationServiceImplTest {
     @Mock
     private UserRegistrationService userRegistrationService;
     @Mock
-    private Initializable<UserProfileService> userProfileServiceInitializable;
-    @Mock
-    private Initializable<UserPreferenceService> userPreferenceServiceInitializable;
+    private List<UserProvisioningService> userProvisioningServices;
     @Mock
     private ApplicationEventPublisher eventPublisher;
     @Mock
-    private TokenConfirmationService tokenConfirmationService;
+    private TokenInvalidatorService<VerificationToken> tokenInvalidatorService;
 
     @Test
     void testRegisterUserAccount_WhenValidUserRegisterRequestDto_ThenRegisterNewUserAccount() {
-        UserRegisterRequestDto userRegisterRequestDto = new UserRegisterRequestDto(
+        RegistrationRequest registrationRequest = new RegistrationRequest(
                 "email@gmail.com", "username", "p#Ssword1", null);
         String hashedPassword = "encodedPassword";
 
-        when(passwordEncoder.encode(userRegisterRequestDto.getRawPassword())).thenReturn(hashedPassword);
+        when(passwordEncoder.encode(registrationRequest.getRawPassword())).thenReturn(hashedPassword);
 
         UserVocabularyApplication createdUser = UserVocabularyApplication.builder()
-                .setEmail(userRegisterRequestDto.getEmail())
-                .setUsername(userRegisterRequestDto.getUsername())
+                .setEmail(registrationRequest.getEmail())
+                .setUsername(registrationRequest.getUsername())
                 .setPassword(hashedPassword)
                 .setIsActive(false)
                 .build();
-        when(userRegistrationService.createNewUser(userRegisterRequestDto)).thenReturn(createdUser);
+        when(userRegistrationService.createNewUser(registrationRequest)).thenReturn(createdUser);
 
-        ResponseMessageDto result = service.registerUserAccount(userRegisterRequestDto);
+        ResponseMessage result = service.registerUserAccount(registrationRequest);
 
         assertThat(result.getResponseMessage()).isEqualTo(String.format(
                 RegistrationStatus.USER_SUCCESSFULLY_CREATED.getStatus(),
-                userRegisterRequestDto.getEmail()));
+                registrationRequest.getEmail()));
 
-        verify(passwordEncoder).encode(userRegisterRequestDto.getRawPassword());
-        verify(userRegistrationService).createNewUser(userRegisterRequestDto);
+        verify(passwordEncoder).encode(registrationRequest.getRawPassword());
+        verify(userRegistrationService).createNewUser(registrationRequest);
         verify(eventPublisher).publishEvent(new OnRegistrationCompleteEvent(createdUser));
     }
 
     @Test
     void testRegisterUserAccount_WhenUserAlreadyExistsWithTheSameEmailOrUsername_ThenThrowDuplicateUserException() {
-        UserRegisterRequestDto userRegisterRequestDto = new UserRegisterRequestDto(
+        RegistrationRequest registrationRequest = new RegistrationRequest(
                 "email@gmail.com", "username", "p#Ssword1", null);
         String hashedPassword = "encodedPassword";
 
-        when(passwordEncoder.encode(userRegisterRequestDto.getRawPassword())).thenReturn(hashedPassword);
-        when(userRegistrationService.createNewUser(userRegisterRequestDto))
+        when(passwordEncoder.encode(registrationRequest.getRawPassword())).thenReturn(hashedPassword);
+        when(userRegistrationService.createNewUser(registrationRequest))
                 .thenThrow(new DuplicateUserException(RegistrationStatus.USER_ALREADY_EXISTS.getStatus()));
 
         assertThatExceptionOfType(DuplicateUserException.class)
-                .isThrownBy(() -> service.registerUserAccount(userRegisterRequestDto))
+                .isThrownBy(() -> service.registerUserAccount(registrationRequest))
                 .withMessage("User with the same email or username already exists.");
 
-        verifyNoInteractions(userProfileServiceInitializable);
-        verifyNoInteractions(userPreferenceServiceInitializable);
+        verifyNoInteractions(userProvisioningServices);
     }
 
     @Test
     void testCompleteRegistration_WhenGivenCorrectVerificationToken_ThenActivateUserAccount() {
         String verificationToken = "some_verification_token";
 
-        VerificationToken verificationTokenMock = mock(VerificationToken.class);
-        when(verificationTokenMock.getUserId()).thenReturn(USER_ID);
+        VerificationToken tokenMock = mock(VerificationToken.class);
+        when(tokenMock.getUserId()).thenReturn(USER_ID);
 
-        when(tokenConfirmationService.findVerificationTokenOrThrow(verificationToken))
-                .thenReturn(verificationTokenMock);
+        when(tokenInvalidatorService.findTokenOrThrow(verificationToken)).thenReturn(tokenMock);
 
-        ResponseMessageDto responseMessageDto = service.completeRegistration(verificationToken);
+        ResponseMessage responseMessage = service.completeRegistration(verificationToken);
 
         verify(userRegistrationService).updateUserAccountToActive(USER_ID);
-        verify(tokenConfirmationService).deleteUnnecessaryVerificationToken(verificationTokenMock);
+        verify(tokenInvalidatorService).invalidateToken(tokenMock);
 
-        assertThat(responseMessageDto.getResponseMessage())
+        assertThat(responseMessage.getResponseMessage())
                 .isEqualTo(RegistrationStatus.USER_SUCCESSFULLY_ACTIVATED.getStatus());
     }
 
@@ -121,28 +118,27 @@ public class RegistrationServiceImplTest {
     void testCompleteRegistration_WhenVerificationTokenNotFound_ThenThrowResourceNotFoundException() {
         String verificationToken = "some_verification_token";
 
-        when(tokenConfirmationService.findVerificationTokenOrThrow(verificationToken))
+        when(tokenInvalidatorService.findTokenOrThrow(verificationToken))
                 .thenThrow(new ResourceNotFoundException(String.format(
-                        ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(), VerificationToken.class.getSimpleName(),
+                        ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(), Token.class.getSimpleName(),
                         verificationToken)));
 
         assertThatExceptionOfType(ResourceNotFoundException.class)
                 .isThrownBy(() -> service.completeRegistration(verificationToken))
-                .withMessage("[VerificationToken] [some_verification_token] does not exist.");
+                .withMessage("Token [some_verification_token] hasn't been found");
 
         verifyNoInteractions(userRegistrationService);
-        verifyNoMoreInteractions(tokenConfirmationService);
+        verifyNoMoreInteractions(tokenInvalidatorService);
     }
 
     @Test
     void testCompleteRegistration_WhenUserNotFound_ThenThrowResourceNotFoundException() {
         String verificationToken = "some_verification_token";
 
-        VerificationToken verificationTokenMock = mock(VerificationToken.class);
-        when(verificationTokenMock.getUserId()).thenReturn(USER_ID);
+        VerificationToken tokenMock = mock(VerificationToken.class);
+        when(tokenMock.getUserId()).thenReturn(USER_ID);
 
-        when(tokenConfirmationService.findVerificationTokenOrThrow(verificationToken))
-                .thenReturn(verificationTokenMock);
+        when(tokenInvalidatorService.findTokenOrThrow(verificationToken)).thenReturn(tokenMock);
 
         doThrow(new ResourceNotFoundException(String.format(
                 ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(), UserVocabularyApplication.class.getSimpleName(),
@@ -151,9 +147,9 @@ public class RegistrationServiceImplTest {
 
         assertThatExceptionOfType(ResourceNotFoundException.class)
                 .isThrownBy(() -> service.completeRegistration(verificationToken))
-                .withMessage("[UserVocabularyApplication] [some_verification_token] does not exist.");
+                .withMessage("UserVocabularyApplication [some_verification_token] hasn't been found");
 
-        verifyNoMoreInteractions(tokenConfirmationService);
+        verifyNoMoreInteractions(tokenInvalidatorService);
     }
 
 }

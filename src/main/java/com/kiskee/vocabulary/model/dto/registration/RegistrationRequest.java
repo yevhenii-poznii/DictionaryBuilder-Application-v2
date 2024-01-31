@@ -15,7 +15,7 @@ import lombok.Setter;
 @EqualsAndHashCode
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
-public class UserRegisterRequestDto {
+public class RegistrationRequest {
 
     @Email(message = "Email must be a valid")
     @NotBlank(message = "Email cannot be empty")

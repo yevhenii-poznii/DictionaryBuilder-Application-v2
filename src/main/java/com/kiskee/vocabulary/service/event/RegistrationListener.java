@@ -1,6 +1,5 @@
 package com.kiskee.vocabulary.service.event;
 
-import com.kiskee.vocabulary.model.dto.token.VerificationTokenDto;
 import com.kiskee.vocabulary.repository.user.projections.UserSecureProjection;
 import com.kiskee.vocabulary.service.email.EmailSenderService;
 import com.kiskee.vocabulary.service.token.TokenGeneratorService;
@@ -12,12 +11,14 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
+
 @Slf4j
 @Service
 @AllArgsConstructor
 public class RegistrationListener implements ApplicationListener<OnRegistrationCompleteEvent> {
 
-    private final TokenGeneratorService tokenService;
+    private final TokenGeneratorService<UUID, String> tokenGeneratorService;
     private final EmailSenderService emailSenderService;
 
     @Async
@@ -32,7 +33,7 @@ public class RegistrationListener implements ApplicationListener<OnRegistrationC
 
         log.info("[{}] has arrived for [{}]", OnRegistrationCompleteEvent.class.getSimpleName(), userInfo.getId());
 
-        VerificationTokenDto verificationToken = tokenService.generateToken(userInfo.getId());
+        String verificationToken = tokenGeneratorService.generateToken(userInfo.getId());
 
         emailSenderService.sendVerificationEmail(userInfo, verificationToken);
     }

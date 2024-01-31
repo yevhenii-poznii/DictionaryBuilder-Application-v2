@@ -1,6 +1,5 @@
 package com.kiskee.vocabulary.service.event;
 
-import com.kiskee.vocabulary.model.dto.token.VerificationTokenDto;
 import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
 import com.kiskee.vocabulary.repository.user.projections.UserSecureProjection;
 import com.kiskee.vocabulary.service.email.EmailSenderService;
@@ -23,7 +22,7 @@ public class RegistrationListenerTest {
     private RegistrationListener registrationListener;
 
     @Mock
-    private TokenGeneratorService tokenService;
+    private TokenGeneratorService<UUID, String> tokenService;
     @Mock
     private EmailSenderService emailSenderService;
 
@@ -34,7 +33,7 @@ public class RegistrationListenerTest {
                 "username", null, false, null, null);
         OnRegistrationCompleteEvent event = new OnRegistrationCompleteEvent(userSecureProjection);
 
-        VerificationTokenDto verificationTokenDto = new VerificationTokenDto("someVerificationToken");
+        String verificationTokenDto = "someVerificationToken";
         when(tokenService.generateToken(userId)).thenReturn(verificationTokenDto);
 
         registrationListener.onApplicationEvent(event);

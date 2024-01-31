@@ -5,10 +5,11 @@ import com.kiskee.vocabulary.enums.ExceptionStatusesEnum;
 import com.kiskee.vocabulary.enums.registration.RegistrationStatus;
 import com.kiskee.vocabulary.exception.ResourceNotFoundException;
 import com.kiskee.vocabulary.exception.user.DuplicateUserException;
-import com.kiskee.vocabulary.model.dto.ResponseMessageDto;
-import com.kiskee.vocabulary.model.dto.registration.UserRegisterRequestDto;
+import com.kiskee.vocabulary.model.dto.ResponseMessage;
+import com.kiskee.vocabulary.model.dto.registration.RegistrationRequest;
 import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
 import com.kiskee.vocabulary.service.registration.RegistrationService;
+import com.kiskee.vocabulary.util.TimeZoneContextHolder;
 import com.kiskee.vocabulary.web.advice.ErrorResponse;
 import lombok.SneakyThrows;
 import org.assertj.core.groups.Tuple;
@@ -61,10 +62,10 @@ public class RegistrationControllerTest {
     @Test
     @SneakyThrows
     void testSingUp_WhenRequestBodyValid_ThenRegisterUserAccountAndReturnStatusCreated() {
-        UserRegisterRequestDto requestBody = new UserRegisterRequestDto("email@gmail.com", "username",
+        RegistrationRequest requestBody = new RegistrationRequest("email@gmail.com", "username",
                 "p#Ssword1", null);
 
-        ResponseMessageDto expectedResponseBody = new ResponseMessageDto(String.format(
+        ResponseMessage expectedResponseBody = new ResponseMessage(String.format(
                 RegistrationStatus.USER_SUCCESSFULLY_CREATED.getStatus(), requestBody.getEmail()));
         when(registrationService.registerUserAccount(requestBody)).thenReturn(expectedResponseBody);
 
@@ -82,7 +83,7 @@ public class RegistrationControllerTest {
     @Test
     @SneakyThrows
     void testSingUp_WhenRequestBodyValidAndUserWithTheSameEmailOrUsernameAlreadyExists_ThenReturnStatus422() {
-        UserRegisterRequestDto requestBody = new UserRegisterRequestDto("email@gmail.com", "username",
+        RegistrationRequest requestBody = new RegistrationRequest("email@gmail.com", "username",
                 "p@Ssword1", null);
 
         when(registrationService.registerUserAccount(requestBody))
@@ -105,12 +106,15 @@ public class RegistrationControllerTest {
     @MethodSource("invalidRequestBody")
     void testSingUp_WhenRequestBodyInvalid_ThenReturnStatus400(Tuple invalidRequestBody) {
         List<Object> parameters = Arrays.stream(invalidRequestBody.toArray()).toList();
-        UserRegisterRequestDto userRegisterRequestDto = (UserRegisterRequestDto) parameters.get(0);
+        RegistrationRequest registrationRequest = (RegistrationRequest) parameters.get(0);
         List<?> errors = (List<?>) parameters.get(1);
+
+        TimeZoneContextHolder.setTimeZone("Europe/Kiev");
 
         MvcResult result = mockMvc.perform(post("/signup")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(userRegisterRequestDto)))
+                        .header("X-Time-Zone", "Europe/Kiev")
+                        .content(objectMapper.writeValueAsString(registrationRequest)))
                 .andDo(print())
                 .andExpectAll(
                         status().isBadRequest(),
@@ -131,7 +135,7 @@ public class RegistrationControllerTest {
     void testConfirmRegistration_WhenGivenCorrectVerificationTokenRequestParam_ThenReturnStatusOkAndResponseMessage() {
         String verificationTokenRequestParam = "some_verification_token";
 
-        ResponseMessageDto expectedResponseBody = new ResponseMessageDto(
+        ResponseMessage expectedResponseBody = new ResponseMessage(
                 RegistrationStatus.USER_SUCCESSFULLY_ACTIVATED.getStatus());
         when(registrationService.completeRegistration(verificationTokenRequestParam)).thenReturn(expectedResponseBody);
 
@@ -173,18 +177,18 @@ public class RegistrationControllerTest {
                         status().isNotFound(),
                         jsonPath("$.status").value("Not Found"),
                         jsonPath("$.errors.responseMessage")
-                                .value("[UserVocabularyApplication] [userId] does not exist."));
+                                .value("UserVocabularyApplication [userId] hasn't been found"));
     }
 
     static Stream<Tuple> invalidRequestBody() {
         return Stream.of(
-                Tuple.tuple(new UserRegisterRequestDto("em", "username", "p#Ssword1",
+                Tuple.tuple(new RegistrationRequest("em", "username", "p#Ssword1",
                         null), List.of("Email must be a valid")),
-                Tuple.tuple(new UserRegisterRequestDto("email@gmail.com", "us", "p#Ssword1",
+                Tuple.tuple(new RegistrationRequest("email@gmail.com", "us", "p#Ssword1",
                         null), List.of("Invalid username format. Only letters, numbers, underscore (_), hyphen (-), and dot (.) are allowed.")),
-                Tuple.tuple(new UserRegisterRequestDto("email@gmail.com", "username", "pass",
+                Tuple.tuple(new RegistrationRequest("email@gmail.com", "username", "pass",
                         null), List.of("Password size must be between 8 and 50 chars, must contain at least one lowercase letter, one uppercase letter, one digit, one special character, and should not contain spaces.")),
-                Tuple.tuple(new UserRegisterRequestDto(null, null, null,
+                Tuple.tuple(new RegistrationRequest(null, null, null,
                         null), List.of("must not be blank", "Email cannot be empty",
                         "must not be blank"))
         );

@@ -1,11 +1,7 @@
 package com.kiskee.vocabulary.service.token;
 
-import com.kiskee.vocabulary.model.dto.token.VerificationTokenDto;
+public interface TokenGeneratorService<T, S> {
 
-import java.util.UUID;
-
-public interface TokenGeneratorService {
-
-    VerificationTokenDto generateToken(UUID userId);
+    S generateToken(T t);
 
 }

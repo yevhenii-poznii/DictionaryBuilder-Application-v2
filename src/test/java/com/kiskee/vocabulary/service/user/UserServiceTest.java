@@ -4,9 +4,9 @@ import com.kiskee.vocabulary.enums.ExceptionStatusesEnum;
 import com.kiskee.vocabulary.enums.registration.RegistrationStatus;
 import com.kiskee.vocabulary.exception.ResourceNotFoundException;
 import com.kiskee.vocabulary.exception.user.DuplicateUserException;
-import com.kiskee.vocabulary.model.dto.registration.UserRegisterRequestDto;
+import com.kiskee.vocabulary.model.dto.registration.RegistrationRequest;
 import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
-import com.kiskee.vocabulary.repository.user.UserVocabularyApplicationRepository;
+import com.kiskee.vocabulary.repository.user.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -35,27 +35,27 @@ public class UserServiceTest {
     @InjectMocks
     private UserService service;
     @Mock
-    private UserVocabularyApplicationRepository repository;
+    private UserRepository repository;
     @Captor
     private ArgumentCaptor<UserVocabularyApplication> userVocabularyApplicationArgumentCaptor;
 
     @Test
     void testCreateNewUser_WhenValidUserRegisterRequestDto_ThenCreateNewUser() {
-        UserRegisterRequestDto userRegisterRequestDto = new UserRegisterRequestDto(
+        RegistrationRequest registrationRequest = new RegistrationRequest(
                 "email@gmail.com", "username", "p#Ssword1", "encodedPassword");
 
-        when(repository.existsByUsernameOrEmail(userRegisterRequestDto.getUsername(), userRegisterRequestDto.getEmail()))
+        when(repository.existsByUsernameOrEmail(registrationRequest.getUsername(), registrationRequest.getEmail()))
                 .thenReturn(false);
 
         UserVocabularyApplication createdUser = UserVocabularyApplication.builder()
-                .setEmail(userRegisterRequestDto.getEmail())
-                .setUsername(userRegisterRequestDto.getUsername())
-                .setPassword(userRegisterRequestDto.getHashedPassword())
+                .setEmail(registrationRequest.getEmail())
+                .setUsername(registrationRequest.getUsername())
+                .setPassword(registrationRequest.getHashedPassword())
                 .setIsActive(false)
                 .build();
         when(repository.save(userVocabularyApplicationArgumentCaptor.capture())).thenReturn(createdUser);
 
-        service.createNewUser(userRegisterRequestDto);
+        service.createNewUser(registrationRequest);
 
         UserVocabularyApplication actual = userVocabularyApplicationArgumentCaptor.getValue();
         assertThat(actual.getEmail()).isEqualTo(createdUser.getEmail());
@@ -68,14 +68,14 @@ public class UserServiceTest {
 
     @Test
     void testCreateNewUser_WhenUserAlreadyExistsWithTheSameEmailOrUsername_ThenThrowDuplicateUserException() {
-        UserRegisterRequestDto userRegisterRequestDto = new UserRegisterRequestDto(
+        RegistrationRequest registrationRequest = new RegistrationRequest(
                 "email@gmail.com", "username", "p#Ssword1", "encodedPassword");
 
-        when(repository.existsByUsernameOrEmail(userRegisterRequestDto.getUsername(), userRegisterRequestDto.getEmail()))
+        when(repository.existsByUsernameOrEmail(registrationRequest.getUsername(), registrationRequest.getEmail()))
                 .thenReturn(true);
 
         assertThatExceptionOfType(DuplicateUserException.class)
-                .isThrownBy(() -> service.createNewUser(userRegisterRequestDto))
+                .isThrownBy(() -> service.createNewUser(registrationRequest))
                 .withMessage(RegistrationStatus.USER_ALREADY_EXISTS.getStatus());
 
         verifyNoMoreInteractions(repository);
@@ -102,7 +102,7 @@ public class UserServiceTest {
         assertThatExceptionOfType(ResourceNotFoundException.class)
                 .isThrownBy(() -> service.updateUserAccountToActive(USER_ID))
                 .withMessage(String.format(ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(),
-                        UserVocabularyApplication.class.getSimpleName(), USER_ID));
+                        "User", USER_ID));
 
         verify(repository, never()).save(any(UserVocabularyApplication.class));
     }

@@ -2,7 +2,6 @@ package com.kiskee.vocabulary.service.email;
 
 import com.kiskee.vocabulary.config.properties.email.EmailContextProperties;
 import com.kiskee.vocabulary.exception.email.SendEmailException;
-import com.kiskee.vocabulary.model.dto.token.VerificationTokenDto;
 import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
 import com.kiskee.vocabulary.repository.user.projections.UserSecureProjection;
 import jakarta.mail.MessagingException;
@@ -43,7 +42,7 @@ public class EmailSenderServiceImplTest {
     void testSendVerificationEmail_WhenParamsProvided_ThenSendEmail() {
         UserSecureProjection userDataForEmail = new UserVocabularyApplication(null, "someEmail@gmail.com",
                 "username", null, false, null, null);
-        VerificationTokenDto verificationTokenDto = new VerificationTokenDto("generatedToken");
+        String verificationTokenString = "generatedToken";
 
         when(emailContextProperties.getConfirmationUrl()).thenReturn("http://localhost/signup?token=");
         when(emailContextProperties.getFrom()).thenReturn("admin@vocabulary.com");
@@ -55,7 +54,7 @@ public class EmailSenderServiceImplTest {
         MimeMessage mimeMessage = mock(MimeMessage.class);
         when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
 
-        emailSenderService.sendVerificationEmail(userDataForEmail, verificationTokenDto);
+        emailSenderService.sendVerificationEmail(userDataForEmail, verificationTokenString);
 
         verify(templateEngine).process(anyString(), any(Context.class));
         verify(mailSender).send(any(MimeMessage.class));
@@ -66,7 +65,7 @@ public class EmailSenderServiceImplTest {
     void testSendVerificationEmail_When_Then() {
         UserSecureProjection userDataForEmail = new UserVocabularyApplication(null, "someEmail@gmail.com",
                 "username", null, false, null, null);
-        VerificationTokenDto verificationTokenDto = new VerificationTokenDto("generatedToken");
+        String verificationTokenDto = "generatedToken";
 
         when(emailContextProperties.getConfirmationUrl()).thenReturn("http://localhost/signup?token=");
         when(emailContextProperties.getFrom()).thenReturn("admin@vocabulary.com");

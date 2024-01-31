@@ -1,35 +1,20 @@
 package com.kiskee.vocabulary.model.entity.token;
 
-import jakarta.persistence.Column;
+import com.kiskee.vocabulary.util.TokenTypeConstants;
+import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 @Entity
-@Getter
-@AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class VerificationToken {
+@NoArgsConstructor
+@DiscriminatorValue(value = TokenTypeConstants.VERIFICATION_TOKEN)
+public class VerificationToken extends Token {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(nullable = false, updatable = false)
-    private String verificationToken;
-
-    @Column(nullable = false, updatable = false)
-    private UUID userId;
-
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime timestamp;
+    public VerificationToken(String token, UUID userId, Instant createdAt) {
+        super(null, token, false, userId, createdAt, null);
+    }
 
 }

@@ -2,16 +2,20 @@ package com.kiskee.vocabulary.web.advice;
 
 import com.kiskee.vocabulary.exception.ResourceNotFoundException;
 import com.kiskee.vocabulary.exception.user.DuplicateUserException;
+import com.kiskee.vocabulary.util.TimeZoneContextHolder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -32,7 +36,7 @@ public class GlobalExceptionHandler {
                 .filter(fieldError -> fieldError.getDefaultMessage() != null)
                 .collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage));
 
-        LocalDateTime timestamp = LocalDateTime.now();
+        ZonedDateTime timestamp = Instant.now().atZone(TimeZoneContextHolder.getTimeZone());
 
         ErrorResponse response = new ErrorResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(), errors, timestamp);
 
@@ -51,12 +55,17 @@ public class GlobalExceptionHandler {
         return handleCustomException(notFoundException, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler({AuthenticationException.class, BadCredentialsException.class})
+    public ResponseEntity<ErrorResponse> handleAuthenticationException(AuthenticationException exception) {
+        return handleCustomException(exception, HttpStatus.UNAUTHORIZED);
+    }
+
     private ResponseEntity<ErrorResponse> handleCustomException(Throwable exception, HttpStatus status) {
         String responseMessage = exception.getMessage();
 
         Map<String, String> errors = Map.of("responseMessage", responseMessage);
 
-        LocalDateTime timestamp = LocalDateTime.now();
+        ZonedDateTime timestamp = Instant.now().atZone(TimeZoneContextHolder.getTimeZone());
 
         ErrorResponse response = new ErrorResponse(status.getReasonPhrase(), errors, timestamp);
 

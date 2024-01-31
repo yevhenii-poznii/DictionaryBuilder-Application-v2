@@ -1,12 +1,12 @@
 package com.kiskee.vocabulary.service.registration;
 
-import com.kiskee.vocabulary.model.dto.registration.UserRegisterRequestDto;
-import com.kiskee.vocabulary.model.dto.ResponseMessageDto;
+import com.kiskee.vocabulary.model.dto.registration.RegistrationRequest;
+import com.kiskee.vocabulary.model.dto.ResponseMessage;
 
 public interface RegistrationService {
 
-    ResponseMessageDto registerUserAccount(UserRegisterRequestDto userRegisterRequestDto);
+    ResponseMessage registerUserAccount(RegistrationRequest userRegisterRequest);
 
-    ResponseMessageDto completeRegistration(String verificationToken);
+    ResponseMessage completeRegistration(String verificationToken);
 
 }
