@@ -14,6 +14,8 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -105,6 +107,29 @@ public class UserServiceTest {
                         "User", USER_ID));
 
         verify(repository, never()).save(any(UserVocabularyApplication.class));
+    }
+
+    @Test
+    void testLoadUserByUsername_WhenUserExists_ThenReturnUserDetails() {
+        String username = "username";
+        UserVocabularyApplication userAccount = UserVocabularyApplication.builder().setUsername(username).build();
+        when(repository.findByUsernameOrEmail(username, username)).thenReturn(Optional.of(userAccount));
+
+        UserDetails user = service.loadUserByUsername("username");
+
+        assertThat(user).isEqualTo(userAccount);
+        assertThat(user.getUsername()).isEqualTo(username);
+    }
+
+    @Test
+    void testLoadUserByUsername_WhenUserDoesNotExists_ThenThrowUsernameNotFoundException() {
+        String username = "username";
+        when(repository.findByUsernameOrEmail(username, username)).thenReturn(Optional.empty());
+
+        assertThatExceptionOfType(UsernameNotFoundException.class)
+                .isThrownBy(() -> service.loadUserByUsername(username))
+                .withMessage(String.format(ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(),
+                        "User", username));
     }
 
 }
