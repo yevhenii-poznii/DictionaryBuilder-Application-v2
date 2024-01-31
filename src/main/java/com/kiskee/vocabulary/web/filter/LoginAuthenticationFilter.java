@@ -1,6 +1,7 @@
 package com.kiskee.vocabulary.web.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.kiskee.vocabulary.model.dto.authentication.AuthenticationRequest;
 import com.kiskee.vocabulary.util.TimeZoneContextHolder;
 import com.kiskee.vocabulary.web.advice.ErrorResponse;
@@ -54,7 +55,7 @@ public class LoginAuthenticationFilter extends OncePerRequestFilter {
 
                 return;
 
-            } catch (AuthenticationException exception) {
+            } catch (AuthenticationException | MismatchedInputException exception) {
                 log.error(exception.getMessage());
 
                 ErrorResponse errorResponse = ErrorResponse.builder()

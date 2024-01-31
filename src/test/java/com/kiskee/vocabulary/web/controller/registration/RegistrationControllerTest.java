@@ -86,6 +86,8 @@ public class RegistrationControllerTest {
         RegistrationRequest requestBody = new RegistrationRequest("email@gmail.com", "username",
                 "p@Ssword1", null);
 
+        TimeZoneContextHolder.setTimeZone("UTC");
+
         when(registrationService.registerUserAccount(requestBody))
                 .thenThrow(new DuplicateUserException(RegistrationStatus.USER_ALREADY_EXISTS.getStatus()));
 
@@ -99,6 +101,8 @@ public class RegistrationControllerTest {
                         jsonPath("$.errors.responseMessage")
                                 .value("User with the same email or username already exists.")
                 );
+
+        TimeZoneContextHolder.clear();
     }
 
     @SneakyThrows
@@ -109,11 +113,11 @@ public class RegistrationControllerTest {
         RegistrationRequest registrationRequest = (RegistrationRequest) parameters.get(0);
         List<?> errors = (List<?>) parameters.get(1);
 
-        TimeZoneContextHolder.setTimeZone("Europe/Kiev");
+        TimeZoneContextHolder.setTimeZone("UTC");
 
         MvcResult result = mockMvc.perform(post("/signup")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-Time-Zone", "Europe/Kiev")
+                        .header("X-Time-Zone", "UTC")
                         .content(objectMapper.writeValueAsString(registrationRequest)))
                 .andDo(print())
                 .andExpectAll(
@@ -128,6 +132,8 @@ public class RegistrationControllerTest {
         assertThat(errorResponse.getErrors())
                 .extractingFromEntries(Map.Entry::getValue)
                 .containsExactlyElementsOf(errors.stream().map(Object::toString).collect(Collectors.toList()));
+
+        TimeZoneContextHolder.clear();
     }
 
     @Test
@@ -165,6 +171,8 @@ public class RegistrationControllerTest {
     void testConfirmRegistration_WhenVerificationTokenOrUserNotFound_ThenReturnNotFoundStatusAndResponseMessage() {
         String verificationTokenRequestParam = "some_verification_token";
 
+        TimeZoneContextHolder.setTimeZone("UTC");
+
         when(registrationService.completeRegistration(verificationTokenRequestParam))
                 .thenThrow(new ResourceNotFoundException(String.format(ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(),
                         UserVocabularyApplication.class.getSimpleName(), "userId")));
@@ -178,6 +186,8 @@ public class RegistrationControllerTest {
                         jsonPath("$.status").value("Not Found"),
                         jsonPath("$.errors.responseMessage")
                                 .value("UserVocabularyApplication [userId] hasn't been found"));
+
+        TimeZoneContextHolder.clear();
     }
 
     static Stream<Tuple> invalidRequestBody() {
