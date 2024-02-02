@@ -5,6 +5,7 @@ import com.kiskee.vocabulary.model.dto.authentication.AuthenticationRequest;
 import com.kiskee.vocabulary.model.dto.authentication.AuthenticationResponse;
 import com.kiskee.vocabulary.service.authentication.AuthenticationService;
 import com.kiskee.vocabulary.util.TimeZoneContextHolder;
+import jakarta.servlet.http.Cookie;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -88,6 +89,34 @@ public class AuthenticationControllerTest {
                 );
 
         TimeZoneContextHolder.clear();
+    }
+
+    @Test
+    @SneakyThrows
+    void testRefresh_WhenCookieInRequest_ThenReturnNewAccessToken() {
+        Cookie cookie = new Cookie("RefreshAuthentication", "someToken");
+
+        AuthenticationResponse expectedResponseBody = new AuthenticationResponse("someNewToken",
+                Instant.parse("2024-02-01T00:00:00Z"));
+        when(authenticationService.issueAccessToken(cookie.getValue())).thenReturn(expectedResponseBody);
+
+        MvcResult result = mockMvc.perform(post("/auth/refresh")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .cookie(cookie))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String actualResponseBody = result.getResponse().getContentAsString();
+        assertThat(actualResponseBody).isEqualTo(objectMapper.writeValueAsString(expectedResponseBody));
+    }
+
+    @Test
+    @SneakyThrows
+    void testRefresh_WhenCookieInRequestIsNotPresent_ThenReturn400BadRequest() {
+        mockMvc.perform(post("/auth/refresh"))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
     }
 
 }
