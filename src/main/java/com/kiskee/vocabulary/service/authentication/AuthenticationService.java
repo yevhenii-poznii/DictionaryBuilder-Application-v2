@@ -6,4 +6,6 @@ public interface AuthenticationService {
 
     AuthenticationResponse issueAccessToken();
 
+    AuthenticationResponse issueAccessToken(String refreshToken);
+
 }

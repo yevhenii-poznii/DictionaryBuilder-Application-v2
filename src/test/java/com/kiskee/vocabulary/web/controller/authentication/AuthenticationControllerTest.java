@@ -20,6 +20,8 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.time.Instant;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -49,7 +51,8 @@ public class AuthenticationControllerTest {
     void testSignIn_WhenAuthenticationHasSet_ThenReturnAccessToken() {
         AuthenticationRequest requestBody = new AuthenticationRequest("login", "password");
 
-        AuthenticationResponse expectedResponseBody = new AuthenticationResponse("someToken");
+        AuthenticationResponse expectedResponseBody = new AuthenticationResponse("someToken",
+                Instant.parse("2024-02-01T00:00:00Z"));
         when(authenticationService.issueAccessToken()).thenReturn(expectedResponseBody);
 
         MvcResult result = mockMvc.perform(post("/auth/access")
