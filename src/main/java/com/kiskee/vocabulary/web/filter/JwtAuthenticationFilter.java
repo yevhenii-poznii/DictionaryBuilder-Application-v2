@@ -45,15 +45,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        String jwt;
+        String jwt = request.getRequestURI().contains("/auth/refresh") && "POST".equalsIgnoreCase(request.getMethod())
+                ? extractTokenFromCookie(request.getCookies())
+                : authorizationHeader.substring(7);
+
         JweToken jweToken;
-
-        if (request.getRequestURI().contains("/auth/refresh") && "POST".equalsIgnoreCase(request.getMethod())) {
-            jwt = extractTokenFromCookie(request.getCookies());
-
-        } else {
-            jwt = authorizationHeader.substring(7);
-        }
 
         try {
             jweToken = jweStringDeserializer.apply(jwt);
