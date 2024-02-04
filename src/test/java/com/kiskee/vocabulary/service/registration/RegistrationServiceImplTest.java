@@ -3,6 +3,7 @@ package com.kiskee.vocabulary.service.registration;
 import com.kiskee.vocabulary.enums.ExceptionStatusesEnum;
 import com.kiskee.vocabulary.enums.registration.RegistrationStatus;
 import com.kiskee.vocabulary.exception.ResourceNotFoundException;
+import com.kiskee.vocabulary.exception.token.InvalidVerificationTokenException;
 import com.kiskee.vocabulary.exception.user.DuplicateUserException;
 import com.kiskee.vocabulary.model.dto.ResponseMessage;
 import com.kiskee.vocabulary.model.dto.registration.RegistrationRequest;
@@ -149,6 +150,23 @@ public class RegistrationServiceImplTest {
                 .isThrownBy(() -> service.completeRegistration(verificationToken))
                 .withMessage("UserVocabularyApplication [some_verification_token] hasn't been found");
 
+        verifyNoMoreInteractions(tokenInvalidatorService);
+    }
+
+    @Test
+    void testCompleteRegistration_WhenVerificationTokenIsInvalidated_ThenThrowInvalidVerificationTokenException() {
+        String verificationToken = "some_verification_token";
+
+        VerificationToken tokenMock = mock(VerificationToken.class);
+        when(tokenMock.isInvalidated()).thenReturn(true);
+
+        when(tokenInvalidatorService.findTokenOrThrow(verificationToken)).thenReturn(tokenMock);
+
+        assertThatExceptionOfType(InvalidVerificationTokenException.class)
+                .isThrownBy(() -> service.completeRegistration(verificationToken))
+                .withMessage("Verification token is already invalidated");
+
+        verifyNoInteractions(userRegistrationService);
         verifyNoMoreInteractions(tokenInvalidatorService);
     }
 

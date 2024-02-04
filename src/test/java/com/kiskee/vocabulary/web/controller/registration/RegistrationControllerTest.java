@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kiskee.vocabulary.enums.ExceptionStatusesEnum;
 import com.kiskee.vocabulary.enums.registration.RegistrationStatus;
 import com.kiskee.vocabulary.exception.ResourceNotFoundException;
+import com.kiskee.vocabulary.exception.token.InvalidVerificationTokenException;
 import com.kiskee.vocabulary.exception.user.DuplicateUserException;
 import com.kiskee.vocabulary.model.dto.ResponseMessage;
 import com.kiskee.vocabulary.model.dto.registration.RegistrationRequest;
@@ -186,6 +187,29 @@ public class RegistrationControllerTest {
                         jsonPath("$.status").value("Not Found"),
                         jsonPath("$.errors.responseMessage")
                                 .value("UserVocabularyApplication [userId] hasn't been found"));
+
+        TimeZoneContextHolder.clear();
+    }
+
+    @Test
+    @SneakyThrows
+    void testConfirmRegistration_WhenGivenVerificationTokenIsAlreadyInvalid_ThenReturnConflictStatus() {
+        String verificationTokenRequestParam = "some_verification_token";
+
+        TimeZoneContextHolder.setTimeZone("UTC");
+
+        when(registrationService.completeRegistration(verificationTokenRequestParam))
+                .thenThrow(new InvalidVerificationTokenException("Verification token is already invalidated"));
+
+        mockMvc.perform(get("/signup/activate")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("verificationToken", verificationTokenRequestParam))
+                .andDo(print())
+                .andExpectAll(
+                        status().isConflict(),
+                        jsonPath("$.status").value("Conflict"),
+                        jsonPath("$.errors.responseMessage")
+                                .value("Verification token is already invalidated"));
 
         TimeZoneContextHolder.clear();
     }
