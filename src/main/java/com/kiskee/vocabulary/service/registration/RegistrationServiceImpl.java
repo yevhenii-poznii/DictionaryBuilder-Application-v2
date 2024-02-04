@@ -1,6 +1,7 @@
 package com.kiskee.vocabulary.service.registration;
 
 import com.kiskee.vocabulary.enums.registration.RegistrationStatus;
+import com.kiskee.vocabulary.exception.token.InvalidVerificationTokenException;
 import com.kiskee.vocabulary.model.dto.ResponseMessage;
 import com.kiskee.vocabulary.model.dto.registration.RegistrationRequest;
 import com.kiskee.vocabulary.model.entity.token.VerificationToken;
@@ -48,6 +49,8 @@ public class RegistrationServiceImpl implements RegistrationService {
     public ResponseMessage completeRegistration(String verificationToken) {
         VerificationToken foundToken = tokenInvalidatorService.findTokenOrThrow(verificationToken);
 
+        validate(foundToken);
+
         userRegistrationService.updateUserAccountToActive(foundToken.getUserId());
 
         tokenInvalidatorService.invalidateToken(foundToken);
@@ -55,6 +58,12 @@ public class RegistrationServiceImpl implements RegistrationService {
         log.info("User account [{}] has been successfully activated", foundToken.getUserId());
 
         return new ResponseMessage(RegistrationStatus.USER_SUCCESSFULLY_ACTIVATED.getStatus());
+    }
+
+    private void validate(VerificationToken verificationToken) {
+        if (verificationToken.isInvalidated()) {
+            throw new InvalidVerificationTokenException("Verification token is already invalidated");
+        }
     }
 
     private UserVocabularyApplication buildUserAccount(RegistrationRequest userRegisterRequest) {

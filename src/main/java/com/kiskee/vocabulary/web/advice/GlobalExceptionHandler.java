@@ -1,6 +1,7 @@
 package com.kiskee.vocabulary.web.advice;
 
 import com.kiskee.vocabulary.exception.ResourceNotFoundException;
+import com.kiskee.vocabulary.exception.token.InvalidVerificationTokenException;
 import com.kiskee.vocabulary.exception.user.DuplicateUserException;
 import com.kiskee.vocabulary.util.TimeZoneContextHolder;
 import lombok.extern.slf4j.Slf4j;
@@ -58,6 +59,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({AuthenticationException.class, BadCredentialsException.class})
     public ResponseEntity<ErrorResponse> handleAuthenticationException(AuthenticationException exception) {
         return handleCustomException(exception, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler({InvalidVerificationTokenException.class})
+    public ResponseEntity<ErrorResponse> handleInvalidTokenException(InvalidVerificationTokenException exception) {
+        return handleCustomException(exception, HttpStatus.CONFLICT);
     }
 
     private ResponseEntity<ErrorResponse> handleCustomException(Throwable exception, HttpStatus status) {
