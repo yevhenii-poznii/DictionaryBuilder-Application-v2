@@ -1,5 +1,7 @@
 package com.kiskee.vocabulary.service.user.profile;
 
+import com.kiskee.vocabulary.config.properties.user.DefaultUserProfileProperties;
+import com.kiskee.vocabulary.model.dto.registration.InternalRegistrationRequest;
 import com.kiskee.vocabulary.model.entity.user.UserProfilePreferenceType;
 import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
 import com.kiskee.vocabulary.model.entity.user.profile.UserProfile;
@@ -30,6 +32,8 @@ public class UserProfileServiceTest {
     private UserProfileRepository userProfileRepository;
     @Mock
     private VocabularyService vocabularyService;
+    @Mock
+    private DefaultUserProfileProperties defaultUserProfileProperties;
     @Captor
     private ArgumentCaptor<UserProfile> userPreferenceArgumentCaptor;
 
@@ -38,22 +42,26 @@ public class UserProfileServiceTest {
         UUID useId = UUID.fromString("75ab44f4-40a3-4094-a885-51ade9e6df4a");
         String username = "UsErNaMe";
         UserVocabularyApplication givenUserEntity = mock(UserVocabularyApplication.class);
+        InternalRegistrationRequest registrationRequest = mock(InternalRegistrationRequest.class);
+        when(registrationRequest.getUser()).thenReturn(givenUserEntity);
 
         when(givenUserEntity.getId()).thenReturn(useId);
-        when(givenUserEntity.getUsername()).thenReturn(username);
+        when(registrationRequest.getUsername()).thenReturn(username);
 
         Dictionary dictionaryMock = mock(Dictionary.class);
         String dictionaryName = "Default Dictionary";
         when(vocabularyService.createEmptyDictionary(dictionaryName)).thenReturn(dictionaryMock);
         when(dictionaryMock.getDictionaryName()).thenReturn(dictionaryName);
 
-        userProfileService.initDefault(givenUserEntity);
+        when(defaultUserProfileProperties.getDefaultAvatar()).thenReturn("defaultAvatar");
+
+        userProfileService.initDefault(registrationRequest);
 
         verify(userProfileRepository).save((UserProfilePreferenceType) userPreferenceArgumentCaptor.capture());
 
         UserProfile actual = userPreferenceArgumentCaptor.getValue();
         assertThat(actual.getUser().getId()).isEqualTo(useId);
-        assertThat(actual.getPublicName()).isEqualTo(username);
+        assertThat(actual.getPublicUsername()).isEqualTo(username);
         assertThat(actual.getDictionaries())
                 .extracting(Dictionary::getDictionaryName)
                 .containsExactly(dictionaryName);

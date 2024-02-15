@@ -4,7 +4,7 @@ import com.kiskee.vocabulary.enums.ExceptionStatusesEnum;
 import com.kiskee.vocabulary.enums.registration.RegistrationStatus;
 import com.kiskee.vocabulary.exception.ResourceNotFoundException;
 import com.kiskee.vocabulary.exception.user.DuplicateUserException;
-import com.kiskee.vocabulary.model.dto.registration.RegistrationRequest;
+import com.kiskee.vocabulary.model.dto.registration.InternalRegistrationRequest;
 import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
 import com.kiskee.vocabulary.repository.user.UserRepository;
 import org.junit.jupiter.api.Test;
@@ -43,8 +43,9 @@ public class UserServiceTest {
 
     @Test
     void testCreateNewUser_WhenValidUserRegisterRequestDto_ThenCreateNewUser() {
-        RegistrationRequest registrationRequest = new RegistrationRequest(
-                "email@gmail.com", "username", "p#Ssword1", "encodedPassword");
+        InternalRegistrationRequest registrationRequest = new InternalRegistrationRequest(
+                "email@gmail.com", "username", "p#Ssword1");
+        registrationRequest.setHashedPassword("encodedPassword");
 
         when(repository.existsByUsernameOrEmail(registrationRequest.getUsername(), registrationRequest.getEmail()))
                 .thenReturn(false);
@@ -70,8 +71,9 @@ public class UserServiceTest {
 
     @Test
     void testCreateNewUser_WhenUserAlreadyExistsWithTheSameEmailOrUsername_ThenThrowDuplicateUserException() {
-        RegistrationRequest registrationRequest = new RegistrationRequest(
-                "email@gmail.com", "username", "p#Ssword1", "encodedPassword");
+        InternalRegistrationRequest registrationRequest = new InternalRegistrationRequest(
+                "email@gmail.com", "username", "p#Ssword1");
+        registrationRequest.setHashedPassword("encodedPassword");
 
         when(repository.existsByUsernameOrEmail(registrationRequest.getUsername(), registrationRequest.getEmail()))
                 .thenReturn(true);

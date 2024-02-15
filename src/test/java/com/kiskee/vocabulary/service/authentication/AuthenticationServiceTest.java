@@ -6,7 +6,7 @@ import com.kiskee.vocabulary.model.dto.authentication.AuthenticationResponse;
 import com.kiskee.vocabulary.model.dto.token.JweToken;
 import com.kiskee.vocabulary.model.entity.token.CookieToken;
 import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
-import com.kiskee.vocabulary.service.token.TokenFinderService;
+import com.kiskee.vocabulary.service.token.jwt.CookieTokenIssuer;
 import com.kiskee.vocabulary.service.token.jwt.DefaultJweTokenFactory;
 import com.kiskee.vocabulary.service.token.jwt.JweStringSerializer;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,7 +45,7 @@ public class AuthenticationServiceTest {
     @Mock
     private JweStringSerializer tokenStringSerializer;
     @Mock
-    private TokenFinderService<CookieToken> tokenFinderService;
+    private CookieTokenIssuer tokenFinderService;
     @Mock
     private JwtProperties jwtProperties;
 

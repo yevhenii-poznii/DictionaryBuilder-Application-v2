@@ -49,7 +49,7 @@ public class VerificationTokenServiceTest {
 
         when(tokenRepository.save(verificationTokenArgumentCaptor.capture())).thenReturn(mock(VerificationToken.class));
 
-        String verificationToken = service.generateToken(USER_ID);
+        String verificationToken = service.persistToken(USER_ID);
 
         verify(tokenGenerator).get();
         verify(tokenRepository).save(any(VerificationToken.class));

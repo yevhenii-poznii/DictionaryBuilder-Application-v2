@@ -4,6 +4,7 @@ import com.kiskee.vocabulary.enums.ExceptionStatusesEnum;
 import com.kiskee.vocabulary.enums.token.TokenEnum;
 import com.kiskee.vocabulary.exception.ResourceNotFoundException;
 import com.kiskee.vocabulary.model.dto.token.JweToken;
+import com.kiskee.vocabulary.model.dto.token.TokenData;
 import com.kiskee.vocabulary.model.entity.token.CookieToken;
 import com.kiskee.vocabulary.model.entity.token.Token;
 import com.kiskee.vocabulary.repository.token.TokenRepository;
@@ -19,7 +20,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -38,8 +38,6 @@ public class CookieTokenServiceTest {
 
     @Mock
     private TokenRepository tokenRepository;
-    @Mock
-    private Function<JweToken, String> tokenStringSerializer;
 
     @Captor
     private ArgumentCaptor<CookieToken> cookieTokenArgumentCaptor;
@@ -54,13 +52,12 @@ public class CookieTokenServiceTest {
                 .setExpiresAt(Instant.parse("2024-01-31T12:00:00Z"))
                 .build();
         String generatedCookieTokenString = "some_cookie_token_string";
-        when(tokenStringSerializer.apply(jweToken)).thenReturn(generatedCookieTokenString);
+        TokenData tokenData = new TokenData(generatedCookieTokenString, jweToken);
 
         when(tokenRepository.save(cookieTokenArgumentCaptor.capture())).thenReturn(mock(CookieToken.class));
 
-        String cookieToken = service.generateToken(jweToken);
+        String cookieToken = service.persistToken(tokenData);
 
-        verify(tokenStringSerializer).apply(jweToken);
         verify(tokenRepository).save(any(CookieToken.class));
 
         CookieToken actualToken = cookieTokenArgumentCaptor.getValue();

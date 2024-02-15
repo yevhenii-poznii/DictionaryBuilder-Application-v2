@@ -3,7 +3,7 @@ package com.kiskee.vocabulary.service.event;
 import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
 import com.kiskee.vocabulary.repository.user.projections.UserSecureProjection;
 import com.kiskee.vocabulary.service.email.EmailSenderService;
-import com.kiskee.vocabulary.service.token.TokenGeneratorService;
+import com.kiskee.vocabulary.service.token.TokenPersistenceService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -22,7 +22,7 @@ public class RegistrationListenerTest {
     private RegistrationListener registrationListener;
 
     @Mock
-    private TokenGeneratorService<UUID, String> tokenService;
+    private TokenPersistenceService<UUID, String> tokenService;
     @Mock
     private EmailSenderService emailSenderService;
 
@@ -34,11 +34,11 @@ public class RegistrationListenerTest {
         OnRegistrationCompleteEvent event = new OnRegistrationCompleteEvent(userSecureProjection);
 
         String verificationTokenDto = "someVerificationToken";
-        when(tokenService.generateToken(userId)).thenReturn(verificationTokenDto);
+        when(tokenService.persistToken(userId)).thenReturn(verificationTokenDto);
 
         registrationListener.onApplicationEvent(event);
 
-        verify(tokenService).generateToken(userId);
+        verify(tokenService).persistToken(userId);
         verify(emailSenderService).sendVerificationEmail(userSecureProjection, verificationTokenDto);
     }
 

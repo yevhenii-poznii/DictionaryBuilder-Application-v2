@@ -2,11 +2,17 @@ package com.kiskee.vocabulary.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kiskee.vocabulary.config.properties.jwt.JwtProperties;
-import com.kiskee.vocabulary.repository.token.TokenRepository;
+import com.kiskee.vocabulary.service.authentication.AuthenticationService;
+import com.kiskee.vocabulary.service.authentication.AuthenticationServiceImpl;
+import com.kiskee.vocabulary.service.oauth.OAuth2UserProvisionService;
+import com.kiskee.vocabulary.service.oauth.OAuth2UserProvisionServiceImpl;
 import com.kiskee.vocabulary.service.token.jwt.CookieTokenService;
 import com.kiskee.vocabulary.service.token.jwt.DefaultJweTokenFactory;
 import com.kiskee.vocabulary.service.token.jwt.JweStringDeserializer;
 import com.kiskee.vocabulary.service.token.jwt.JweStringSerializer;
+import com.kiskee.vocabulary.service.user.UserProvisioningService;
+import com.kiskee.vocabulary.service.user.UserService;
+import com.kiskee.vocabulary.web.auth.OAuth2LoginSuccessHandler;
 import com.kiskee.vocabulary.web.auth.TokenCookieAuthenticationSuccessHandler;
 import com.kiskee.vocabulary.web.filter.JwtAuthenticationFilter;
 import com.kiskee.vocabulary.web.filter.LoginAuthenticationFilter;
@@ -19,16 +25,17 @@ import com.nimbusds.jose.KeyLengthException;
 import com.nimbusds.jose.crypto.DirectDecrypter;
 import com.nimbusds.jose.crypto.DirectEncrypter;
 import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -40,31 +47,36 @@ import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
 @AllArgsConstructor
 public class WebSecurityConfig {
 
-    private final UserDetailsService userService;
+    private final UserService userService;
     private final AuthenticationConfiguration authenticationConfiguration;
     private final TimeZoneRequestFilter timeZoneRequestFilter;
     private final DefaultJweTokenFactory defaultJweTokenFactory;
-    private final TokenRepository tokenRepository;
     private final JwtProperties jwtProperties;
     private final ObjectMapper objectMapper;
+    private final CookieTokenService cookieTokenService;
+    private final List<UserProvisioningService> userProvisioningServices;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
+                .cors(Customizer.withDefaults())
                 .formLogin(AbstractHttpConfigurer::disable)
                 .securityMatcher("/**")
                 .authorizeHttpRequests(requestMatcherRegistry -> requestMatcherRegistry
                         .requestMatchers("/signup/**").anonymous()
-                        .requestMatchers("/login", "/error").permitAll()
+                        .requestMatchers("/login/**", "/error", "/auth/access").permitAll()
                         .anyRequest().authenticated())
+                .oauth2Login(oauth2 -> oauth2
+                        .successHandler(oAuth2LoginSuccessHandler()))
                 .sessionManagement(sessionManagement -> sessionManagement
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
@@ -107,25 +119,25 @@ public class WebSecurityConfig {
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() throws KeyLengthException, IOException {
-        return new JwtAuthenticationFilter(jweStringDeserializer(), objectMapper);
+        return new JwtAuthenticationFilter(objectMapper, jweStringDeserializer());
     }
 
     @Bean
     public LoginAuthenticationFilter loginAuthenticationFilter() throws Exception {
-        return new LoginAuthenticationFilter(authenticationManager(), objectMapper,
+        return new LoginAuthenticationFilter(objectMapper, authenticationManager(),
                 tokenCookieAuthenticationSuccessHandler());
     }
 
     @Bean
     public TokenCookieAuthenticationSuccessHandler tokenCookieAuthenticationSuccessHandler()
-            throws KeyLengthException, IOException {
-        return new TokenCookieAuthenticationSuccessHandler(defaultJweTokenFactory, cookieTokenService(),
-                jwtProperties.getRefreshExpirationTime());
+            throws IOException, KeyLengthException {
+        return new TokenCookieAuthenticationSuccessHandler(authenticationService());
     }
 
     @Bean
-    public CookieTokenService cookieTokenService() throws KeyLengthException, IOException {
-        return new CookieTokenService(tokenRepository, jweStringSerializer());
+    @SneakyThrows
+    public OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler() {
+        return new OAuth2LoginSuccessHandler(oAuth2UserProvisionService());
     }
 
     @Bean
@@ -134,6 +146,17 @@ public class WebSecurityConfig {
         authenticationProvider.setUserDetailsService(userService);
 
         return authenticationProvider;
+    }
+
+    @Bean
+    public OAuth2UserProvisionService oAuth2UserProvisionService() throws IOException, KeyLengthException {
+        return new OAuth2UserProvisionServiceImpl(userService, userProvisioningServices, authenticationService());
+    }
+
+    @Bean
+    public AuthenticationService authenticationService() throws IOException, KeyLengthException {
+        return new AuthenticationServiceImpl(defaultJweTokenFactory, jweStringSerializer(), cookieTokenService,
+                jwtProperties);
     }
 
     @Bean

@@ -6,7 +6,7 @@ import com.kiskee.vocabulary.exception.ResourceNotFoundException;
 import com.kiskee.vocabulary.exception.token.InvalidVerificationTokenException;
 import com.kiskee.vocabulary.exception.user.DuplicateUserException;
 import com.kiskee.vocabulary.model.dto.ResponseMessage;
-import com.kiskee.vocabulary.model.dto.registration.RegistrationRequest;
+import com.kiskee.vocabulary.model.dto.registration.InternalRegistrationRequest;
 import com.kiskee.vocabulary.model.entity.token.Token;
 import com.kiskee.vocabulary.model.entity.token.VerificationToken;
 import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
@@ -55,8 +55,8 @@ public class RegistrationServiceImplTest {
 
     @Test
     void testRegisterUserAccount_WhenValidUserRegisterRequestDto_ThenRegisterNewUserAccount() {
-        RegistrationRequest registrationRequest = new RegistrationRequest(
-                "email@gmail.com", "username", "p#Ssword1", null);
+        InternalRegistrationRequest registrationRequest = new InternalRegistrationRequest(
+                "email@gmail.com", "username", "p#Ssword1");
         String hashedPassword = "encodedPassword";
 
         when(passwordEncoder.encode(registrationRequest.getRawPassword())).thenReturn(hashedPassword);
@@ -82,8 +82,8 @@ public class RegistrationServiceImplTest {
 
     @Test
     void testRegisterUserAccount_WhenUserAlreadyExistsWithTheSameEmailOrUsername_ThenThrowDuplicateUserException() {
-        RegistrationRequest registrationRequest = new RegistrationRequest(
-                "email@gmail.com", "username", "p#Ssword1", null);
+        InternalRegistrationRequest registrationRequest = new InternalRegistrationRequest(
+                "email@gmail.com", "username", "p#Ssword1");
         String hashedPassword = "encodedPassword";
 
         when(passwordEncoder.encode(registrationRequest.getRawPassword())).thenReturn(hashedPassword);
