@@ -3,15 +3,17 @@ create table user_vocabulary_application
     id        uuid         not null primary key,
     email     varchar(255) not null unique,
     username  varchar(255) not null unique,
-    password  text         not null,
+    password  text,
     is_active boolean      not null
 );
 
 create table user_profile
 (
-    user_id     uuid         not null primary key,
-    public_name varchar(50)  not null,
-    created_at  timestamp(6) not null,
+    user_id         uuid         not null primary key,
+    public_username varchar(255) not null,
+    public_name     varchar(255),
+    profile_picture text         not null,
+    created_at      timestamp(6) not null,
 
     constraint fk_user_id foreign key (user_id) references user_vocabulary_application (id)
 );

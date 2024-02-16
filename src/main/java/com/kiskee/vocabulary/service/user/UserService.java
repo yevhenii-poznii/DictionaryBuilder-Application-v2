@@ -14,12 +14,13 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
 @Service
 @AllArgsConstructor
-public class UserService implements UserRegistrationService, UserDetailsService {
+public class UserService implements UserRegistrationService, UserDetailsService, OAuth2UserService {
 
     private final UserRepository userRepository;
 
@@ -38,6 +39,11 @@ public class UserService implements UserRegistrationService, UserDetailsService 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return getUserOrThrow(username);
+    }
+
+    @Override
+    public Optional<UserVocabularyApplication> loadUserByEmail(String email) {
+        return userRepository.findByEmail(email);
     }
 
     @Override
@@ -68,12 +74,11 @@ public class UserService implements UserRegistrationService, UserDetailsService 
     }
 
     private UserVocabularyApplication buildNewUser(RegistrationRequest registrationRequest) {
-
         return UserVocabularyApplication.builder()
                 .setEmail(registrationRequest.getEmail())
                 .setUsername(registrationRequest.getUsername())
                 .setPassword(registrationRequest.getHashedPassword())
-                .setIsActive(false)
+                .setIsActive(registrationRequest.isActive())
                 .build();
     }
 

@@ -1,9 +1,9 @@
 package com.kiskee.vocabulary.service.user;
 
-import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
+import com.kiskee.vocabulary.model.dto.registration.RegistrationRequest;
 
 public interface UserProvisioningService {
 
-    void initDefault(UserVocabularyApplication user);
+    <R extends RegistrationRequest> void initDefault(R registrationRequest);
 
 }

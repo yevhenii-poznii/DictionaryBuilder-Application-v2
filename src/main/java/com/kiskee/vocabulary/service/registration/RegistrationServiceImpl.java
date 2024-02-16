@@ -3,7 +3,7 @@ package com.kiskee.vocabulary.service.registration;
 import com.kiskee.vocabulary.enums.registration.RegistrationStatus;
 import com.kiskee.vocabulary.exception.token.InvalidVerificationTokenException;
 import com.kiskee.vocabulary.model.dto.ResponseMessage;
-import com.kiskee.vocabulary.model.dto.registration.RegistrationRequest;
+import com.kiskee.vocabulary.model.dto.registration.InternalRegistrationRequest;
 import com.kiskee.vocabulary.model.entity.token.VerificationToken;
 import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
 import com.kiskee.vocabulary.service.event.OnRegistrationCompleteEvent;
@@ -32,11 +32,11 @@ public class RegistrationServiceImpl implements RegistrationService {
 
     @Override
     @Transactional
-    public ResponseMessage registerUserAccount(RegistrationRequest userRegisterRequest) {
-        String hashedPassword = passwordEncoder.encode(userRegisterRequest.getRawPassword());
-        userRegisterRequest.setHashedPassword(hashedPassword);
+    public ResponseMessage registerUserAccount(InternalRegistrationRequest registrationRequest) {
+        String hashedPassword = passwordEncoder.encode(registrationRequest.getRawPassword());
+        registrationRequest.setHashedPassword(hashedPassword);
 
-        UserVocabularyApplication userAccount = buildUserAccount(userRegisterRequest);
+        UserVocabularyApplication userAccount = buildUserAccount(registrationRequest);
 
         eventPublisher.publishEvent(new OnRegistrationCompleteEvent(userAccount));
 
@@ -66,10 +66,12 @@ public class RegistrationServiceImpl implements RegistrationService {
         }
     }
 
-    private UserVocabularyApplication buildUserAccount(RegistrationRequest userRegisterRequest) {
+    private UserVocabularyApplication buildUserAccount(InternalRegistrationRequest userRegisterRequest) {
         UserVocabularyApplication createdUser = userRegistrationService.createNewUser(userRegisterRequest);
 
-        userProvisioningServices.forEach(provision -> provision.initDefault(createdUser));
+        userRegisterRequest.setUser(createdUser);
+
+        userProvisioningServices.forEach(provision -> provision.initDefault(userRegisterRequest));
 
         return createdUser;
     }

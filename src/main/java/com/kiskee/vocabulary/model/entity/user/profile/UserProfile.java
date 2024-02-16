@@ -14,6 +14,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -23,6 +24,7 @@ import java.util.UUID;
 
 @Entity
 @Getter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class UserProfile implements UserProfilePreferenceType {
@@ -31,7 +33,13 @@ public class UserProfile implements UserProfilePreferenceType {
     private UUID userId;
 
     @Column(nullable = false)
+    private String publicUsername;
+
+    @Column(nullable = false)
     private String publicName;
+
+    @Column(nullable = false)
+    private String profilePicture;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;

@@ -1,6 +1,11 @@
 server:
-  port: 8080
+  port: 8443
   servlet.context-path: /api/v1
+  ssl:
+    key-store: ${KEY_STORE}
+    key-store-password: ${KEY_STORE_PASSWORD}
+    key-store-type: ${KEY_STORE_TYPE}
+    key-alias: ${KEY_ALIAS}
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
@@ -13,6 +18,13 @@ spring:
       show_sql: false
       use_sql_comments: false
       format_sql: false
+  security.oauth2.client.registration.google:
+    client-id: ${OAUTH2_CLIENT_ID}
+    client-secret: ${OAUTH2_CLIENT_SECRET}
+    redirectUri: https://localhost:8443/api/v1/login/oauth2/code/google
+    scope:
+      - profile
+      - email
   mail:
     host: smtp.gmail.com
     port: 587
@@ -32,8 +44,10 @@ vocabulary:
       from: ${MAIL_SENDER}
       subject: "Please verify your registration"
       template-location: email/confirm-registration.html
-      confirmation-url: http://localhost/signup/activate?verificationToken=
+      confirmation-url: https://localhost:3000/signup?verificationToken=
   user:
+    profile:
+      default-avatar: ${DEFAULT_AVATAR}
     preference:
       right-answers-to-disable-in-repetition: ${RIGHT_ANSWERS_TO_DISABLE_IN_REPETITION:10}
   jwt:

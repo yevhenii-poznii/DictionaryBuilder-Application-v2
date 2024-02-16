@@ -7,6 +7,7 @@ import com.kiskee.vocabulary.exception.ResourceNotFoundException;
 import com.kiskee.vocabulary.exception.token.InvalidVerificationTokenException;
 import com.kiskee.vocabulary.exception.user.DuplicateUserException;
 import com.kiskee.vocabulary.model.dto.ResponseMessage;
+import com.kiskee.vocabulary.model.dto.registration.InternalRegistrationRequest;
 import com.kiskee.vocabulary.model.dto.registration.RegistrationRequest;
 import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
 import com.kiskee.vocabulary.service.registration.RegistrationService;
@@ -37,7 +38,7 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -63,8 +64,8 @@ public class RegistrationControllerTest {
     @Test
     @SneakyThrows
     void testSingUp_WhenRequestBodyValid_ThenRegisterUserAccountAndReturnStatusCreated() {
-        RegistrationRequest requestBody = new RegistrationRequest("email@gmail.com", "username",
-                "p#Ssword1", null);
+        InternalRegistrationRequest requestBody = new InternalRegistrationRequest("email@gmail.com", "username",
+                "p#Ssword1");
 
         ResponseMessage expectedResponseBody = new ResponseMessage(String.format(
                 RegistrationStatus.USER_SUCCESSFULLY_CREATED.getStatus(), requestBody.getEmail()));
@@ -84,8 +85,8 @@ public class RegistrationControllerTest {
     @Test
     @SneakyThrows
     void testSingUp_WhenRequestBodyValidAndUserWithTheSameEmailOrUsernameAlreadyExists_ThenReturnStatus422() {
-        RegistrationRequest requestBody = new RegistrationRequest("email@gmail.com", "username",
-                "p@Ssword1", null);
+        InternalRegistrationRequest requestBody = new InternalRegistrationRequest("email@gmail.com", "username",
+                "p#Ssword1");
 
         TimeZoneContextHolder.setTimeZone("UTC");
 
@@ -146,7 +147,7 @@ public class RegistrationControllerTest {
                 RegistrationStatus.USER_SUCCESSFULLY_ACTIVATED.getStatus());
         when(registrationService.completeRegistration(verificationTokenRequestParam)).thenReturn(expectedResponseBody);
 
-        MvcResult result = mockMvc.perform(get("/signup/activate")
+        MvcResult result = mockMvc.perform(patch("/signup/activate")
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("verificationToken", verificationTokenRequestParam))
                 .andDo(print())
@@ -160,7 +161,7 @@ public class RegistrationControllerTest {
     @Test
     @SneakyThrows
     void testConfirmRegistration_WhenVerificationTokenRequestParamNotProvided_ThenReturnBadRequestStatus() {
-        mockMvc.perform(get("/signup/activate")
+        mockMvc.perform(patch("/signup/activate")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
@@ -178,7 +179,7 @@ public class RegistrationControllerTest {
                 .thenThrow(new ResourceNotFoundException(String.format(ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(),
                         UserVocabularyApplication.class.getSimpleName(), "userId")));
 
-        mockMvc.perform(get("/signup/activate")
+        mockMvc.perform(patch("/signup/activate")
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("verificationToken", verificationTokenRequestParam))
                 .andDo(print())
@@ -201,7 +202,7 @@ public class RegistrationControllerTest {
         when(registrationService.completeRegistration(verificationTokenRequestParam))
                 .thenThrow(new InvalidVerificationTokenException("Verification token is already invalidated"));
 
-        mockMvc.perform(get("/signup/activate")
+        mockMvc.perform(patch("/signup/activate")
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("verificationToken", verificationTokenRequestParam))
                 .andDo(print())
@@ -216,14 +217,14 @@ public class RegistrationControllerTest {
 
     static Stream<Tuple> invalidRequestBody() {
         return Stream.of(
-                Tuple.tuple(new RegistrationRequest("em", "username", "p#Ssword1",
-                        null), List.of("Email must be a valid")),
-                Tuple.tuple(new RegistrationRequest("email@gmail.com", "us", "p#Ssword1",
-                        null), List.of("Invalid username format. Only letters, numbers, underscore (_), hyphen (-), and dot (.) are allowed.")),
-                Tuple.tuple(new RegistrationRequest("email@gmail.com", "username", "pass",
-                        null), List.of("Password size must be between 8 and 50 chars, must contain at least one lowercase letter, one uppercase letter, one digit, one special character, and should not contain spaces.")),
-                Tuple.tuple(new RegistrationRequest(null, null, null,
-                        null), List.of("must not be blank", "Email cannot be empty",
+                Tuple.tuple(new InternalRegistrationRequest("em", "username", "p#Ssword1"),
+                        List.of("Email must be a valid")),
+                Tuple.tuple(new InternalRegistrationRequest("email@gmail.com", "us", "p#Ssword1"),
+                        List.of("Invalid username format. Only letters, numbers, underscore (_), hyphen (-), and dot (.) are allowed.")),
+                Tuple.tuple(new InternalRegistrationRequest("email@gmail.com", "username", "pass"),
+                        List.of("Password size must be between 8 and 50 chars, must contain at least one lowercase letter, one uppercase letter, one digit, one special character, and should not contain spaces.")),
+                Tuple.tuple(new InternalRegistrationRequest(null, null, null),
+                        List.of("must not be blank", "Email cannot be empty",
                         "must not be blank"))
         );
     }

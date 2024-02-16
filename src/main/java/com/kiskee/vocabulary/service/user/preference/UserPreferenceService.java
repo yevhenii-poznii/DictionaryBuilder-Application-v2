@@ -2,8 +2,8 @@ package com.kiskee.vocabulary.service.user.preference;
 
 import com.kiskee.vocabulary.config.properties.user.DefaultUserPreferenceProperties;
 import com.kiskee.vocabulary.enums.user.ProfileVisibility;
+import com.kiskee.vocabulary.model.dto.registration.RegistrationRequest;
 import com.kiskee.vocabulary.model.entity.user.UserProfilePreferenceType;
-import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
 import com.kiskee.vocabulary.model.entity.user.preference.UserPreference;
 import com.kiskee.vocabulary.repository.user.preference.UserPreferenceRepository;
 import com.kiskee.vocabulary.service.user.AbstractUserProfilePreferenceInitializationService;
@@ -22,15 +22,14 @@ public class UserPreferenceService extends AbstractUserProfilePreferenceInitiali
     private final DefaultUserPreferenceProperties defaultUserPreferenceProperties;
 
     @Override
-    public void initDefault(UserVocabularyApplication user) {
-        initDefaultAndSave(user);
+    public <R extends RegistrationRequest> void initDefault(R registrationRequest) {
+        initDefaultAndSave(registrationRequest);
     }
 
     @Override
-    protected UserProfilePreferenceType buildEntityToSave(UserVocabularyApplication user) {
-
+    protected <R extends RegistrationRequest> UserProfilePreferenceType buildEntityToSave(R registrationRequest) {
         return new UserPreference(null, ProfileVisibility.PRIVATE,
-                defaultUserPreferenceProperties.getRightAnswersToDisableInRepetition(), user);
+                defaultUserPreferenceProperties.getRightAnswersToDisableInRepetition(), registrationRequest.getUser());
     }
 
 }

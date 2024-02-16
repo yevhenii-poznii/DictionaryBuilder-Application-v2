@@ -2,7 +2,7 @@ package com.kiskee.vocabulary.service.event;
 
 import com.kiskee.vocabulary.repository.user.projections.UserSecureProjection;
 import com.kiskee.vocabulary.service.email.EmailSenderService;
-import com.kiskee.vocabulary.service.token.TokenGeneratorService;
+import com.kiskee.vocabulary.service.token.TokenPersistenceService;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +18,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class RegistrationListener implements ApplicationListener<OnRegistrationCompleteEvent> {
 
-    private final TokenGeneratorService<UUID, String> tokenGeneratorService;
+    private final TokenPersistenceService<UUID, String> tokenPersistenceService;
     private final EmailSenderService emailSenderService;
 
     @Async
@@ -33,7 +33,7 @@ public class RegistrationListener implements ApplicationListener<OnRegistrationC
 
         log.info("[{}] has arrived for [{}]", OnRegistrationCompleteEvent.class.getSimpleName(), userInfo.getId());
 
-        String verificationToken = tokenGeneratorService.generateToken(userInfo.getId());
+        String verificationToken = tokenPersistenceService.persistToken(userInfo.getId());
 
         emailSenderService.sendVerificationEmail(userInfo, verificationToken);
     }

@@ -2,6 +2,7 @@ package com.kiskee.vocabulary.service.user.preference;
 
 import com.kiskee.vocabulary.config.properties.user.DefaultUserPreferenceProperties;
 import com.kiskee.vocabulary.enums.user.ProfileVisibility;
+import com.kiskee.vocabulary.model.dto.registration.InternalRegistrationRequest;
 import com.kiskee.vocabulary.model.entity.user.UserProfilePreferenceType;
 import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
 import com.kiskee.vocabulary.model.entity.user.preference.UserPreference;
@@ -37,11 +38,13 @@ public class UserPreferenceServiceTest {
     void testInitDefault_WhenUserVocabularyApplicationIsGiven_ThenBuildAndSaveDefaultUserPreference() {
         UUID useId = UUID.fromString("75ab44f4-40a3-4094-a885-51ade9e6df4a");
         UserVocabularyApplication givenUserEntity = mock(UserVocabularyApplication.class);
+        InternalRegistrationRequest registrationRequest = mock(InternalRegistrationRequest.class);
+        when(registrationRequest.getUser()).thenReturn(givenUserEntity);
 
         when(givenUserEntity.getId()).thenReturn(useId);
         when(defaultUserPreferenceProperties.getRightAnswersToDisableInRepetition()).thenReturn(10);
 
-        userPreferenceService.initDefault(givenUserEntity);
+        userPreferenceService.initDefault(registrationRequest);
 
         verify(userPreferenceRepository).save((UserProfilePreferenceType) userPreferenceArgumentCaptor.capture());
 
