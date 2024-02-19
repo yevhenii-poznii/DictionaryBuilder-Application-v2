@@ -28,24 +28,28 @@ public class UserProfileServiceTest {
 
     @InjectMocks
     private UserProfileService userProfileService;
+
     @Mock
     private UserProfileRepository userProfileRepository;
     @Mock
     private VocabularyService vocabularyService;
     @Mock
+    private ProfilePictureEncoder profilePictureEncoder;
+    @Mock
     private DefaultUserProfileProperties defaultUserProfileProperties;
     @Captor
     private ArgumentCaptor<UserProfile> userPreferenceArgumentCaptor;
 
+    private static final UUID USER_ID = UUID.fromString("78c87bb3-01b6-41ca-8329-247a72162868");
+
     @Test
-    void testInitDefault_WhenUserVocabularyApplicationIsGiven_ThenBuildAndSaveDefaultUserProfile() {
-        UUID useId = UUID.fromString("75ab44f4-40a3-4094-a885-51ade9e6df4a");
+    void testInitDefault_WhenRegistrationRequestIsGivenAndPictureIsNull_ThenBuildAndSaveDefaultUserProfile() {
         String username = "UsErNaMe";
         UserVocabularyApplication givenUserEntity = mock(UserVocabularyApplication.class);
         InternalRegistrationRequest registrationRequest = mock(InternalRegistrationRequest.class);
         when(registrationRequest.getUser()).thenReturn(givenUserEntity);
 
-        when(givenUserEntity.getId()).thenReturn(useId);
+        when(givenUserEntity.getId()).thenReturn(USER_ID);
         when(registrationRequest.getUsername()).thenReturn(username);
 
         Dictionary dictionaryMock = mock(Dictionary.class);
@@ -60,8 +64,40 @@ public class UserProfileServiceTest {
         verify(userProfileRepository).save((UserProfilePreferenceType) userPreferenceArgumentCaptor.capture());
 
         UserProfile actual = userPreferenceArgumentCaptor.getValue();
-        assertThat(actual.getUser().getId()).isEqualTo(useId);
+        assertThat(actual.getUser().getId()).isEqualTo(USER_ID);
         assertThat(actual.getPublicUsername()).isEqualTo(username);
+        assertThat(actual.getDictionaries())
+                .extracting(Dictionary::getDictionaryName)
+                .containsExactly(dictionaryName);
+    }
+
+    @Test
+    void testInitDefault_WhenPictureInRegistrationRequestIsNotNull_ThenBuildAndSaveDefaultUserProfile() {
+        String username = "UsErNaMe";
+        UserVocabularyApplication givenUserEntity = mock(UserVocabularyApplication.class);
+        InternalRegistrationRequest registrationRequest = mock(InternalRegistrationRequest.class);
+        when(registrationRequest.getUser()).thenReturn(givenUserEntity);
+
+        when(givenUserEntity.getId()).thenReturn(USER_ID);
+        when(registrationRequest.getUsername()).thenReturn(username);
+        when(registrationRequest.getPicture()).thenReturn("pictureUrl");
+
+        Dictionary dictionaryMock = mock(Dictionary.class);
+        String dictionaryName = "Default Dictionary";
+        when(vocabularyService.createEmptyDictionary(dictionaryName)).thenReturn(dictionaryMock);
+        when(dictionaryMock.getDictionaryName()).thenReturn(dictionaryName);
+
+        String encodedPicture = "encodedPicture";
+        when(profilePictureEncoder.encodeWithBase64(registrationRequest.getPicture())).thenReturn(encodedPicture);
+
+        userProfileService.initDefault(registrationRequest);
+
+        verify(userProfileRepository).save((UserProfilePreferenceType) userPreferenceArgumentCaptor.capture());
+
+        UserProfile actual = userPreferenceArgumentCaptor.getValue();
+        assertThat(actual.getUser().getId()).isEqualTo(USER_ID);
+        assertThat(actual.getPublicUsername()).isEqualTo(username);
+        assertThat(actual.getProfilePicture()).isEqualTo(encodedPicture);
         assertThat(actual.getDictionaries())
                 .extracting(Dictionary::getDictionaryName)
                 .containsExactly(dictionaryName);

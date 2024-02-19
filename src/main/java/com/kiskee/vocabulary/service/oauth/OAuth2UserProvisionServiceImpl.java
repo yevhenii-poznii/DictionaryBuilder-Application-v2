@@ -29,10 +29,10 @@ public class OAuth2UserProvisionServiceImpl implements OAuth2UserProvisionServic
 
     @Override
     @Transactional
-    public OAuth2ProvisionData provisionUser(OAuth2ProvisionRequest registrationRequest) {
-        Optional<UserVocabularyApplication> userOptional = userService.loadUserByEmail(registrationRequest.getEmail());
+    public OAuth2ProvisionData provisionUser(OAuth2ProvisionRequest provisionRequest) {
+        Optional<UserVocabularyApplication> userOptional = userService.loadUserByEmail(provisionRequest.getEmail());
 
-        UserSecureProjection user = userOptional.orElseGet(() -> buildUserAccount(registrationRequest));
+        UserSecureProjection user = userOptional.orElseGet(() -> buildUserAccount(provisionRequest));
 
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                 user, null);

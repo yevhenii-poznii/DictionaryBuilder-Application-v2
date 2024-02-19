@@ -134,4 +134,28 @@ public class UserServiceTest {
                         "User", username));
     }
 
+    @Test
+    void testLoadUserByEmail_WhenUserExists_ThenReturnUserVocabularyApplication() {
+        String email = "email@email.com";
+
+        UserVocabularyApplication userAccount = UserVocabularyApplication.builder().setEmail(email).build();
+        when(repository.findByEmail(email)).thenReturn(Optional.of(userAccount));
+
+        Optional<UserVocabularyApplication> user = service.loadUserByEmail(email);
+
+        assertThat(user).isPresent();
+        assertThat(user.get().getEmail()).isEqualTo(email);
+    }
+
+    @Test
+    void testLoadUserByEmail_WhenUserDoesNotExists_ThenReturnEmptyOptional() {
+        String email = "email@email.com";
+
+        when(repository.findByEmail(email)).thenReturn(Optional.empty());
+
+        Optional<UserVocabularyApplication> user = service.loadUserByEmail(email);
+
+        assertThat(user).isEmpty();
+    }
+
 }
