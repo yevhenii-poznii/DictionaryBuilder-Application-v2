@@ -4,6 +4,7 @@ import com.kiskee.vocabulary.config.properties.jwt.JwtProperties;
 import com.kiskee.vocabulary.model.dto.authentication.AuthenticationData;
 import com.kiskee.vocabulary.model.dto.authentication.AuthenticationResponse;
 import com.kiskee.vocabulary.model.dto.token.JweToken;
+import com.kiskee.vocabulary.model.dto.token.TokenData;
 import com.kiskee.vocabulary.model.entity.token.CookieToken;
 import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
 import com.kiskee.vocabulary.service.token.jwt.CookieTokenIssuer;
@@ -30,6 +31,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -45,7 +47,7 @@ public class AuthenticationServiceTest {
     @Mock
     private JweStringSerializer tokenStringSerializer;
     @Mock
-    private CookieTokenIssuer tokenFinderService;
+    private CookieTokenIssuer cookieTokenIssuer;
     @Mock
     private JwtProperties jwtProperties;
 
@@ -96,7 +98,7 @@ public class AuthenticationServiceTest {
         CookieToken cookieToken = mock(CookieToken.class);
         when(cookieToken.getUserId()).thenReturn(USER_ID);
         when(cookieToken.isInvalidated()).thenReturn(false);
-        when(tokenFinderService.findTokenOrThrow(refreshToken)).thenReturn(cookieToken);
+        when(cookieTokenIssuer.findTokenOrThrow(refreshToken)).thenReturn(cookieToken);
 
         when(defaultJweTokenFactory.apply(any(AuthenticationData.class))).thenReturn(mock(JweToken.class));
         when(tokenStringSerializer.apply(any(JweToken.class))).thenReturn(tokenString);
@@ -117,7 +119,7 @@ public class AuthenticationServiceTest {
 
         CookieToken cookieToken = mock(CookieToken.class);
         when(cookieToken.getUserId()).thenReturn(UUID.fromString("78c87bb3-01b6-41ca-8329-247a72162869"));
-        when(tokenFinderService.findTokenOrThrow(refreshToken)).thenReturn(cookieToken);
+        when(cookieTokenIssuer.findTokenOrThrow(refreshToken)).thenReturn(cookieToken);
 
         assertThatExceptionOfType(CookieTheftException.class)
                 .isThrownBy(() -> authenticationService.issueAccessToken(refreshToken))
@@ -136,11 +138,30 @@ public class AuthenticationServiceTest {
         CookieToken cookieToken = mock(CookieToken.class);
         when(cookieToken.getUserId()).thenReturn(USER_ID);
         when(cookieToken.isInvalidated()).thenReturn(true);
-        when(tokenFinderService.findTokenOrThrow(refreshToken)).thenReturn(cookieToken);
+        when(cookieTokenIssuer.findTokenOrThrow(refreshToken)).thenReturn(cookieToken);
 
         assertThatExceptionOfType(InvalidCookieException.class)
                 .isThrownBy(() -> authenticationService.issueAccessToken(refreshToken))
                 .withMessage("Refresh token is invalidated");
+    }
+
+    @Test
+    void testIssueRefreshToken_WhenAuthenticationHasSet_ThenReturnRefreshToken() {
+        String tokenString = "tokenString";
+
+        UserVocabularyApplication user = new UserVocabularyApplication(USER_ID, "email", "username",
+                "noPassword", true, null, null);
+        Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, List.of());
+
+        when(jwtProperties.getRefreshExpirationTime()).thenReturn(1000L);
+        when(defaultJweTokenFactory.apply(any(AuthenticationData.class))).thenReturn(mock(JweToken.class));
+        when(tokenStringSerializer.apply(any(JweToken.class))).thenReturn(tokenString);
+
+        TokenData tokenData = authenticationService.issueRefreshToken(authentication);
+
+        verify(cookieTokenIssuer).persistToken(tokenData);
+
+        assertThat(tokenData.token()).isEqualTo(tokenString);
     }
 
 }
