@@ -1,5 +1,6 @@
 package com.kiskee.vocabulary.model.entity.vocabulary;
 
+import com.kiskee.vocabulary.repository.vocabulary.projections.DictionaryProjection;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,12 +15,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Dictionary {
+public class Dictionary implements DictionaryProjection {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,5 +33,13 @@ public class Dictionary {
     @JoinColumn(name = "dictionaryId")
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Word> words;
+
+    @Column(nullable = false)
+    private UUID userProfileId;
+
+    @Override
+    public int getWordCount() {
+        return words.size();
+    }
 
 }

@@ -2,6 +2,7 @@ package com.kiskee.vocabulary.service.vocabulary;
 
 import com.kiskee.vocabulary.model.entity.vocabulary.Dictionary;
 import com.kiskee.vocabulary.repository.vocabulary.DictionaryRepository;
+import com.kiskee.vocabulary.service.vocabulary.dictionary.DictionaryService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -16,10 +17,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-public class VocabularyServiceImplTest {
+public class DictionaryServiceTest {
 
     @InjectMocks
-    private VocabularyServiceImpl vocabularyService;
+    private DictionaryService vocabularyService;
     @Mock
     private DictionaryRepository dictionaryRepository;
     @Captor
@@ -29,7 +30,7 @@ public class VocabularyServiceImplTest {
     void testInitDefault_WhenDictionaryNameIsGiven_ThenCreateEmptyDictionary() {
         String dictionaryName = "Default Dictionary";
 
-        vocabularyService.createEmptyDictionary(dictionaryName);
+        vocabularyService.addDictionary(dictionaryName);
 
         verify(dictionaryRepository).save(dictionaryArgumentCaptor.capture());
 

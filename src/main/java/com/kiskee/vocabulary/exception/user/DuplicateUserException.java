@@ -1,6 +1,8 @@
 package com.kiskee.vocabulary.exception.user;
 
-public class DuplicateUserException extends RuntimeException {
+import com.kiskee.vocabulary.exception.DuplicateResourceException;
+
+public class DuplicateUserException extends DuplicateResourceException {
 
     public DuplicateUserException(String message) {
         super(message);

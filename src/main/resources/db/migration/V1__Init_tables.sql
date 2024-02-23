@@ -33,6 +33,7 @@ create table dictionary
     dictionary_name varchar(50) not null,
     user_profile_id uuid,
 
+    unique (dictionary_name, user_profile_id),
     constraint fk_user_profile_id foreign key (user_profile_id) references user_profile (user_id)
 );
 
