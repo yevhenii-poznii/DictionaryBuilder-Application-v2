@@ -7,7 +7,7 @@ import com.kiskee.vocabulary.model.entity.vocabulary.Dictionary;
 import com.kiskee.vocabulary.repository.user.profile.UserProfileRepository;
 import com.kiskee.vocabulary.service.user.AbstractUserProfilePreferenceInitializationService;
 import com.kiskee.vocabulary.service.user.UserProvisioningService;
-import com.kiskee.vocabulary.service.vocabulary.VocabularyService;
+import com.kiskee.vocabulary.service.vocabulary.dictionary.DictionaryCreationService;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.stereotype.Service;
@@ -23,7 +23,7 @@ public class UserProfileService extends AbstractUserProfilePreferenceInitializat
 
     @Getter
     private final UserProfileRepository repository;
-    private final VocabularyService vocabularyService;
+    private final DictionaryCreationService dictionaryCreationService;
     private final ProfilePictureEncoder profilePictureEncoder;
     private final DefaultUserProfileProperties defaultUserProfileProperties;
 
@@ -36,7 +36,7 @@ public class UserProfileService extends AbstractUserProfilePreferenceInitializat
     protected <R extends RegistrationRequest> UserProfile buildEntityToSave(R registrationRequest) {
         LocalDateTime createdAt = LocalDateTime.now();
 
-        Dictionary dictionary = vocabularyService.createEmptyDictionary("Default Dictionary");
+        Dictionary dictionary = dictionaryCreationService.addDictionary("Default Dictionary");
 
         String profilePicture = !Objects.isNull(registrationRequest.getPicture())
                 ? profilePictureEncoder.encodeWithBase64(registrationRequest.getPicture())

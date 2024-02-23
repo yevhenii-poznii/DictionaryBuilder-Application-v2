@@ -35,7 +35,7 @@ public class OAuth2UserProvisionServiceImpl implements OAuth2UserProvisionServic
         UserSecureProjection user = userOptional.orElseGet(() -> buildUserAccount(provisionRequest));
 
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                user, null);
+                user, null, provisionRequest.getAuthorities());
 
         TokenData issuedRefreshToken = authenticationService.issueRefreshToken(authenticationToken);
 

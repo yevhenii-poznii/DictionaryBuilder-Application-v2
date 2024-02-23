@@ -7,7 +7,7 @@ import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
 import com.kiskee.vocabulary.model.entity.user.profile.UserProfile;
 import com.kiskee.vocabulary.model.entity.vocabulary.Dictionary;
 import com.kiskee.vocabulary.repository.user.profile.UserProfileRepository;
-import com.kiskee.vocabulary.service.vocabulary.VocabularyService;
+import com.kiskee.vocabulary.service.vocabulary.dictionary.DictionaryCreationService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -32,7 +32,7 @@ public class UserProfileServiceTest {
     @Mock
     private UserProfileRepository userProfileRepository;
     @Mock
-    private VocabularyService vocabularyService;
+    private DictionaryCreationService dictionaryCreationService;
     @Mock
     private ProfilePictureEncoder profilePictureEncoder;
     @Mock
@@ -54,7 +54,7 @@ public class UserProfileServiceTest {
 
         Dictionary dictionaryMock = mock(Dictionary.class);
         String dictionaryName = "Default Dictionary";
-        when(vocabularyService.createEmptyDictionary(dictionaryName)).thenReturn(dictionaryMock);
+        when(dictionaryCreationService.addDictionary(dictionaryName)).thenReturn(dictionaryMock);
         when(dictionaryMock.getDictionaryName()).thenReturn(dictionaryName);
 
         when(defaultUserProfileProperties.getDefaultAvatar()).thenReturn("defaultAvatar");
@@ -84,7 +84,7 @@ public class UserProfileServiceTest {
 
         Dictionary dictionaryMock = mock(Dictionary.class);
         String dictionaryName = "Default Dictionary";
-        when(vocabularyService.createEmptyDictionary(dictionaryName)).thenReturn(dictionaryMock);
+        when(dictionaryCreationService.addDictionary(dictionaryName)).thenReturn(dictionaryMock);
         when(dictionaryMock.getDictionaryName()).thenReturn(dictionaryName);
 
         String encodedPicture = "encodedPicture";

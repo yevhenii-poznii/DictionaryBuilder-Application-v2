@@ -19,6 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.rememberme.CookieTheftException;
@@ -64,7 +65,7 @@ public class AuthenticationServiceTest {
 
         UserVocabularyApplication user = new UserVocabularyApplication(USER_ID, "email", "username",
                 "noPassword", true, null, null);
-        Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, List.of());
+        Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
         when(securityContext.getAuthentication()).thenReturn(authentication);
         when(jwtProperties.getAccessExpirationTime()).thenReturn(1000L);
 
@@ -91,7 +92,7 @@ public class AuthenticationServiceTest {
 
         UserVocabularyApplication user = new UserVocabularyApplication(USER_ID, "email", "username",
                 "noPassword", true, null, null);
-        Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, List.of());
+        Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
         when(securityContext.getAuthentication()).thenReturn(authentication);
         when(jwtProperties.getAccessExpirationTime()).thenReturn(1000L);
 
@@ -114,7 +115,7 @@ public class AuthenticationServiceTest {
 
         UserVocabularyApplication user = new UserVocabularyApplication(USER_ID, "email", "username",
                 "noPassword", true, null, null);
-        Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, List.of());
+        Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
         when(securityContext.getAuthentication()).thenReturn(authentication);
 
         CookieToken cookieToken = mock(CookieToken.class);
@@ -132,7 +133,7 @@ public class AuthenticationServiceTest {
 
         UserVocabularyApplication user = new UserVocabularyApplication(USER_ID, "email", "username",
                 "noPassword", true, null, null);
-        Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, List.of());
+        Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
         when(securityContext.getAuthentication()).thenReturn(authentication);
 
         CookieToken cookieToken = mock(CookieToken.class);
