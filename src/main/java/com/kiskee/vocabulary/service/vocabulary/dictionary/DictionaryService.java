@@ -10,14 +10,14 @@ import com.kiskee.vocabulary.repository.vocabulary.DictionaryRepository;
 import com.kiskee.vocabulary.repository.vocabulary.projections.DictionaryProjection;
 import com.kiskee.vocabulary.util.IdentityUtil;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
-@Getter
 @AllArgsConstructor
 public class DictionaryService implements DictionaryCreationService {
 
@@ -44,6 +44,8 @@ public class DictionaryService implements DictionaryCreationService {
         UUID userProfileId = IdentityUtil.getUserId();
 
         if (repository.existsByDictionaryNameAndUserProfileId(dictionaryName, userProfileId)) {
+            log.info("Dictionary with name [{}] already exists for user [{}]", dictionaryName, userProfileId);
+
             throw new DuplicateResourceException(String.format(
                     VocabularyResponseMessageEnum.DICTIONARY_ALREADY_EXISTS.getResponseMessage(), dictionaryName));
         }
@@ -54,7 +56,11 @@ public class DictionaryService implements DictionaryCreationService {
     private Dictionary buildDictionaryAndSave(String dictionaryName, UUID userProfileId) {
         Dictionary dictionary = new Dictionary(null, dictionaryName, List.of(), userProfileId);
 
-        return repository.save(dictionary);
+        Dictionary savedDictionary = repository.save(dictionary);
+
+        log.info("New dictionary with name [{}] for user [{}] saved", dictionaryName, userProfileId);
+
+        return savedDictionary;
     }
 
 }
