@@ -35,10 +35,10 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class DictionaryServiceTest {
+public class DictionaryServiceImplTest {
 
     @InjectMocks
-    private DictionaryService dictionaryService;
+    private DictionaryServiceImpl dictionaryService;
     @Mock
     private DictionaryRepository dictionaryRepository;
     @Mock
@@ -62,7 +62,7 @@ public class DictionaryServiceTest {
 
         dictionaryService.addDictionary(dictionaryName);
 
-        verify(dictionaryRepository).existsByDictionaryNameAndUserProfileId(dictionaryName, null);
+        verify(dictionaryRepository).existsByDictionaryNameEqualsIgnoreCaseAndUserProfileId(dictionaryName, null);
         verify(dictionaryRepository).save(dictionaryArgumentCaptor.capture());
 
         Dictionary actual = dictionaryArgumentCaptor.getValue();
@@ -80,10 +80,14 @@ public class DictionaryServiceTest {
         when(securityContext.getAuthentication()).thenReturn(authentication);
         SecurityContextHolder.setContext(securityContext);
 
-        when(dictionaryRepository.existsByDictionaryNameAndUserProfileId(saveRequest.getDictionaryName(), USER_ID))
+        when(dictionaryRepository.existsByDictionaryNameEqualsIgnoreCaseAndUserProfileId(saveRequest.getDictionaryName(), USER_ID))
                 .thenReturn(false);
 
-        Dictionary savedDictionary = new Dictionary(1L, saveRequest.getDictionaryName(), Collections.emptyList(), USER_ID);
+        Dictionary savedDictionary = Dictionary.builder()
+                .id(1L)
+                .dictionaryName(saveRequest.getDictionaryName())
+                .userProfileId(USER_ID)
+                .build();
         when(dictionaryRepository.save(dictionaryArgumentCaptor.capture())).thenReturn(savedDictionary);
 
         DictionaryDto dictionaryDto = new DictionaryDto(1L, saveRequest.getDictionaryName(), 0);
@@ -103,7 +107,7 @@ public class DictionaryServiceTest {
     void testAddDictionaryWithStringDictionaryNameParam_WhenDictionaryWithTheSameNameAlreadyExistForUser_ThenThrowDuplicateResourceException() {
         String dictionaryName = "Default Dictionary";
 
-        when(dictionaryRepository.existsByDictionaryNameAndUserProfileId(dictionaryName, null))
+        when(dictionaryRepository.existsByDictionaryNameEqualsIgnoreCaseAndUserProfileId(dictionaryName, null))
                 .thenReturn(true);
 
         assertThatExceptionOfType(DuplicateResourceException.class)
@@ -125,7 +129,7 @@ public class DictionaryServiceTest {
         when(securityContext.getAuthentication()).thenReturn(authentication);
         SecurityContextHolder.setContext(securityContext);
 
-        when(dictionaryRepository.existsByDictionaryNameAndUserProfileId(saveRequest.getDictionaryName(), USER_ID))
+        when(dictionaryRepository.existsByDictionaryNameEqualsIgnoreCaseAndUserProfileId(saveRequest.getDictionaryName(), USER_ID))
                 .thenReturn(true);
 
         assertThatExceptionOfType(DuplicateResourceException.class)

@@ -6,7 +6,7 @@ import com.kiskee.vocabulary.exception.DuplicateResourceException;
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionaryDto;
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionarySaveRequest;
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionarySaveResponse;
-import com.kiskee.vocabulary.service.vocabulary.dictionary.DictionaryCreationService;
+import com.kiskee.vocabulary.service.vocabulary.dictionary.DictionaryService;
 import com.kiskee.vocabulary.util.TimeZoneContextHolder;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,7 +41,7 @@ public class DictionaryControllerTest {
     private WebApplicationContext webApplicationContext;
     private MockMvc mockMvc;
     @MockBean
-    private DictionaryCreationService dictionaryService;
+    private DictionaryService dictionaryService;
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -62,7 +62,7 @@ public class DictionaryControllerTest {
 
         when(dictionaryService.addDictionary(requestBody)).thenReturn(expectedResponseBody);
 
-        MvcResult result = mockMvc.perform(post("/dictionary")
+        MvcResult result = mockMvc.perform(post("/dictionaries")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestBody)))
                 .andDo(print())
@@ -81,7 +81,7 @@ public class DictionaryControllerTest {
 
         DictionarySaveRequest requestBody = new DictionarySaveRequest(dictionaryName);
 
-        mockMvc.perform(post("/dictionary")
+        mockMvc.perform(post("/dictionaries")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestBody)))
                 .andDo(print())
@@ -101,7 +101,7 @@ public class DictionaryControllerTest {
                 .thenThrow(new DuplicateResourceException(String.format(
                         VocabularyResponseMessageEnum.DICTIONARY_ALREADY_EXISTS.getResponseMessage(), requestBody.getDictionaryName())));
 
-        mockMvc.perform(post("/dictionary")
+        mockMvc.perform(post("/dictionaries")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestBody)))
                 .andDo(print())
