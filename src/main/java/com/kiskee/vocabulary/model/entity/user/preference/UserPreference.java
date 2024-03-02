@@ -14,6 +14,7 @@ import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -21,6 +22,7 @@ import java.util.UUID;
 
 @Entity
 @Getter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class UserPreference implements UserProfilePreferenceType {
@@ -34,6 +36,12 @@ public class UserPreference implements UserProfilePreferenceType {
 
     @Column(nullable = false)
     private int rightAnswersToDisableInRepetition;
+
+    @Column(nullable = false)
+    private int wordsPerPage;
+
+    @Column(nullable = false)
+    private boolean blurTranslation;
 
     @MapsId
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
