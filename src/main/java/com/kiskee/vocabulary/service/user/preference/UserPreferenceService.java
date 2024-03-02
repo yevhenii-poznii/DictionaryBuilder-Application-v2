@@ -19,7 +19,7 @@ public class UserPreferenceService extends AbstractUserProfilePreferenceInitiali
 
     @Getter
     private final UserPreferenceRepository repository;
-    private final DefaultUserPreferenceProperties defaultUserPreferenceProperties;
+    private final DefaultUserPreferenceProperties defaultPreference;
 
     @Override
     public <R extends RegistrationRequest> void initDefault(R registrationRequest) {
@@ -28,8 +28,13 @@ public class UserPreferenceService extends AbstractUserProfilePreferenceInitiali
 
     @Override
     protected <R extends RegistrationRequest> UserProfilePreferenceType buildEntityToSave(R registrationRequest) {
-        return new UserPreference(null, ProfileVisibility.PRIVATE,
-                defaultUserPreferenceProperties.getRightAnswersToDisableInRepetition(), registrationRequest.getUser());
+        return UserPreference.builder()
+                .profileVisibility(ProfileVisibility.PRIVATE)
+                .rightAnswersToDisableInRepetition(defaultPreference.getRightAnswersToDisableInRepetition())
+                .wordsPerPage(defaultPreference.getWordsPerPage())
+                .blurTranslation(defaultPreference.isBlurTranslation())
+                .user(registrationRequest.getUser())
+                .build();
     }
 
 }

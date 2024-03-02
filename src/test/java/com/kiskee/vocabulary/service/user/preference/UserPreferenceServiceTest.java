@@ -43,6 +43,8 @@ public class UserPreferenceServiceTest {
 
         when(givenUserEntity.getId()).thenReturn(useId);
         when(defaultUserPreferenceProperties.getRightAnswersToDisableInRepetition()).thenReturn(10);
+        when(defaultUserPreferenceProperties.getWordsPerPage()).thenReturn(100);
+        when(defaultUserPreferenceProperties.isBlurTranslation()).thenReturn(true);
 
         userPreferenceService.initDefault(registrationRequest);
 
@@ -52,6 +54,8 @@ public class UserPreferenceServiceTest {
         assertThat(actual.getUser().getId()).isEqualTo(useId);
         assertThat(actual.getProfileVisibility()).isEqualTo(ProfileVisibility.PRIVATE);
         assertThat(actual.getRightAnswersToDisableInRepetition()).isEqualTo(10);
+        assertThat(actual.getWordsPerPage()).isEqualTo(100);
+        assertThat(actual.isBlurTranslation()).isTrue();
     }
 
 }

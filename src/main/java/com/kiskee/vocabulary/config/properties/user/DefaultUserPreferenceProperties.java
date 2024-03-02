@@ -13,4 +13,8 @@ public class DefaultUserPreferenceProperties {
 
     private int rightAnswersToDisableInRepetition;
 
+    private int wordsPerPage;
+
+    private boolean blurTranslation;
+
 }

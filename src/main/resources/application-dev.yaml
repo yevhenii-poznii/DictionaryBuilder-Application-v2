@@ -50,6 +50,8 @@ vocabulary:
       default-avatar: ${DEFAULT_AVATAR}
     preference:
       right-answers-to-disable-in-repetition: ${RIGHT_ANSWERS_TO_DISABLE_IN_REPETITION:10}
+      words-per-page: ${WORDS_PER_PAGE:100}
+      blur-translation: ${BLUR_TRANSLATION:true}
   jwt:
     secret-key-path: ${JWE_SECRET_KEY_PATH:secretkey-256.bin}
     jwe-algorithm: ${JWE_ALGORITHM:dir}
