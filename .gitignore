@@ -33,3 +33,4 @@ build/
 .vscode/
 .DS_Store
 secretkey-256.bin
+keystore.p12

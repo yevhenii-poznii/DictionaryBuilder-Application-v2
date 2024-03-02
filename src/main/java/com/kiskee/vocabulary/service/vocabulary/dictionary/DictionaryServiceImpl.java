@@ -3,6 +3,7 @@ package com.kiskee.vocabulary.service.vocabulary.dictionary;
 import com.kiskee.vocabulary.enums.vocabulary.VocabularyResponseMessageEnum;
 import com.kiskee.vocabulary.exception.DuplicateResourceException;
 import com.kiskee.vocabulary.mapper.dictionary.DictionaryMapper;
+import com.kiskee.vocabulary.model.dto.ResponseMessage;
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionaryDto;
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionarySaveRequest;
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionarySaveResponse;
@@ -64,7 +65,7 @@ public class DictionaryServiceImpl implements DictionaryService {
     }
 
     @Override
-    public void deleteDictionary(Long dictionaryId) {
+    public ResponseMessage deleteDictionary(Long dictionaryId) {
         UUID userProfileId = IdentityUtil.getUserId();
 
         Dictionary dictionary = repository.getUserDictionary(dictionaryId, userProfileId);
@@ -72,6 +73,9 @@ public class DictionaryServiceImpl implements DictionaryService {
         repository.delete(dictionary);
 
         log.info("Dictionary with id [{}] deleted for user [{}]", dictionaryId, userProfileId);
+
+        return new ResponseMessage(String.format(
+                VocabularyResponseMessageEnum.DICTIONARY_DELETED.getResponseMessage(), dictionary.getDictionaryName()));
     }
 
     private Dictionary createEmptyDictionary(String dictionaryName) {
