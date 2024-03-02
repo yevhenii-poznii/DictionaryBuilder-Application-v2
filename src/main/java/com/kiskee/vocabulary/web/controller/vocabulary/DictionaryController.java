@@ -1,5 +1,6 @@
 package com.kiskee.vocabulary.web.controller.vocabulary;
 
+import com.kiskee.vocabulary.model.dto.ResponseMessage;
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionaryDto;
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionarySaveRequest;
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionarySaveResponse;
@@ -44,8 +45,8 @@ public class DictionaryController {
     }
 
     @DeleteMapping("/{dictionaryId}")
-    public void deleteDictionary(@PathVariable Long dictionaryId) {
-        dictionaryService.deleteDictionary(dictionaryId);
+    public ResponseMessage deleteDictionary(@PathVariable Long dictionaryId) {
+        return dictionaryService.deleteDictionary(dictionaryId);
     }
 
 }

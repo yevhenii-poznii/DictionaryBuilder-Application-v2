@@ -1,5 +1,6 @@
 package com.kiskee.vocabulary.service.vocabulary.dictionary;
 
+import com.kiskee.vocabulary.model.dto.ResponseMessage;
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionaryDto;
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionarySaveRequest;
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionarySaveResponse;
@@ -12,6 +13,6 @@ public interface DictionaryService extends DictionaryCreationService {
 
     DictionarySaveResponse updateDictionary(Long dictionaryId, DictionarySaveRequest dictionarySaveRequest);
 
-    void deleteDictionary(Long dictionaryId);
+    ResponseMessage deleteDictionary(Long dictionaryId);
 
 }
