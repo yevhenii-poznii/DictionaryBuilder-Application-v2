@@ -18,7 +18,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -42,7 +42,7 @@ public class UserProfile implements UserProfilePreferenceType {
     private String profilePicture;
 
     @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     @MapsId
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)

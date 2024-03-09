@@ -23,6 +23,14 @@ create table user_preference
     user_id                                uuid        not null primary key,
     profile_visibility                     varchar(20) not null check (profile_visibility IN ('PRIVATE', 'PUBLIC_FOR_FRIEND', 'PUBLIC')),
     right_answers_to_disable_in_repetition integer     not null,
+    words_per_page                         integer     not null,
+    blur_translation                       boolean     not null,
+    page_filter                            varchar(50) not null check (page_filter IN
+                                                                       ('BY_ADDED_AT_ASC', 'BY_ADDED_AT_DESC',
+                                                                        'ONLY_USE_IN_REPETITION_ASC',
+                                                                        'ONLY_USE_IN_REPETITION_DESC',
+                                                                        'ONLY_NOT_USE_IN_REPETITION_ASC',
+                                                                        'ONLY_NOT_USE_IN_REPETITION_DESC')),
 
     constraint fk_user_id foreign key (user_id) references user_vocabulary_application (id)
 );
@@ -37,6 +45,12 @@ create table dictionary
     constraint fk_user_profile_id foreign key (user_profile_id) references user_profile (user_id)
 );
 
+create table word_hint
+(
+    id   bigserial    not null primary key,
+    hint varchar(255) not null
+);
+
 create table word
 (
     id                    bigserial    not null primary key,
@@ -46,8 +60,10 @@ create table word
     added_at              timestamp(6) not null,
     edited_at             timestamp(6),
     dictionary_id         bigint,
+    word_hint_id          bigint unique,
 
-    constraint fk_dictionary_id foreign key (dictionary_id) references dictionary (id)
+    constraint fk_dictionary_id foreign key (dictionary_id) references dictionary (id),
+    constraint fk_word_hint_id foreign key (word_hint_id) references word_hint (id) on delete cascade
 );
 
 create table word_translation
@@ -56,16 +72,7 @@ create table word_translation
     translation text      not null,
     word_id     bigint,
 
-    constraint fk_word_id foreign key (word_id) references word
-);
-
-create table word_hint
-(
-    id      bigserial    not null,
-    hint    varchar(255) not null,
-    word_id bigint unique,
-
-    constraint fk_word_id foreign key (word_id) references word (id)
+    constraint fk_word_id foreign key (word_id) references word on delete cascade
 );
 
 create table token

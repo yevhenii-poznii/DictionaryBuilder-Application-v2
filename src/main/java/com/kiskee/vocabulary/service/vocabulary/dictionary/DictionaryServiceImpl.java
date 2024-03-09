@@ -1,21 +1,31 @@
 package com.kiskee.vocabulary.service.vocabulary.dictionary;
 
+import com.kiskee.vocabulary.enums.ExceptionStatusesEnum;
+import com.kiskee.vocabulary.enums.vocabulary.PageFilter;
 import com.kiskee.vocabulary.enums.vocabulary.VocabularyResponseMessageEnum;
 import com.kiskee.vocabulary.exception.DuplicateResourceException;
+import com.kiskee.vocabulary.exception.ResourceNotFoundException;
 import com.kiskee.vocabulary.mapper.dictionary.DictionaryMapper;
 import com.kiskee.vocabulary.model.dto.ResponseMessage;
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionaryDto;
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionarySaveRequest;
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionarySaveResponse;
+import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.page.DictionaryPageRequestDto;
+import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.page.DictionaryPageResponseDto;
 import com.kiskee.vocabulary.model.entity.vocabulary.Dictionary;
 import com.kiskee.vocabulary.repository.vocabulary.DictionaryRepository;
 import com.kiskee.vocabulary.repository.vocabulary.projections.DictionaryProjection;
+import com.kiskee.vocabulary.service.vocabulary.dictionary.page.DictionaryPageLoaderFactory;
+import com.kiskee.vocabulary.service.vocabulary.word.page.DictionaryPageLoader;
 import com.kiskee.vocabulary.util.IdentityUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -25,6 +35,8 @@ public class DictionaryServiceImpl implements DictionaryService {
 
     private final DictionaryRepository repository;
     private final DictionaryMapper mapper;
+
+    private final DictionaryPageLoaderFactory dictionaryPageLoaderFactory;
 
     @Override
     public DictionarySaveResponse addDictionary(DictionarySaveRequest dictionarySaveRequest) {
@@ -36,6 +48,20 @@ public class DictionaryServiceImpl implements DictionaryService {
     @Override
     public Dictionary addDictionary(String dictionaryName) {
         return createEmptyDictionary(dictionaryName);
+    }
+
+    @Override
+    @Transactional
+    public DictionaryPageResponseDto getDictionaryPageByOwner(Long dictionaryId,
+                                                              DictionaryPageRequestDto dictionaryPageRequest) {
+        UUID userProfileId = IdentityUtil.getUserId();
+
+        if (!repository.existsByIdAndUserProfileId(dictionaryId, userProfileId)) {
+            throw new ResourceNotFoundException(String.format(ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(),
+                    Dictionary.class.getSimpleName(), dictionaryId));
+        }
+
+        return getDictionaryPage(dictionaryId, dictionaryPageRequest);
     }
 
     @Override
@@ -107,6 +133,24 @@ public class DictionaryServiceImpl implements DictionaryService {
         log.info("New dictionary with name [{}] for user [{}] saved", dictionaryName, userProfileId);
 
         return savedDictionary;
+    }
+
+    private DictionaryPageResponseDto getDictionaryPage(Long dictionaryId,
+                                                        DictionaryPageRequestDto dictionaryPageRequest) {
+        int page = Optional.ofNullable(dictionaryPageRequest.getPage())
+                .orElse(0);
+
+        int size = Optional.ofNullable(dictionaryPageRequest.getSize())
+                .orElse(100);
+
+        PageFilter pageFilter = Optional.ofNullable(dictionaryPageRequest.getFilter())
+                .orElse(PageFilter.BY_ADDED_AT_ASC);
+
+        PageRequest pageRequest = PageRequest.of(page, size);
+
+        DictionaryPageLoader dictionaryPageLoader = dictionaryPageLoaderFactory.getLoader(pageFilter);
+
+        return dictionaryPageLoader.loadDictionaryPage(dictionaryId, pageRequest);
     }
 
     private DictionarySaveResponse mapToResponse(Dictionary dictionary, VocabularyResponseMessageEnum responseMessage) {

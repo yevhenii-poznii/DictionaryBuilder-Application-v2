@@ -13,6 +13,8 @@ public interface DictionaryRepository extends JpaRepository<Dictionary, Long> {
 
     boolean existsByDictionaryNameEqualsIgnoreCaseAndUserProfileId(String dictionaryName, UUID userProfileId);
 
+    boolean existsByIdAndUserProfileId(Long id, UUID userProfileId);
+
     List<DictionaryDto> findAllByUserProfileId(UUID userProfileId);
 
     Optional<Dictionary> findByIdAndUserProfileId(Long id, UUID userProfileId);
