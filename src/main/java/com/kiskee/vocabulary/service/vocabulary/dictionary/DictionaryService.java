@@ -11,7 +11,8 @@ import java.util.List;
 
 public interface DictionaryService extends DictionaryCreationService {
 
-    DictionaryPageResponseDto getDictionaryPage(Long dictionaryId, DictionaryPageRequestDto dictionaryPageRequest);
+    DictionaryPageResponseDto getDictionaryPageByOwner(Long dictionaryId,
+                                                       DictionaryPageRequestDto dictionaryPageRequest);
 
     List<DictionaryDto> getDictionaries();
 

@@ -36,10 +36,10 @@ public class DictionaryController {
         return dictionaryService.addDictionary(dictionarySaveRequest);
     }
 
-    @GetMapping("/{dictionaryId}/page")
+    @GetMapping("/{dictionaryId}")
     public DictionaryPageResponseDto getPage(@PathVariable Long dictionaryId,
                                              @ModelAttribute @Valid DictionaryPageRequestDto pageRequest) {
-        return dictionaryService.getDictionaryPage(dictionaryId, pageRequest);
+        return dictionaryService.getDictionaryPageByOwner(dictionaryId, pageRequest);
     }
 
     @GetMapping

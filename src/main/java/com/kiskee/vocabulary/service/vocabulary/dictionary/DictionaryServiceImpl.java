@@ -1,8 +1,10 @@
 package com.kiskee.vocabulary.service.vocabulary.dictionary;
 
+import com.kiskee.vocabulary.enums.ExceptionStatusesEnum;
 import com.kiskee.vocabulary.enums.vocabulary.PageFilter;
 import com.kiskee.vocabulary.enums.vocabulary.VocabularyResponseMessageEnum;
 import com.kiskee.vocabulary.exception.DuplicateResourceException;
+import com.kiskee.vocabulary.exception.ResourceNotFoundException;
 import com.kiskee.vocabulary.mapper.dictionary.DictionaryMapper;
 import com.kiskee.vocabulary.model.dto.ResponseMessage;
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionaryDto;
@@ -50,22 +52,16 @@ public class DictionaryServiceImpl implements DictionaryService {
 
     @Override
     @Transactional
-    public DictionaryPageResponseDto getDictionaryPage(Long dictionaryId,
-                                                       DictionaryPageRequestDto dictionaryPageRequest) {
-        int page = Optional.ofNullable(dictionaryPageRequest.getPage())
-                .orElse(0);
+    public DictionaryPageResponseDto getDictionaryPageByOwner(Long dictionaryId,
+                                                              DictionaryPageRequestDto dictionaryPageRequest) {
+        UUID userProfileId = IdentityUtil.getUserId();
 
-        int size = Optional.ofNullable(dictionaryPageRequest.getSize())
-                .orElse(100);
+        if (!repository.existsByIdAndUserProfileId(dictionaryId, userProfileId)) {
+            throw new ResourceNotFoundException(String.format(ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(),
+                    Dictionary.class.getSimpleName(), dictionaryId));
+        }
 
-        PageFilter pageFilter = Optional.ofNullable(dictionaryPageRequest.getFilter())
-                .orElse(PageFilter.BY_ADDED_AT_ASC);
-
-        PageRequest pageRequest = PageRequest.of(page, size);
-
-        DictionaryPageLoader dictionaryPageLoader = dictionaryPageLoaderFactory.getLoader(pageFilter);
-
-        return dictionaryPageLoader.loadDictionaryPage(dictionaryId, pageRequest);
+        return getDictionaryPage(dictionaryId, dictionaryPageRequest);
     }
 
     @Override
@@ -137,6 +133,24 @@ public class DictionaryServiceImpl implements DictionaryService {
         log.info("New dictionary with name [{}] for user [{}] saved", dictionaryName, userProfileId);
 
         return savedDictionary;
+    }
+
+    private DictionaryPageResponseDto getDictionaryPage(Long dictionaryId,
+                                                        DictionaryPageRequestDto dictionaryPageRequest) {
+        int page = Optional.ofNullable(dictionaryPageRequest.getPage())
+                .orElse(0);
+
+        int size = Optional.ofNullable(dictionaryPageRequest.getSize())
+                .orElse(100);
+
+        PageFilter pageFilter = Optional.ofNullable(dictionaryPageRequest.getFilter())
+                .orElse(PageFilter.BY_ADDED_AT_ASC);
+
+        PageRequest pageRequest = PageRequest.of(page, size);
+
+        DictionaryPageLoader dictionaryPageLoader = dictionaryPageLoaderFactory.getLoader(pageFilter);
+
+        return dictionaryPageLoader.loadDictionaryPage(dictionaryId, pageRequest);
     }
 
     private DictionarySaveResponse mapToResponse(Dictionary dictionary, VocabularyResponseMessageEnum responseMessage) {
