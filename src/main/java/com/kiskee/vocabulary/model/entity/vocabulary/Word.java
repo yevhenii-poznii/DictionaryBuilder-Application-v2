@@ -9,16 +9,20 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.OrderBy;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 @Entity
 @Getter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Word {
@@ -37,16 +41,22 @@ public class Word {
     private int counterRightAnswers;
 
     @Column(nullable = false)
-    private LocalDateTime addedAt;
+    private Instant addedAt;
 
     @Column
-    private LocalDateTime editedAt;
+    private Instant editedAt;
 
+    @Column(nullable = false)
+    private Long dictionaryId;
+
+    @OrderBy
     @JoinColumn(name = "wordId")
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<WordTranslation> wordTranslations;
 
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "word", orphanRemoval = true)
+    @Setter
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "wordHintId", referencedColumnName = "id")
     private WordHint wordHint;
 
 }

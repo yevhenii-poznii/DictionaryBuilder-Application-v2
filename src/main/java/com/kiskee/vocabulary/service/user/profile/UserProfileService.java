@@ -12,7 +12,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 
@@ -34,7 +34,7 @@ public class UserProfileService extends AbstractUserProfilePreferenceInitializat
 
     @Override
     protected <R extends RegistrationRequest> UserProfile buildEntityToSave(R registrationRequest) {
-        LocalDateTime createdAt = LocalDateTime.now();
+        Instant createdAt = Instant.now();
 
         Dictionary dictionary = dictionaryCreationService.addDictionary("Default Dictionary");
 
