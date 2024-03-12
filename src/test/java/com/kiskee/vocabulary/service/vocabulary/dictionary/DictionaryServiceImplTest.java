@@ -1,6 +1,7 @@
 package com.kiskee.vocabulary.service.vocabulary.dictionary;
 
 import com.kiskee.vocabulary.enums.ExceptionStatusesEnum;
+import com.kiskee.vocabulary.enums.vocabulary.PageFilter;
 import com.kiskee.vocabulary.enums.vocabulary.VocabularyResponseMessageEnum;
 import com.kiskee.vocabulary.exception.DuplicateResourceException;
 import com.kiskee.vocabulary.exception.ResourceNotFoundException;
@@ -8,17 +9,27 @@ import com.kiskee.vocabulary.mapper.dictionary.DictionaryMapper;
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionaryDto;
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionarySaveRequest;
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionarySaveResponse;
+import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.page.DictionaryPageRequestDto;
+import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.page.DictionaryPageResponseDto;
+import com.kiskee.vocabulary.model.dto.vocabulary.word.WordDto;
+import com.kiskee.vocabulary.model.dto.vocabulary.word.WordHintDto;
+import com.kiskee.vocabulary.model.dto.vocabulary.word.WordTranslationDto;
 import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
 import com.kiskee.vocabulary.model.entity.vocabulary.Dictionary;
 import com.kiskee.vocabulary.repository.vocabulary.DictionaryRepository;
+import com.kiskee.vocabulary.service.vocabulary.dictionary.page.DictionaryPageLoaderFactory;
+import com.kiskee.vocabulary.service.vocabulary.word.page.DictionaryPageLoader;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -28,9 +39,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -47,6 +61,8 @@ public class DictionaryServiceImplTest {
     private DictionaryRepository dictionaryRepository;
     @Mock
     private DictionaryMapper dictionaryMapper;
+    @Mock
+    private DictionaryPageLoaderFactory dictionaryPageLoaderFactory;
     @Mock
     private SecurityContext securityContext;
 
@@ -143,6 +159,82 @@ public class DictionaryServiceImplTest {
 
         verifyNoMoreInteractions(dictionaryRepository);
         verifyNoInteractions(dictionaryMapper);
+    }
+
+    @Test
+    void testGetDictionaryPageByOwner_WhenGivenExistingDictionaryIdForUser_ThenReturnDictionaryPage() {
+        Long dictionaryId = 1L;
+        DictionaryPageRequestDto pageRequest = new DictionaryPageRequestDto(0, 100, PageFilter.BY_ADDED_AT_ASC);
+
+        UserVocabularyApplication user = new UserVocabularyApplication(USER_ID, "email", "username",
+                "noPassword", true, null, null);
+        Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
+        DictionaryPageResponseDto response = returnDictionaryPageResponseDto();
+
+        when(dictionaryRepository.existsByIdAndUserProfileId(dictionaryId, USER_ID)).thenReturn(true);
+
+        DictionaryPageLoader loader = mock(DictionaryPageLoader.class);
+        when(dictionaryPageLoaderFactory.getLoader(pageRequest.getFilter())).thenReturn(loader);
+        when(loader.loadDictionaryPage(eq(dictionaryId), any(PageRequest.class))).thenReturn(response);
+
+        DictionaryPageResponseDto result = dictionaryService.getDictionaryPageByOwner(dictionaryId, pageRequest);
+
+        assertThat(result.getWords()).extracting(WordDto::getId)
+                .containsExactly(1L, 2L);
+        assertThat(result.getTotalElements()).isEqualTo(2);
+        assertThat(result.getTotalPages()).isEqualTo(0);
+    }
+
+    @Test
+    void testGetDictionaryPageByOwner_WhenGivenDictionaryIdDoesNotExistsForUser_ThenThrowResourceNotFoundException() {
+        Long dictionaryId = 1L;
+        DictionaryPageRequestDto pageRequest = new DictionaryPageRequestDto(0, 100, PageFilter.BY_ADDED_AT_ASC);
+
+        UserVocabularyApplication user = new UserVocabularyApplication(USER_ID, "email", "username",
+                "noPassword", true, null, null);
+        Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
+        when(dictionaryRepository.existsByIdAndUserProfileId(dictionaryId, USER_ID)).thenReturn(false);
+
+        assertThatExceptionOfType(ResourceNotFoundException.class)
+                .isThrownBy(() -> dictionaryService.getDictionaryPageByOwner(dictionaryId, pageRequest))
+                .withMessage(String.format(ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(),
+                        Dictionary.class.getSimpleName(), dictionaryId));
+
+        verifyNoInteractions(dictionaryPageLoaderFactory);
+    }
+
+    @ParameterizedTest
+    @MethodSource("invalidDictionaryPageRequestDto")
+    void testGetDictionaryPageByOwner_WhenGivenDictionaryPageRequestDtoHasNullFields_ThenReturnDictionaryPage(
+            DictionaryPageRequestDto dictionaryPageRequest) {
+        Long dictionaryId = 1L;
+
+        UserVocabularyApplication user = new UserVocabularyApplication(USER_ID, "email", "username",
+                "noPassword", true, null, null);
+        Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
+        DictionaryPageResponseDto response = returnDictionaryPageResponseDto();
+
+        when(dictionaryRepository.existsByIdAndUserProfileId(dictionaryId, USER_ID)).thenReturn(true);
+
+        DictionaryPageLoader loader = mock(DictionaryPageLoader.class);
+        when(dictionaryPageLoaderFactory.getLoader(any(PageFilter.class))).thenReturn(loader);
+        when(loader.loadDictionaryPage(eq(dictionaryId), any(PageRequest.class))).thenReturn(response);
+
+        DictionaryPageResponseDto result = dictionaryService.getDictionaryPageByOwner(dictionaryId, dictionaryPageRequest);
+
+        assertThat(result.getWords()).extracting(WordDto::getId)
+                .containsExactly(1L, 2L);
+        assertThat(result.getTotalElements()).isEqualTo(2);
+        assertThat(result.getTotalPages()).isEqualTo(0);
     }
 
     @Test
@@ -307,7 +399,7 @@ public class DictionaryServiceImplTest {
 
         when(dictionaryRepository.getUserDictionary(dictionaryId, USER_ID))
                 .thenThrow(new ResourceNotFoundException(String.format(
-                ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(), Dictionary.class.getSimpleName(), dictionaryId)));
+                        ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(), Dictionary.class.getSimpleName(), dictionaryId)));
 
         assertThatExceptionOfType(ResourceNotFoundException.class)
                 .isThrownBy(() -> dictionaryService.deleteDictionary(dictionaryId))
@@ -315,6 +407,29 @@ public class DictionaryServiceImplTest {
                         ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(), Dictionary.class.getSimpleName(), dictionaryId));
 
         verifyNoMoreInteractions(dictionaryRepository);
+    }
+
+    private static DictionaryPageResponseDto returnDictionaryPageResponseDto() {
+        List<WordDto> words = List.of(
+                new WordDto(1L, "word1", true, List.of(
+                        new WordTranslationDto(1L, "translation1"),
+                        new WordTranslationDto(2L, "translation2")
+                ), new WordHintDto(1L, "hint1")),
+                new WordDto(2L, "word2", false, List.of(
+                        new WordTranslationDto(3L, "translation3"),
+                        new WordTranslationDto(4L, "translation4")
+                ), new WordHintDto(2L, "hint2")));
+
+        return new DictionaryPageResponseDto(words, 0, 2);
+    }
+
+    static Stream<DictionaryPageRequestDto> invalidDictionaryPageRequestDto() {
+        return Stream.of(
+                new DictionaryPageRequestDto(null, 100, PageFilter.BY_ADDED_AT_ASC),
+                new DictionaryPageRequestDto(0, null, PageFilter.BY_ADDED_AT_ASC),
+                new DictionaryPageRequestDto(0, 20,  null),
+                new DictionaryPageRequestDto(null, null,  null)
+        );
     }
 
 }
