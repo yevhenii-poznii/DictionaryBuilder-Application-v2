@@ -2,6 +2,7 @@ package com.kiskee.vocabulary.web.controller.vocabulary;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kiskee.vocabulary.enums.ExceptionStatusesEnum;
+import com.kiskee.vocabulary.enums.vocabulary.PageFilter;
 import com.kiskee.vocabulary.enums.vocabulary.VocabularyResponseMessageEnum;
 import com.kiskee.vocabulary.exception.DuplicateResourceException;
 import com.kiskee.vocabulary.exception.ResourceNotFoundException;
@@ -9,10 +10,17 @@ import com.kiskee.vocabulary.model.dto.ResponseMessage;
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionaryDto;
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionarySaveRequest;
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionarySaveResponse;
+import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.page.DictionaryPageRequestDto;
+import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.page.DictionaryPageResponseDto;
+import com.kiskee.vocabulary.model.dto.vocabulary.word.WordDto;
+import com.kiskee.vocabulary.model.dto.vocabulary.word.WordHintDto;
+import com.kiskee.vocabulary.model.dto.vocabulary.word.WordTranslationDto;
 import com.kiskee.vocabulary.model.entity.vocabulary.Dictionary;
 import com.kiskee.vocabulary.service.vocabulary.dictionary.DictionaryService;
 import com.kiskee.vocabulary.util.TimeZoneContextHolder;
+import com.kiskee.vocabulary.web.advice.ErrorResponse;
 import lombok.SneakyThrows;
+import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,7 +36,10 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -117,6 +128,88 @@ public class DictionaryControllerTest {
                         status().isBadRequest(),
                         jsonPath("$.errors.responseMessage")
                                 .value("Dictionary with name dictionaryName already exists for user"));
+
+        TimeZoneContextHolder.clear();
+    }
+
+    @Test
+    @SneakyThrows
+    void testGetPage_WhenGivenExistingDictionaryIdAndValidRequestParams_ThenReturnDictionaryPage() {
+        Long dictionaryId = 1L;
+        DictionaryPageRequestDto pageRequest = new DictionaryPageRequestDto(0, 100, PageFilter.BY_ADDED_AT_ASC);
+
+        DictionaryPageResponseDto expectedResponseBody = returnDictionaryPageResponseDto();
+
+        when(dictionaryService.getDictionaryPageByOwner(dictionaryId, pageRequest)).thenReturn(expectedResponseBody);
+
+        MvcResult result = mockMvc.perform(get("/dictionaries/" + dictionaryId)
+                        .param("page", pageRequest.getPage().toString())
+                        .param("size", pageRequest.getSize().toString())
+                        .param("filter", pageRequest.getFilter().toString()))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String actualResponseBody = result.getResponse().getContentAsString();
+        assertThat(actualResponseBody).isEqualTo(objectMapper.writeValueAsString(expectedResponseBody));
+    }
+
+    @Test
+    @SneakyThrows
+    void testGetPage_WhenGivenNotExistingDictionaryIdForUser_ThenReturnNotFoundStatus() {
+        TimeZoneContextHolder.setTimeZone("UTC");
+
+        Long dictionaryId = 1L;
+        DictionaryPageRequestDto pageRequest = new DictionaryPageRequestDto(0, 100, PageFilter.BY_ADDED_AT_ASC);
+
+        when(dictionaryService.getDictionaryPageByOwner(dictionaryId, pageRequest))
+                .thenThrow(new ResourceNotFoundException(String.format(
+                        ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(), Dictionary.class.getSimpleName(), dictionaryId)));
+
+        mockMvc.perform(get("/dictionaries/" + dictionaryId)
+                        .param("page", pageRequest.getPage().toString())
+                        .param("size", pageRequest.getSize().toString())
+                        .param("filter", pageRequest.getFilter().toString()))
+                .andDo(print())
+                .andExpectAll(
+                        status().isNotFound(),
+                        jsonPath("$.errors.responseMessage")
+                                .value("Dictionary [1] hasn't been found"));
+
+        TimeZoneContextHolder.clear();
+    }
+
+    @SneakyThrows
+    @ParameterizedTest
+    @MethodSource("invalidRequestParams")
+    void testGetPage_When_ThenReturnBadRequest(Tuple params) {
+        TimeZoneContextHolder.setTimeZone("UTC");
+
+        long dictionaryId = 1L;
+        List<Object> parameters = Arrays.stream(params.toArray()).toList();
+        DictionaryPageRequestDto pageRequest = (DictionaryPageRequestDto) parameters.get(0);
+        List<?> errors = (List<?>) parameters.get(1);
+
+        when(dictionaryService.getDictionaryPageByOwner(dictionaryId, pageRequest))
+                .thenThrow(new IllegalArgumentException("Invalid page request"));
+
+        MvcResult result = mockMvc.perform(get("/dictionaries/" + dictionaryId)
+                        .param("page", pageRequest.getPage().toString())
+                        .param("size", pageRequest.getSize().toString())
+                        .param("filter", pageRequest.getFilter().toString()))
+                .andDo(print())
+                .andExpectAll(
+                        status().isBadRequest(),
+                        jsonPath("$.status").value("Bad Request")
+                )
+                .andReturn();
+
+        String actualResponseBody = result.getResponse().getContentAsString();
+        ErrorResponse errorResponse = objectMapper.readValue(actualResponseBody, ErrorResponse.class);
+
+        assertThat(errorResponse.getErrors())
+                .extractingFromEntries(Map.Entry::getValue)
+                .containsExactlyInAnyOrderElementsOf(errors.stream().map(Object::toString).collect(Collectors.toList()));
 
         TimeZoneContextHolder.clear();
     }
@@ -294,6 +387,30 @@ public class DictionaryControllerTest {
                 "dictionaryName!", "dictionaryName@", "dictionaryName#", "dictionaryName$", "dictionaryName%",
                 "dictionaryName ", " dictionaryName"
         );
+    }
+
+    static Stream<Tuple> invalidRequestParams() {
+        return Stream.of(
+                Tuple.tuple(new DictionaryPageRequestDto(-1, 100, PageFilter.BY_ADDED_AT_ASC),
+                        List.of("must be greater than or equal to 0")),
+                Tuple.tuple(new DictionaryPageRequestDto(0, 19, PageFilter.BY_ADDED_AT_ASC),
+                        List.of("must be greater than or equal to 20")),
+                Tuple.tuple(new DictionaryPageRequestDto(-1, 19, PageFilter.BY_ADDED_AT_ASC),
+                        List.of("must be greater than or equal to 0", "must be greater than or equal to 20"))
+        );
+    }
+
+    private static DictionaryPageResponseDto returnDictionaryPageResponseDto() {
+        List<WordDto> words = List.of(
+                new WordDto(1L, "word1", true, List.of(
+                        new WordTranslationDto(1L, "translation1"),
+                        new WordTranslationDto(2L, "translation2")
+                ), new WordHintDto(1L, "hint1")),
+                new WordDto(2L, "word2", false, List.of(
+                        new WordTranslationDto(3L, "translation3"),
+                        new WordTranslationDto(4L, "translation4")
+                ), new WordHintDto(2L, "hint2")));
+        return new DictionaryPageResponseDto(words, 0, 2);
     }
 
 }
