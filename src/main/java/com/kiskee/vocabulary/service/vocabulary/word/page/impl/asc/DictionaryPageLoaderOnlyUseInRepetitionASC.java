@@ -4,7 +4,7 @@ import com.kiskee.vocabulary.enums.vocabulary.PageFilter;
 import com.kiskee.vocabulary.mapper.dictionary.DictionaryPageMapper;
 import com.kiskee.vocabulary.model.dto.vocabulary.word.WordIdDto;
 import com.kiskee.vocabulary.model.entity.vocabulary.Word;
-import com.kiskee.vocabulary.repository.vocabulary.WordRepository;
+import com.kiskee.vocabulary.repository.vocabulary.DictionaryPageRepository;
 import com.kiskee.vocabulary.service.vocabulary.word.page.AbstractDictionaryPageLoaderASC;
 import com.kiskee.vocabulary.service.vocabulary.word.page.DictionaryPageLoader;
 import org.springframework.data.domain.Page;
@@ -32,7 +32,8 @@ public class DictionaryPageLoaderOnlyUseInRepetitionASC extends AbstractDictiona
         return PageFilter.ONLY_USE_IN_REPETITION_ASC;
     }
 
-    public DictionaryPageLoaderOnlyUseInRepetitionASC(WordRepository repository, DictionaryPageMapper mapper) {
+    public DictionaryPageLoaderOnlyUseInRepetitionASC(DictionaryPageRepository repository,
+                                                      DictionaryPageMapper mapper) {
         super(repository, mapper);
     }
 

@@ -1,6 +1,7 @@
 package com.kiskee.vocabulary.web.advice;
 
 import com.kiskee.vocabulary.exception.DuplicateResourceException;
+import com.kiskee.vocabulary.exception.ForbiddenAccessException;
 import com.kiskee.vocabulary.exception.ResourceNotFoundException;
 import com.kiskee.vocabulary.exception.token.InvalidVerificationTokenException;
 import com.kiskee.vocabulary.exception.user.DuplicateUserException;
@@ -26,7 +27,7 @@ import java.util.stream.Collectors;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    private final String logMessage = "[{}] request has received with [{}] at [{}]";
+    private static final String logMessage = "[{}] request has received with [{}] at [{}]";
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException exception) {
@@ -38,13 +39,7 @@ public class GlobalExceptionHandler {
                 .filter(fieldError -> fieldError.getDefaultMessage() != null)
                 .collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage));
 
-        ZonedDateTime timestamp = Instant.now().atZone(TimeZoneContextHolder.getTimeZone());
-
-        ErrorResponse response = new ErrorResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(), errors, timestamp);
-
-        log.info(logMessage, response.getStatus(), errors, timestamp);
-
-        return ResponseEntity.badRequest().body(response);
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, errors);
     }
 
     @ExceptionHandler(DuplicateUserException.class)
@@ -72,11 +67,20 @@ public class GlobalExceptionHandler {
         return handleCustomException(exception, HttpStatus.CONFLICT);
     }
 
+    @ExceptionHandler(ForbiddenAccessException.class)
+    public ResponseEntity<ErrorResponse> handleForbiddenAccessException(ForbiddenAccessException exception) {
+        return handleCustomException(exception, HttpStatus.FORBIDDEN);
+    }
+
     private ResponseEntity<ErrorResponse> handleCustomException(Throwable exception, HttpStatus status) {
         String responseMessage = exception.getMessage();
 
         Map<String, String> errors = Map.of("responseMessage", responseMessage);
 
+        return buildErrorResponse(status, errors);
+    }
+
+    private ResponseEntity<ErrorResponse> buildErrorResponse(HttpStatus status, Map<String, String> errors) {
         ZonedDateTime timestamp = Instant.now().atZone(TimeZoneContextHolder.getTimeZone());
 
         ErrorResponse response = new ErrorResponse(status.getReasonPhrase(), errors, timestamp);

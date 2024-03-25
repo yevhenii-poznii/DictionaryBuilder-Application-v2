@@ -4,11 +4,9 @@ import com.kiskee.vocabulary.enums.vocabulary.PageFilter;
 import com.kiskee.vocabulary.mapper.dictionary.DictionaryPageMapper;
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.page.DictionaryPageResponseDto;
 import com.kiskee.vocabulary.model.dto.vocabulary.word.WordDto;
-import com.kiskee.vocabulary.model.dto.vocabulary.word.WordHintDto;
 import com.kiskee.vocabulary.model.dto.vocabulary.word.WordIdDto;
 import com.kiskee.vocabulary.model.entity.vocabulary.Word;
-import com.kiskee.vocabulary.model.entity.vocabulary.WordHint;
-import com.kiskee.vocabulary.repository.vocabulary.WordRepository;
+import com.kiskee.vocabulary.repository.vocabulary.DictionaryPageRepository;
 import com.kiskee.vocabulary.service.vocabulary.word.page.impl.asc.DictionaryPageLoaderOnlyNotUseInRepetitionASC;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,7 +31,7 @@ public class DictionaryPageLoaderOnlyNotUseInRepetitionASCTest {
     private DictionaryPageLoaderOnlyNotUseInRepetitionASC dictionaryPageLoaderOnlyNotUseInRepetitionASC;
 
     @Mock
-    private WordRepository repository;
+    private DictionaryPageRepository repository;
     @Mock
     private DictionaryPageMapper mapper;
 
@@ -58,14 +56,14 @@ public class DictionaryPageLoaderOnlyNotUseInRepetitionASCTest {
         when(repository.findByDictionaryIdAndUseInRepetition(eq(dictionaryId), eq(false), any(PageRequest.class))).thenReturn(page);
 
         List<Word> words = List.of(
-                new Word(1L, "word1", false, 0, null, null, 1L, List.of(), mock(WordHint.class)),
-                new Word(2L, "word2", false, 0, null, null, 1L, List.of(), mock(WordHint.class))
+                new Word(1L, "word1", false, 0, null, null, null, 1L, List.of()),
+                new Word(2L, "word2", false, 0, null, null, null, 1L, List.of())
         );
         when(repository.findByIdInAndUseInRepetitionOrderByAddedAtAsc(List.of(1L, 2L), false)).thenReturn(words);
 
         List<WordDto> wordDtos = List.of(
-                new WordDto(1L, "word1", false, List.of(), mock(WordHintDto.class)),
-                new WordDto(2L, "word2", false, List.of(), mock(WordHintDto.class))
+                new WordDto(1L, "word1", false, List.of(), "hint1"),
+                new WordDto(2L, "word2", false, List.of(), "hint2")
         );
         DictionaryPageResponseDto expectedResult = new DictionaryPageResponseDto(wordDtos,
                 page.getTotalPages(), (int) page.getTotalElements());

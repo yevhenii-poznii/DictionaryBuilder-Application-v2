@@ -13,6 +13,6 @@ public class WordDto {
     private String word;
     private boolean useInRepetition;
     private List<WordTranslationDto> wordTranslations;
-    private WordHintDto wordHint;
+    private String wordHint;
 
 }

@@ -5,7 +5,7 @@ import com.kiskee.vocabulary.mapper.dictionary.DictionaryPageMapper;
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.page.DictionaryPageResponseDto;
 import com.kiskee.vocabulary.model.dto.vocabulary.word.WordIdDto;
 import com.kiskee.vocabulary.model.entity.vocabulary.Word;
-import com.kiskee.vocabulary.repository.vocabulary.WordRepository;
+import com.kiskee.vocabulary.repository.vocabulary.DictionaryPageRepository;
 import com.kiskee.vocabulary.util.IdentityUtil;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,7 +22,7 @@ import java.util.List;
 @AllArgsConstructor
 public abstract class AbstractDictionaryPageLoader {
 
-    private final WordRepository repository;
+    private final DictionaryPageRepository repository;
     private final DictionaryPageMapper mapper;
 
     private static final String ORDER_BY = "addedAt";
