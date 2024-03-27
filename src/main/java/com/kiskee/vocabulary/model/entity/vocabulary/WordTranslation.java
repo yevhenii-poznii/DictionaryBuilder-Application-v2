@@ -23,7 +23,4 @@ public class WordTranslation {
     @Column(nullable = false)
     private String translation;
 
-    @Column(nullable = false)
-    private Long wordId;
-
 }

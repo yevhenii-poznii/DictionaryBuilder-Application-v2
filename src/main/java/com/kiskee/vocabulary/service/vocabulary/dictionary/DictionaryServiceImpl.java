@@ -31,7 +31,7 @@ import java.util.UUID;
 @Slf4j
 @Service
 @AllArgsConstructor
-public class DictionaryServiceImpl implements DictionaryService {
+public class DictionaryServiceImpl implements DictionaryService, DictionaryAccessValidator {
 
     private final DictionaryRepository repository;
     private final DictionaryMapper mapper;
@@ -54,12 +54,7 @@ public class DictionaryServiceImpl implements DictionaryService {
     @Transactional
     public DictionaryPageResponseDto getDictionaryPageByOwner(Long dictionaryId,
                                                               DictionaryPageRequestDto dictionaryPageRequest) {
-        UUID userProfileId = IdentityUtil.getUserId();
-
-        if (!repository.existsByIdAndUserProfileId(dictionaryId, userProfileId)) {
-            throw new ResourceNotFoundException(String.format(ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(),
-                    Dictionary.class.getSimpleName(), dictionaryId));
-        }
+        ensureDictionaryBelongsToUser(dictionaryId);
 
         return getDictionaryPage(dictionaryId, dictionaryPageRequest);
     }
@@ -91,6 +86,7 @@ public class DictionaryServiceImpl implements DictionaryService {
     }
 
     @Override
+    @Transactional
     public ResponseMessage deleteDictionary(Long dictionaryId) {
         UUID userProfileId = IdentityUtil.getUserId();
 
@@ -102,6 +98,11 @@ public class DictionaryServiceImpl implements DictionaryService {
 
         return new ResponseMessage(String.format(
                 VocabularyResponseMessageEnum.DICTIONARY_DELETED.getResponseMessage(), dictionary.getDictionaryName()));
+    }
+
+    @Override
+    public void verifyUserHasDictionary(Long dictionaryId) {
+        ensureDictionaryBelongsToUser(dictionaryId);
     }
 
     private Dictionary createEmptyDictionary(String dictionaryName) {
@@ -133,6 +134,15 @@ public class DictionaryServiceImpl implements DictionaryService {
         log.info("New dictionary with name [{}] for user [{}] saved", dictionaryName, userProfileId);
 
         return savedDictionary;
+    }
+
+    private void ensureDictionaryBelongsToUser(Long dictionaryId) {
+        UUID userProfileId = IdentityUtil.getUserId();
+
+        if (!repository.existsByIdAndUserProfileId(dictionaryId, userProfileId)) {
+            throw new ResourceNotFoundException(String.format(ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(),
+                    Dictionary.class.getSimpleName(), dictionaryId));
+        }
     }
 
     private DictionaryPageResponseDto getDictionaryPage(Long dictionaryId,

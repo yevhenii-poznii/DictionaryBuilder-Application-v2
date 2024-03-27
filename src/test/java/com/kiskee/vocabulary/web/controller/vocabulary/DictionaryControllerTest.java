@@ -13,7 +13,6 @@ import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionarySaveRespo
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.page.DictionaryPageRequestDto;
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.page.DictionaryPageResponseDto;
 import com.kiskee.vocabulary.model.dto.vocabulary.word.WordDto;
-import com.kiskee.vocabulary.model.dto.vocabulary.word.WordHintDto;
 import com.kiskee.vocabulary.model.dto.vocabulary.word.WordTranslationDto;
 import com.kiskee.vocabulary.model.entity.vocabulary.Dictionary;
 import com.kiskee.vocabulary.service.vocabulary.dictionary.DictionaryService;
@@ -405,11 +404,11 @@ public class DictionaryControllerTest {
                 new WordDto(1L, "word1", true, List.of(
                         new WordTranslationDto(1L, "translation1"),
                         new WordTranslationDto(2L, "translation2")
-                ), new WordHintDto(1L, "hint1")),
+                ), "hint1"),
                 new WordDto(2L, "word2", false, List.of(
                         new WordTranslationDto(3L, "translation3"),
                         new WordTranslationDto(4L, "translation4")
-                ), new WordHintDto(2L, "hint2")));
+                ), "hint2"));
         return new DictionaryPageResponseDto(words, 0, 2);
     }
 

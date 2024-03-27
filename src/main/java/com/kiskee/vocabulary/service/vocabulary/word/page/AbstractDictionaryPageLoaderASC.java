@@ -1,12 +1,12 @@
 package com.kiskee.vocabulary.service.vocabulary.word.page;
 
 import com.kiskee.vocabulary.mapper.dictionary.DictionaryPageMapper;
-import com.kiskee.vocabulary.repository.vocabulary.WordRepository;
+import com.kiskee.vocabulary.repository.vocabulary.DictionaryPageRepository;
 import org.springframework.data.domain.Sort;
 
 public abstract class AbstractDictionaryPageLoaderASC extends AbstractDictionaryPageLoader {
 
-    public AbstractDictionaryPageLoaderASC(WordRepository repository, DictionaryPageMapper mapper) {
+    public AbstractDictionaryPageLoaderASC(DictionaryPageRepository repository, DictionaryPageMapper mapper) {
         super(repository, mapper);
     }
 
