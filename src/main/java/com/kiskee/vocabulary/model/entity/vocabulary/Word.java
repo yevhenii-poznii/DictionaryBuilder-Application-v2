@@ -55,4 +55,9 @@ public class Word {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<WordTranslation> wordTranslations;
 
+    @Override
+    public String toString() {
+        return getWord();
+    }
+
 }
