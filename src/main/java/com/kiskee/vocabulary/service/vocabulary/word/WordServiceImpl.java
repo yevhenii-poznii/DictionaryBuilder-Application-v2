@@ -81,7 +81,7 @@ public class WordServiceImpl implements WordService {
         displayLog(LogMessageEnum.WORD_DELETED, wordToDelete);
 
         return new ResponseMessage(String.format(
-                VocabularyResponseMessageEnum.WORD_DELETED.getResponseMessage(), wordToDelete.getWord()));
+                VocabularyResponseMessageEnum.WORD_DELETED.getResponseMessage(), wordToDelete));
     }
 
     @Override
