@@ -1,0 +1,13 @@
+global:
+  scrape_interval: 60s
+
+scrape_configs:
+  - job_name: 'spring-application'
+    metrics_path: '/api/v1/actuator/prometheus'
+    scheme: https
+    static_configs:
+      - targets: [ 'host.docker.internal:8443' ]
+    tls_config:
+      insecure_skip_verify: true
+#    proxy_connect_header: [X-API-Key: prometheus]
+#      X-API-Key: ${PROMETHEUS_API_KEY:prometheus}

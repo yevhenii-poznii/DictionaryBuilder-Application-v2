@@ -74,7 +74,7 @@ public class WebSecurityConfig {
                 .securityMatcher("/**")
                 .authorizeHttpRequests(requestMatcherRegistry -> requestMatcherRegistry
                         .requestMatchers("/signup/**").anonymous()
-                        .requestMatchers("/error", "/auth/access").permitAll()
+                        .requestMatchers("/error", "/auth/access", "/actuator/**").permitAll()
                         .anyRequest().authenticated())
                 .oauth2Login(oauth2 -> oauth2
                         .successHandler(oAuth2LoginSuccessHandler()))

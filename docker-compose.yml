@@ -10,15 +10,45 @@ services:
       POSTGRES_PASSWORD: root
       POSTGRES_DB: vocabulary_database
     ports:
-      - 5438:5432
+      - "5438:5432"
     volumes:
       - vocabulary-postgres-data:/var/lib/postgresql/data
     networks:
       - custom
 
+  prometheus:
+    image: prom/prometheus:v2.51.1
+    container_name: vocabulary-prometheus
+    environment:
+      - PROMETHEUS_API_KEY=prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - custom
+    depends_on:
+      - db
+
+  grafana:
+    image: grafana/grafana:10.1.9
+    container_name: vocabulary-grafana
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: password
+    ports:
+      - "4000:3000"
+    volumes:
+      - vocabulary-grafana-data:/var/lib/grafana
+    networks:
+      - custom
+    depends_on:
+      - prometheus
+
 volumes:
   vocabulary-postgres-data:
     name: vocabulary-postgres-data
+  vocabulary-grafana-data:
+    name: vocabulary-grafana-data
 
 networks:
   custom:
