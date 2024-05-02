@@ -2,20 +2,25 @@ package com.kiskee.vocabulary.service.user.preference;
 
 import com.kiskee.vocabulary.config.properties.user.DefaultUserPreferenceProperties;
 import com.kiskee.vocabulary.enums.user.ProfileVisibility;
+import com.kiskee.vocabulary.enums.vocabulary.PageFilter;
 import com.kiskee.vocabulary.model.dto.registration.RegistrationRequest;
+import com.kiskee.vocabulary.model.dto.user.preference.DictionaryPreferenceDto;
 import com.kiskee.vocabulary.model.entity.user.UserProfilePreferenceType;
 import com.kiskee.vocabulary.model.entity.user.preference.UserPreference;
 import com.kiskee.vocabulary.repository.user.preference.UserPreferenceRepository;
 import com.kiskee.vocabulary.service.user.AbstractUserProfilePreferenceInitializationService;
 import com.kiskee.vocabulary.service.user.UserProvisioningService;
+import com.kiskee.vocabulary.util.IdentityUtil;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 @AllArgsConstructor
 public class UserPreferenceService extends AbstractUserProfilePreferenceInitializationService
-        implements UserProvisioningService {
+        implements UserProvisioningService, DictionaryPreferenceService {
 
     @Getter
     private final UserPreferenceRepository repository;
@@ -27,12 +32,20 @@ public class UserPreferenceService extends AbstractUserProfilePreferenceInitiali
     }
 
     @Override
+    public DictionaryPreferenceDto getDictionaryPagePreference() {
+        UUID userId = IdentityUtil.getUserId();
+
+        return repository.findDictionaryPreferenceByUserId(userId);
+    }
+
+    @Override
     protected <R extends RegistrationRequest> UserProfilePreferenceType buildEntityToSave(R registrationRequest) {
         return UserPreference.builder()
                 .profileVisibility(ProfileVisibility.PRIVATE)
                 .rightAnswersToDisableInRepetition(defaultPreference.getRightAnswersToDisableInRepetition())
                 .wordsPerPage(defaultPreference.getWordsPerPage())
                 .blurTranslation(defaultPreference.isBlurTranslation())
+                .pageFilter(PageFilter.BY_ADDED_AT_ASC)
                 .user(registrationRequest.getUser())
                 .build();
     }
