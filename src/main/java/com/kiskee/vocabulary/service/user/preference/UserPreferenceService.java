@@ -4,23 +4,19 @@ import com.kiskee.vocabulary.config.properties.user.DefaultUserPreferencePropert
 import com.kiskee.vocabulary.enums.user.ProfileVisibility;
 import com.kiskee.vocabulary.enums.vocabulary.PageFilter;
 import com.kiskee.vocabulary.model.dto.registration.RegistrationRequest;
-import com.kiskee.vocabulary.model.dto.user.preference.DictionaryPreferenceDto;
 import com.kiskee.vocabulary.model.entity.user.UserProfilePreferenceType;
 import com.kiskee.vocabulary.model.entity.user.preference.UserPreference;
 import com.kiskee.vocabulary.repository.user.preference.UserPreferenceRepository;
 import com.kiskee.vocabulary.service.user.AbstractUserProfilePreferenceInitializationService;
 import com.kiskee.vocabulary.service.user.UserProvisioningService;
-import com.kiskee.vocabulary.util.IdentityUtil;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
-
 @Service
 @AllArgsConstructor
 public class UserPreferenceService extends AbstractUserProfilePreferenceInitializationService
-        implements UserProvisioningService, DictionaryPreferenceService {
+        implements UserProvisioningService {
 
     @Getter
     private final UserPreferenceRepository repository;
@@ -29,13 +25,6 @@ public class UserPreferenceService extends AbstractUserProfilePreferenceInitiali
     @Override
     public <R extends RegistrationRequest> void initDefault(R registrationRequest) {
         initDefaultAndSave(registrationRequest);
-    }
-
-    @Override
-    public DictionaryPreferenceDto getDictionaryPagePreference() {
-        UUID userId = IdentityUtil.getUserId();
-
-        return repository.findDictionaryPreferenceByUserId(userId);
     }
 
     @Override
