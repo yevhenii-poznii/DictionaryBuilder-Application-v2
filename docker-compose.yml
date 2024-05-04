@@ -34,8 +34,6 @@ services:
   prometheus:
     image: prom/prometheus:v2.51.1
     container_name: vocabulary-prometheus
-    environment:
-      - PROMETHEUS_API_KEY=prometheus
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
