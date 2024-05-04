@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   db:
     image: postgres:15
@@ -10,15 +8,62 @@ services:
       POSTGRES_PASSWORD: root
       POSTGRES_DB: vocabulary_database
     ports:
-      - 5438:5432
+      - "5438:5432"
     volumes:
-      - vocabulary-postgres-data:/var/lib/postgresql/data
+      - vocabulary-v2-postgres-data:/var/lib/postgresql/data
     networks:
       - custom
 
+  backend:
+    container_name: vocabulary-backend
+    env_file:
+      - ./.env
+    volumes:
+      - ./keystore.p12:/etc/vocabulary-secrets/keystore.p12
+      - ./secretkey-256.bin:/etc/vocabulary-secrets/secretkey-256.bin
+    build:
+      dockerfile: Dockerfile
+    restart: always
+    depends_on:
+      - db
+    ports:
+      - "8443:8443"
+    networks:
+      - custom
+
+  prometheus:
+    image: prom/prometheus:v2.51.1
+    container_name: vocabulary-prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - custom
+    depends_on:
+      - backend
+
+  grafana:
+    image: grafana/grafana:10.1.9
+    container_name: vocabulary-grafana
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: password
+    ports:
+      - "4000:3000"
+    volumes:
+      - vocabulary-grafana-data:/var/lib/grafana
+    networks:
+      - custom
+    depends_on:
+      - backend
+
 volumes:
-  vocabulary-postgres-data:
-    name: vocabulary-postgres-data
+  vocabulary-v2-postgres-data:
+    name: vocabulary-v2-postgres-data
+  vocabulary-grafana-data:
+    name: vocabulary-grafana-data
+  vocabulary-secrets:
+    name: vocabulary-secrets
 
 networks:
   custom:
