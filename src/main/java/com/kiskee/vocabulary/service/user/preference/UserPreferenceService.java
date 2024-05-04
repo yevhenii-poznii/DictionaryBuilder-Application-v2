@@ -2,6 +2,7 @@ package com.kiskee.vocabulary.service.user.preference;
 
 import com.kiskee.vocabulary.config.properties.user.DefaultUserPreferenceProperties;
 import com.kiskee.vocabulary.enums.user.ProfileVisibility;
+import com.kiskee.vocabulary.enums.vocabulary.PageFilter;
 import com.kiskee.vocabulary.model.dto.registration.RegistrationRequest;
 import com.kiskee.vocabulary.model.entity.user.UserProfilePreferenceType;
 import com.kiskee.vocabulary.model.entity.user.preference.UserPreference;
@@ -33,6 +34,7 @@ public class UserPreferenceService extends AbstractUserProfilePreferenceInitiali
                 .rightAnswersToDisableInRepetition(defaultPreference.getRightAnswersToDisableInRepetition())
                 .wordsPerPage(defaultPreference.getWordsPerPage())
                 .blurTranslation(defaultPreference.isBlurTranslation())
+                .pageFilter(PageFilter.BY_ADDED_AT_ASC)
                 .user(registrationRequest.getUser())
                 .build();
     }

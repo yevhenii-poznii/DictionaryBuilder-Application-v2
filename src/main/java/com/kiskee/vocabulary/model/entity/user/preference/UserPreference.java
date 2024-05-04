@@ -1,6 +1,7 @@
 package com.kiskee.vocabulary.model.entity.user.preference;
 
 import com.kiskee.vocabulary.enums.user.ProfileVisibility;
+import com.kiskee.vocabulary.enums.vocabulary.PageFilter;
 import com.kiskee.vocabulary.model.entity.user.UserProfilePreferenceType;
 import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
 import jakarta.persistence.CascadeType;
@@ -42,6 +43,10 @@ public class UserPreference implements UserProfilePreferenceType {
 
     @Column(nullable = false)
     private boolean blurTranslation;
+
+    @Column(nullable = false)
+    @Enumerated(value = EnumType.STRING)
+    private PageFilter pageFilter;
 
     @MapsId
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
