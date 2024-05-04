@@ -4,7 +4,8 @@ create table user_vocabulary_application
     email     varchar(255) not null unique,
     username  varchar(255) not null unique,
     password  text,
-    is_active boolean      not null
+    is_active boolean      not null,
+    role      varchar(50)  not null check (role IN ('ROLE_USER', 'ROLE_METRICS', 'ROLE_ADMIN'))
 );
 
 create table user_profile
@@ -70,11 +71,11 @@ create table word_translation
 
 create table token
 (
-    id             bigserial      not null primary key,
-    token          text           not null,
-    is_invalidated boolean        not null,
-    user_id        uuid           not null,
+    id             bigserial   not null primary key,
+    token          text        not null,
+    is_invalidated boolean     not null,
+    user_id        uuid        not null,
     created_at     timestamptz(6) not null,
     expires_at     timestamptz(6),
-    token_type     varchar(20)    not null
+    token_type     varchar(20) not null
 );

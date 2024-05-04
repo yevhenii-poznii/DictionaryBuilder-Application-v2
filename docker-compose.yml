@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   db:
     image: postgres:15
@@ -12,7 +10,24 @@ services:
     ports:
       - "5438:5432"
     volumes:
-      - vocabulary-postgres-data:/var/lib/postgresql/data
+      - vocabulary-v2-postgres-data:/var/lib/postgresql/data
+    networks:
+      - custom
+
+  backend:
+    container_name: vocabulary-backend
+    env_file:
+      - ./.env
+    volumes:
+      - ./keystore.p12:/etc/vocabulary-secrets/keystore.p12
+      - ./secretkey-256.bin:/etc/vocabulary-secrets/secretkey-256.bin
+    build:
+      dockerfile: Dockerfile
+    restart: always
+    depends_on:
+      - db
+    ports:
+      - "8443:8443"
     networks:
       - custom
 
@@ -28,7 +43,7 @@ services:
     networks:
       - custom
     depends_on:
-      - db
+      - backend
 
   grafana:
     image: grafana/grafana:10.1.9
@@ -42,13 +57,15 @@ services:
     networks:
       - custom
     depends_on:
-      - prometheus
+      - backend
 
 volumes:
-  vocabulary-postgres-data:
-    name: vocabulary-postgres-data
+  vocabulary-v2-postgres-data:
+    name: vocabulary-v2-postgres-data
   vocabulary-grafana-data:
     name: vocabulary-grafana-data
+  vocabulary-secrets:
+    name: vocabulary-secrets
 
 networks:
   custom:

@@ -63,6 +63,3 @@ vocabulary:
     jwe-encryption-method: ${JWE_ENCRYPTION_METHOD:A256GCM}
     access-expiration-time: ${JWE_ACCESS_EXPIRATION_TIME:1800}
     refresh-expiration-time: ${JWE_REFRESH_EXPIRATION_TIME:2419200}
-  api:
-    keys:
-      prometheus-api-key: ${PROMETHEUS_API_KEY:prometheus}

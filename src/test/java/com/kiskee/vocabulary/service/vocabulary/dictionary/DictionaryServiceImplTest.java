@@ -1,6 +1,7 @@
 package com.kiskee.vocabulary.service.vocabulary.dictionary;
 
 import com.kiskee.vocabulary.enums.ExceptionStatusesEnum;
+import com.kiskee.vocabulary.enums.user.UserRole;
 import com.kiskee.vocabulary.enums.vocabulary.PageFilter;
 import com.kiskee.vocabulary.enums.vocabulary.VocabularyResponseMessageEnum;
 import com.kiskee.vocabulary.exception.DuplicateResourceException;
@@ -94,7 +95,7 @@ public class DictionaryServiceImplTest {
         DictionarySaveRequest saveRequest = new DictionarySaveRequest("dictionaryName");
 
         UserVocabularyApplication user = new UserVocabularyApplication(USER_ID, "email", "username",
-                "noPassword", true, null, null);
+                "noPassword", true, UserRole.ROLE_USER, null, null);
         Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
         when(securityContext.getAuthentication()).thenReturn(authentication);
         SecurityContextHolder.setContext(securityContext);
@@ -143,7 +144,7 @@ public class DictionaryServiceImplTest {
         DictionarySaveRequest saveRequest = new DictionarySaveRequest("dictionaryName");
 
         UserVocabularyApplication user = new UserVocabularyApplication(USER_ID, "email", "username",
-                "noPassword", true, null, null);
+                "noPassword", true, UserRole.ROLE_USER, null, null);
         Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
         when(securityContext.getAuthentication()).thenReturn(authentication);
         SecurityContextHolder.setContext(securityContext);
@@ -166,7 +167,7 @@ public class DictionaryServiceImplTest {
         DictionaryPageRequestDto pageRequest = new DictionaryPageRequestDto(0, 100, PageFilter.BY_ADDED_AT_ASC);
 
         UserVocabularyApplication user = new UserVocabularyApplication(USER_ID, "email", "username",
-                "noPassword", true, null, null);
+                "noPassword", true, UserRole.ROLE_USER, null, null);
         Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
         when(securityContext.getAuthentication()).thenReturn(authentication);
         SecurityContextHolder.setContext(securityContext);
@@ -193,7 +194,7 @@ public class DictionaryServiceImplTest {
         DictionaryPageRequestDto pageRequest = new DictionaryPageRequestDto(0, 100, PageFilter.BY_ADDED_AT_ASC);
 
         UserVocabularyApplication user = new UserVocabularyApplication(USER_ID, "email", "username",
-                "noPassword", true, null, null);
+                "noPassword", true, UserRole.ROLE_USER, null, null);
         Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
         when(securityContext.getAuthentication()).thenReturn(authentication);
         SecurityContextHolder.setContext(securityContext);
@@ -215,7 +216,7 @@ public class DictionaryServiceImplTest {
         Long dictionaryId = 1L;
 
         UserVocabularyApplication user = new UserVocabularyApplication(USER_ID, "email", "username",
-                "noPassword", true, null, null);
+                "noPassword", true, UserRole.ROLE_USER, null, null);
         Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
         when(securityContext.getAuthentication()).thenReturn(authentication);
         SecurityContextHolder.setContext(securityContext);
@@ -239,7 +240,7 @@ public class DictionaryServiceImplTest {
     @Test
     void testGetDictionaries_WhenUserHasTwoDictionaries_Then() {
         UserVocabularyApplication user = new UserVocabularyApplication(USER_ID, "email", "username",
-                "noPassword", true, null, null);
+                "noPassword", true, UserRole.ROLE_USER, null, null);
         Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
         when(securityContext.getAuthentication()).thenReturn(authentication);
         SecurityContextHolder.setContext(securityContext);
@@ -264,7 +265,7 @@ public class DictionaryServiceImplTest {
     @Test
     void testGetDictionaries_WhenUserHasNoDictionaries_ThenReturnEmptyList() {
         UserVocabularyApplication user = new UserVocabularyApplication(USER_ID, "email", "username",
-                "noPassword", true, null, null);
+                "noPassword", true, UserRole.ROLE_USER, null, null);
         Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
         when(securityContext.getAuthentication()).thenReturn(authentication);
         SecurityContextHolder.setContext(securityContext);
@@ -279,7 +280,7 @@ public class DictionaryServiceImplTest {
     @Test
     void testUpdateDictionary_WhenGivenDictionaryNameAlreadyExistsForUser_ThenThrowDuplicateResourceException() {
         UserVocabularyApplication user = new UserVocabularyApplication(USER_ID, "email", "username",
-                "noPassword", true, null, null);
+                "noPassword", true, UserRole.ROLE_USER, null, null);
         Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
         when(securityContext.getAuthentication()).thenReturn(authentication);
         SecurityContextHolder.setContext(securityContext);
@@ -302,7 +303,7 @@ public class DictionaryServiceImplTest {
     @Test
     void testUpdateDictionary_WhenGivenDictionaryIdDoesNotExistForUser_ThenThrowResourceNotFoundException() {
         UserVocabularyApplication user = new UserVocabularyApplication(USER_ID, "email", "username",
-                "noPassword", true, null, null);
+                "noPassword", true, UserRole.ROLE_USER, null, null);
         Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
         when(securityContext.getAuthentication()).thenReturn(authentication);
         SecurityContextHolder.setContext(securityContext);
@@ -328,7 +329,7 @@ public class DictionaryServiceImplTest {
     @Test
     void testUpdateDictionary_WhenGivenValidDictionaryNameAndDictionaryIdExistsForUser_ThenReturnDictionarySaveResponse() {
         UserVocabularyApplication user = new UserVocabularyApplication(USER_ID, "email", "username",
-                "noPassword", true, null, null);
+                "noPassword", true, UserRole.ROLE_USER, null, null);
         Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
         when(securityContext.getAuthentication()).thenReturn(authentication);
         SecurityContextHolder.setContext(securityContext);
@@ -363,7 +364,7 @@ public class DictionaryServiceImplTest {
     @Test
     void testDeleteDictionary_WhenDictionaryExistsForUser_ThenDeleteDictionary() {
         UserVocabularyApplication user = new UserVocabularyApplication(USER_ID, "email", "username",
-                "noPassword", true, null, null);
+                "noPassword", true, UserRole.ROLE_USER, null, null);
         Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
         when(securityContext.getAuthentication()).thenReturn(authentication);
         SecurityContextHolder.setContext(securityContext);
@@ -389,7 +390,7 @@ public class DictionaryServiceImplTest {
     @Test
     void testDeleteDictionary_WhenDictionaryDoesNotExistForUser_ThenThrowResourceNotFound() {
         UserVocabularyApplication user = new UserVocabularyApplication(USER_ID, "email", "username",
-                "noPassword", true, null, null);
+                "noPassword", true, UserRole.ROLE_USER, null, null);
         Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
         when(securityContext.getAuthentication()).thenReturn(authentication);
         SecurityContextHolder.setContext(securityContext);
@@ -426,8 +427,8 @@ public class DictionaryServiceImplTest {
         return Stream.of(
                 new DictionaryPageRequestDto(null, 100, PageFilter.BY_ADDED_AT_ASC),
                 new DictionaryPageRequestDto(0, null, PageFilter.BY_ADDED_AT_ASC),
-                new DictionaryPageRequestDto(0, 20,  null),
-                new DictionaryPageRequestDto(null, null,  null)
+                new DictionaryPageRequestDto(0, 20, null),
+                new DictionaryPageRequestDto(null, null, null)
         );
     }
 

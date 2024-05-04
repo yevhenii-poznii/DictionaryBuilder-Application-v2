@@ -1,5 +1,6 @@
 package com.kiskee.vocabulary.service.token.jwt;
 
+import com.kiskee.vocabulary.enums.user.UserRole;
 import com.kiskee.vocabulary.model.dto.authentication.AuthenticationData;
 import com.kiskee.vocabulary.model.dto.token.JweToken;
 import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
@@ -24,7 +25,7 @@ public class DefaultJweTokenFactoryTest {
     @Test
     void test_WhenGivenAuthenticationData_ThenReturnJweToken() {
         UserVocabularyApplication user = new UserVocabularyApplication(USER_ID, "email", "username",
-                "noPassword", true,  null, null);
+                "noPassword", true,  UserRole.ROLE_USER, null, null);
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                 user, null);
         AuthenticationData authenticationData = new AuthenticationData(authenticationToken, 1000L);
