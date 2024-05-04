@@ -1,6 +1,7 @@
 package com.kiskee.vocabulary.service.vocabulary.word;
 
 import com.kiskee.vocabulary.enums.ExceptionStatusesEnum;
+import com.kiskee.vocabulary.enums.user.UserRole;
 import com.kiskee.vocabulary.exception.ForbiddenAccessException;
 import com.kiskee.vocabulary.exception.ResourceNotFoundException;
 import com.kiskee.vocabulary.mapper.dictionary.WordMapper;
@@ -337,7 +338,7 @@ public class WordServiceImplTest {
 
     private void setAuth() {
         UserVocabularyApplication user = new UserVocabularyApplication(USER_ID, "email", "username",
-                "noPassword", true, null, null);
+                "noPassword", true, UserRole.ROLE_USER, null, null);
         Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
         when(securityContext.getAuthentication()).thenReturn(authentication);
         SecurityContextHolder.setContext(securityContext);

@@ -1,6 +1,7 @@
 package com.kiskee.vocabulary.service.email;
 
 import com.kiskee.vocabulary.config.properties.email.EmailContextProperties;
+import com.kiskee.vocabulary.enums.user.UserRole;
 import com.kiskee.vocabulary.exception.email.SendEmailException;
 import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
 import com.kiskee.vocabulary.repository.user.projections.UserSecureProjection;
@@ -41,7 +42,7 @@ public class EmailSenderServiceImplTest {
     @Test
     void testSendVerificationEmail_WhenParamsProvided_ThenSendEmail() {
         UserSecureProjection userDataForEmail = new UserVocabularyApplication(null, "someEmail@gmail.com",
-                "username", null, false, null, null);
+                "username", null, false, UserRole.ROLE_USER, null, null);
         String verificationTokenString = "generatedToken";
 
         when(emailContextProperties.getConfirmationUrl()).thenReturn("http://localhost/signup?token=");
@@ -64,7 +65,7 @@ public class EmailSenderServiceImplTest {
     @SneakyThrows
     void testSendVerificationEmail_When_Then() {
         UserSecureProjection userDataForEmail = new UserVocabularyApplication(null, "someEmail@gmail.com",
-                "username", null, false, null, null);
+                "username", null, false, UserRole.ROLE_USER, null, null);
         String verificationTokenDto = "generatedToken";
 
         when(emailContextProperties.getConfirmationUrl()).thenReturn("http://localhost/signup?token=");

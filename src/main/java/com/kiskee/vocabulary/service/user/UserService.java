@@ -1,6 +1,7 @@
 package com.kiskee.vocabulary.service.user;
 
 import com.kiskee.vocabulary.enums.registration.RegistrationStatus;
+import com.kiskee.vocabulary.enums.user.UserRole;
 import com.kiskee.vocabulary.exception.ResourceNotFoundException;
 import com.kiskee.vocabulary.exception.user.DuplicateUserException;
 import com.kiskee.vocabulary.model.dto.registration.RegistrationRequest;
@@ -79,6 +80,7 @@ public class UserService implements UserRegistrationService, UserDetailsService,
                 .setUsername(registrationRequest.getUsername())
                 .setPassword(registrationRequest.getHashedPassword())
                 .setIsActive(registrationRequest.isActive())
+                .setRole(UserRole.ROLE_USER)
                 .build();
     }
 

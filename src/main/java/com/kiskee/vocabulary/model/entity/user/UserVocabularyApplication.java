@@ -1,11 +1,14 @@
 package com.kiskee.vocabulary.model.entity.user;
 
+import com.kiskee.vocabulary.enums.user.UserRole;
 import com.kiskee.vocabulary.model.entity.user.preference.UserPreference;
 import com.kiskee.vocabulary.model.entity.user.profile.UserProfile;
 import com.kiskee.vocabulary.repository.user.projections.UserSecureProjection;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -51,6 +54,10 @@ public class UserVocabularyApplication implements UserDetails, UserSecureProject
     @Column(nullable = false)
     private boolean isActive;
 
+    @Column(nullable = false)
+    @Enumerated(value = EnumType.STRING)
+    private UserRole role;
+
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "user", orphanRemoval = true)
     private UserProfile userProfile;
 
@@ -59,7 +66,7 @@ public class UserVocabularyApplication implements UserDetails, UserSecureProject
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        return List.of(new SimpleGrantedAuthority(getRole().name()));
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.kiskee.vocabulary.service.authentication;
 
 import com.kiskee.vocabulary.config.properties.jwt.JwtProperties;
+import com.kiskee.vocabulary.enums.user.UserRole;
 import com.kiskee.vocabulary.model.dto.authentication.AuthenticationData;
 import com.kiskee.vocabulary.model.dto.authentication.AuthenticationResponse;
 import com.kiskee.vocabulary.model.dto.token.JweToken;
@@ -64,7 +65,7 @@ public class AuthenticationServiceTest {
         String tokenString = "tokenString";
 
         UserVocabularyApplication user = new UserVocabularyApplication(USER_ID, "email", "username",
-                "noPassword", true, null, null);
+                "noPassword", true, UserRole.ROLE_USER, null, null);
         Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
         when(securityContext.getAuthentication()).thenReturn(authentication);
         when(jwtProperties.getAccessExpirationTime()).thenReturn(1000L);
@@ -91,7 +92,7 @@ public class AuthenticationServiceTest {
         String tokenString = "tokenString";
 
         UserVocabularyApplication user = new UserVocabularyApplication(USER_ID, "email", "username",
-                "noPassword", true, null, null);
+                "noPassword", true, UserRole.ROLE_USER, null, null);
         Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
         when(securityContext.getAuthentication()).thenReturn(authentication);
         when(jwtProperties.getAccessExpirationTime()).thenReturn(1000L);
@@ -114,7 +115,7 @@ public class AuthenticationServiceTest {
         String refreshToken = "refreshToken";
 
         UserVocabularyApplication user = new UserVocabularyApplication(USER_ID, "email", "username",
-                "noPassword", true, null, null);
+                "noPassword", true, UserRole.ROLE_USER, null, null);
         Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
         when(securityContext.getAuthentication()).thenReturn(authentication);
 
@@ -132,7 +133,7 @@ public class AuthenticationServiceTest {
         String refreshToken = "refreshToken";
 
         UserVocabularyApplication user = new UserVocabularyApplication(USER_ID, "email", "username",
-                "noPassword", true, null, null);
+                "noPassword", true, UserRole.ROLE_USER, null, null);
         Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
         when(securityContext.getAuthentication()).thenReturn(authentication);
 
@@ -151,7 +152,7 @@ public class AuthenticationServiceTest {
         String tokenString = "tokenString";
 
         UserVocabularyApplication user = new UserVocabularyApplication(USER_ID, "email", "username",
-                "noPassword", true, null, null);
+                "noPassword", true, UserRole.ROLE_USER, null, null);
         Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, List.of());
 
         when(jwtProperties.getRefreshExpirationTime()).thenReturn(1000L);

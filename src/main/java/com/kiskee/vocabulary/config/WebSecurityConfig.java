@@ -67,13 +67,14 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
-                .httpBasic(AbstractHttpConfigurer::disable)
+                .httpBasic(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .formLogin(AbstractHttpConfigurer::disable)
                 .securityMatcher("/**")
                 .authorizeHttpRequests(requestMatcherRegistry -> requestMatcherRegistry
                         .requestMatchers("/signup/**").anonymous()
+                        .requestMatchers("/actuator/**").hasRole("METRICS")
                         .requestMatchers("/error", "/auth/access").permitAll()
                         .anyRequest().authenticated())
                 .oauth2Login(oauth2 -> oauth2

@@ -1,5 +1,6 @@
 package com.kiskee.vocabulary.service.event;
 
+import com.kiskee.vocabulary.enums.user.UserRole;
 import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
 import com.kiskee.vocabulary.repository.user.projections.UserSecureProjection;
 import com.kiskee.vocabulary.service.email.EmailSenderService;
@@ -30,7 +31,7 @@ public class RegistrationListenerTest {
     void testGenerateVerificationTokenAndSendEmail_When_Then() {
         UUID userId = UUID.fromString("36effc62-d93a-4451-9f7b-7cf82de0d326");
         UserSecureProjection userSecureProjection = new UserVocabularyApplication(userId, "someEmail@gmail.com",
-                "username", null, false, null, null);
+                "username", null, false, UserRole.ROLE_USER, null, null);
         OnRegistrationCompleteEvent event = new OnRegistrationCompleteEvent(userSecureProjection);
 
         String verificationTokenDto = "someVerificationToken";
