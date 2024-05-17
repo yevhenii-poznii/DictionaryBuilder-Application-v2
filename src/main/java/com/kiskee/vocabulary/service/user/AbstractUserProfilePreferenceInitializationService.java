@@ -1,19 +1,19 @@
 package com.kiskee.vocabulary.service.user;
 
 import com.kiskee.vocabulary.model.dto.registration.RegistrationRequest;
-import com.kiskee.vocabulary.model.entity.user.UserProfilePreferenceType;
-import com.kiskee.vocabulary.repository.user.BaseUserProfilePreferenceRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public abstract class AbstractUserProfilePreferenceInitializationService {
+import java.util.UUID;
 
-    protected <R extends RegistrationRequest> void initDefaultAndSave(R registrationRequest) {
-        UserProfilePreferenceType userProfilePreferenceType = buildEntityToSave(registrationRequest);
-        getRepository().save(userProfilePreferenceType);
+public abstract class AbstractUserProfilePreferenceInitializationService<E> {
+
+    protected abstract JpaRepository<E, UUID> getRepository();
+
+    protected abstract <R extends RegistrationRequest> E buildEntityToSave(R registrationRequest);
+
+    protected <R extends RegistrationRequest> E initEntityAndSave(R registrationRequest) {
+        E entity = buildEntityToSave(registrationRequest);
+        return getRepository().save(entity);
     }
-
-    protected abstract BaseUserProfilePreferenceRepository getRepository();
-
-    protected abstract <R extends RegistrationRequest> UserProfilePreferenceType buildEntityToSave(
-            R registrationRequest);
 
 }

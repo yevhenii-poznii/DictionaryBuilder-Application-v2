@@ -1,4 +1,4 @@
-package com.kiskee.vocabulary.service.oauth;
+package com.kiskee.vocabulary.service.provision.oauth;
 
 import com.kiskee.vocabulary.model.dto.registration.OAuth2ProvisionRequest;
 import com.kiskee.vocabulary.model.dto.token.OAuth2ProvisionData;
@@ -6,10 +6,12 @@ import com.kiskee.vocabulary.model.dto.token.TokenData;
 import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
 import com.kiskee.vocabulary.repository.user.projections.UserSecureProjection;
 import com.kiskee.vocabulary.service.authentication.AuthenticationService;
+import com.kiskee.vocabulary.service.provision.AbstractUserProvisionService;
 import com.kiskee.vocabulary.service.user.OAuth2UserService;
-import com.kiskee.vocabulary.service.user.UserProvisioningService;
+import com.kiskee.vocabulary.service.user.UserInitializingService;
 import com.kiskee.vocabulary.util.IdentityUtil;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
@@ -21,10 +23,11 @@ import java.util.Optional;
 @Slf4j
 @Service
 @AllArgsConstructor
-public class OAuth2UserProvisionServiceImpl implements OAuth2UserProvisionService {
+public class OAuth2UserProvisionServiceImpl extends AbstractUserProvisionService implements OAuth2UserProvisionService {
 
     private final OAuth2UserService userService;
-    private final List<UserProvisioningService> userProvisioningServices;
+    @Getter
+    private final List<UserInitializingService> userInitializingServices;
     private final AuthenticationService authenticationService;
 
     @Override
@@ -44,16 +47,6 @@ public class OAuth2UserProvisionServiceImpl implements OAuth2UserProvisionServic
         String issuedAccessToken = authenticationService.issueAccessToken().getToken();
 
         return new OAuth2ProvisionData(issuedAccessToken, issuedRefreshToken);
-    }
-
-    private UserVocabularyApplication buildUserAccount(OAuth2ProvisionRequest registrationRequest) {
-        UserVocabularyApplication createdUser = userService.createNewUser(registrationRequest);
-
-        registrationRequest.setUser(createdUser);
-
-        userProvisioningServices.forEach(provision -> provision.initDefault(registrationRequest));
-
-        return createdUser;
     }
 
 }

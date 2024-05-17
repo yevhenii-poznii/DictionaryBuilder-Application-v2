@@ -2,7 +2,7 @@ package com.kiskee.vocabulary.web.controller.registration;
 
 import com.kiskee.vocabulary.model.dto.ResponseMessage;
 import com.kiskee.vocabulary.model.dto.registration.InternalRegistrationRequest;
-import com.kiskee.vocabulary.service.registration.RegistrationService;
+import com.kiskee.vocabulary.service.provision.registration.RegistrationService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -25,13 +25,11 @@ public class RegistrationController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseMessage signUp(@RequestBody @Valid InternalRegistrationRequest registrationRequest) {
-
         return registrationService.registerUserAccount(registrationRequest);
     }
 
     @PatchMapping("/activate")
     public ResponseMessage confirmRegistration(@RequestParam @Valid @NotBlank String verificationToken) {
-
         return registrationService.completeRegistration(verificationToken);
     }
 

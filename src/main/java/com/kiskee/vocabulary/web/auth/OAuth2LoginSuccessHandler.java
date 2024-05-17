@@ -2,7 +2,7 @@ package com.kiskee.vocabulary.web.auth;
 
 import com.kiskee.vocabulary.model.dto.registration.OAuth2ProvisionRequest;
 import com.kiskee.vocabulary.model.dto.token.OAuth2ProvisionData;
-import com.kiskee.vocabulary.service.oauth.OAuth2UserProvisionService;
+import com.kiskee.vocabulary.service.provision.oauth.OAuth2UserProvisionService;
 import com.kiskee.vocabulary.util.CookieUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;

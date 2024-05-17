@@ -4,13 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kiskee.vocabulary.config.properties.jwt.JwtProperties;
 import com.kiskee.vocabulary.service.authentication.AuthenticationService;
 import com.kiskee.vocabulary.service.authentication.AuthenticationServiceImpl;
-import com.kiskee.vocabulary.service.oauth.OAuth2UserProvisionService;
-import com.kiskee.vocabulary.service.oauth.OAuth2UserProvisionServiceImpl;
+import com.kiskee.vocabulary.service.provision.oauth.OAuth2UserProvisionService;
+import com.kiskee.vocabulary.service.provision.oauth.OAuth2UserProvisionServiceImpl;
 import com.kiskee.vocabulary.service.token.jwt.CookieTokenService;
 import com.kiskee.vocabulary.service.token.jwt.DefaultJweTokenFactory;
 import com.kiskee.vocabulary.service.token.jwt.JweStringDeserializer;
 import com.kiskee.vocabulary.service.token.jwt.JweStringSerializer;
-import com.kiskee.vocabulary.service.user.UserProvisioningService;
+import com.kiskee.vocabulary.service.user.UserInitializingService;
 import com.kiskee.vocabulary.service.user.UserService;
 import com.kiskee.vocabulary.web.auth.OAuth2LoginSuccessHandler;
 import com.kiskee.vocabulary.web.auth.TokenCookieAuthenticationSuccessHandler;
@@ -62,7 +62,7 @@ public class WebSecurityConfig {
     private final JwtProperties jwtProperties;
     private final ObjectMapper objectMapper;
     private final CookieTokenService cookieTokenService;
-    private final List<UserProvisioningService> userProvisioningServices;
+    private final List<UserInitializingService> userInitializingServices;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -154,7 +154,7 @@ public class WebSecurityConfig {
 
     @Bean
     public OAuth2UserProvisionService oAuth2UserProvisionService() throws IOException, KeyLengthException {
-        return new OAuth2UserProvisionServiceImpl(userService, userProvisioningServices, authenticationService());
+        return new OAuth2UserProvisionServiceImpl(userService, userInitializingServices, authenticationService());
     }
 
     @Bean
