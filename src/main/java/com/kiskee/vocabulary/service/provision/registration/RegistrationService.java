@@ -1,4 +1,4 @@
-package com.kiskee.vocabulary.service.registration;
+package com.kiskee.vocabulary.service.provision.registration;
 
 import com.kiskee.vocabulary.model.dto.ResponseMessage;
 import com.kiskee.vocabulary.model.dto.registration.InternalRegistrationRequest;

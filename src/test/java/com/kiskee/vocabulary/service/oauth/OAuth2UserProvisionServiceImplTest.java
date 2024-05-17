@@ -7,8 +7,9 @@ import com.kiskee.vocabulary.model.dto.token.OAuth2ProvisionData;
 import com.kiskee.vocabulary.model.dto.token.TokenData;
 import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
 import com.kiskee.vocabulary.service.authentication.AuthenticationService;
+import com.kiskee.vocabulary.service.provision.oauth.OAuth2UserProvisionServiceImpl;
 import com.kiskee.vocabulary.service.user.OAuth2UserService;
-import com.kiskee.vocabulary.service.user.UserProvisioningService;
+import com.kiskee.vocabulary.service.user.UserInitializingService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -36,7 +37,7 @@ public class OAuth2UserProvisionServiceImplTest {
     @Mock
     private OAuth2UserService userService;
     @Mock
-    private List<UserProvisioningService> userProvisioningServices;
+    private List<UserInitializingService> userInitializingServices;
     @Mock
     private AuthenticationService authenticationService;
 
@@ -48,7 +49,6 @@ public class OAuth2UserProvisionServiceImplTest {
         when(provisionRequest.getEmail()).thenReturn("email@email.com");
 
         when(userService.loadUserByEmail(provisionRequest.getEmail())).thenReturn(Optional.empty());
-        when(userService.createNewUser(provisionRequest)).thenReturn(mock(UserVocabularyApplication.class));
 
         String refreshToken = "refreshToken";
         String accessToken = "accessToken";
@@ -100,7 +100,7 @@ public class OAuth2UserProvisionServiceImplTest {
         OAuth2ProvisionData result = oAuth2UserProvisionService.provisionUser(provisionRequest);
 
         verifyNoMoreInteractions(userService);
-        verifyNoInteractions(userProvisioningServices);
+        verifyNoInteractions(userInitializingServices);
 
         assertThat(result.accessToken()).isEqualTo(accessToken);
         assertThat(result.refreshToken().token()).isEqualTo(refreshToken);

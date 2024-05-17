@@ -2,8 +2,10 @@ package com.kiskee.vocabulary.service.user;
 
 import com.kiskee.vocabulary.enums.ExceptionStatusesEnum;
 import com.kiskee.vocabulary.enums.registration.RegistrationStatus;
+import com.kiskee.vocabulary.enums.user.UserRole;
 import com.kiskee.vocabulary.exception.ResourceNotFoundException;
 import com.kiskee.vocabulary.exception.user.DuplicateUserException;
+import com.kiskee.vocabulary.mapper.user.UserMapper;
 import com.kiskee.vocabulary.model.dto.registration.InternalRegistrationRequest;
 import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
 import com.kiskee.vocabulary.repository.user.UserRepository;
@@ -38,11 +40,13 @@ public class UserServiceTest {
     private UserService service;
     @Mock
     private UserRepository repository;
+    @Mock
+    private UserMapper mapper;
     @Captor
     private ArgumentCaptor<UserVocabularyApplication> userVocabularyApplicationArgumentCaptor;
 
     @Test
-    void testCreateNewUser_WhenValidUserRegisterRequestDto_ThenCreateNewUser() {
+    void testInitNewUser_WhenValidUserRegisterRequestDto_ThenCreateNewUser() {
         InternalRegistrationRequest registrationRequest = new InternalRegistrationRequest(
                 "email@gmail.com", "username", "p#Ssword1");
         registrationRequest.setHashedPassword("encodedPassword");
@@ -50,21 +54,22 @@ public class UserServiceTest {
         when(repository.existsByUsernameOrEmail(registrationRequest.getUsername(), registrationRequest.getEmail()))
                 .thenReturn(false);
 
-        UserVocabularyApplication createdUser = UserVocabularyApplication.builder()
+        UserVocabularyApplication user = UserVocabularyApplication.builder()
                 .setEmail(registrationRequest.getEmail())
                 .setUsername(registrationRequest.getUsername())
                 .setPassword(registrationRequest.getHashedPassword())
                 .setIsActive(false)
                 .build();
-        when(repository.save(userVocabularyApplicationArgumentCaptor.capture())).thenReturn(createdUser);
+        when(mapper.toEntity(registrationRequest, UserRole.ROLE_USER)).thenReturn(user);
+        when(repository.save(userVocabularyApplicationArgumentCaptor.capture())).thenReturn(user);
 
-        service.createNewUser(registrationRequest);
+        service.initUser(registrationRequest);
 
         UserVocabularyApplication actual = userVocabularyApplicationArgumentCaptor.getValue();
-        assertThat(actual.getEmail()).isEqualTo(createdUser.getEmail());
-        assertThat(actual.getUsername()).isEqualTo(createdUser.getUsername());
-        assertThat(actual.getPassword()).isEqualTo(createdUser.getPassword());
-        assertThat(actual.isActive()).isEqualTo(createdUser.isActive());
+        assertThat(actual.getEmail()).isEqualTo(user.getEmail());
+        assertThat(actual.getUsername()).isEqualTo(user.getUsername());
+        assertThat(actual.getPassword()).isEqualTo(user.getPassword());
+        assertThat(actual.isActive()).isEqualTo(user.isActive());
 
         verify(repository).save(actual);
     }
@@ -79,7 +84,7 @@ public class UserServiceTest {
                 .thenReturn(true);
 
         assertThatExceptionOfType(DuplicateUserException.class)
-                .isThrownBy(() -> service.createNewUser(registrationRequest))
+                .isThrownBy(() -> service.initUser(registrationRequest))
                 .withMessage(RegistrationStatus.USER_ALREADY_EXISTS.getStatus());
 
         verifyNoMoreInteractions(repository);
@@ -89,6 +94,15 @@ public class UserServiceTest {
     void testUpdateUserAccountToActive_WhenUserExists_ThenUpdateUserAccountToActive() {
         UserVocabularyApplication userAccount = mock(UserVocabularyApplication.class);
         when(repository.findById(USER_ID)).thenReturn(Optional.of(userAccount));
+        UserVocabularyApplication.UserVocabularyApplicationBuilder builder =
+                mock(UserVocabularyApplication.UserVocabularyApplicationBuilder.class);
+
+        when(userAccount.toBuilder()).thenReturn(builder);
+        when(builder.setIsActive(true)).thenReturn(builder);
+
+        UserVocabularyApplication updatedUserToActive = mock(UserVocabularyApplication.class);
+        when(updatedUserToActive.isActive()).thenReturn(true);
+        when(builder.build()).thenReturn(updatedUserToActive);
 
         service.updateUserAccountToActive(USER_ID);
 
@@ -96,7 +110,7 @@ public class UserServiceTest {
         verify(repository).save(userVocabularyApplicationArgumentCaptor.capture());
 
         UserVocabularyApplication actual = userVocabularyApplicationArgumentCaptor.getValue();
-        assertThat(actual).isEqualTo(userAccount);
+        assertThat(actual.isActive()).isTrue();
     }
 
     @Test

@@ -1,4 +1,4 @@
-package com.kiskee.vocabulary.service.registration;
+package com.kiskee.vocabulary.service.provision.registration;
 
 import com.kiskee.vocabulary.enums.registration.RegistrationStatus;
 import com.kiskee.vocabulary.exception.token.InvalidVerificationTokenException;
@@ -7,10 +7,11 @@ import com.kiskee.vocabulary.model.dto.registration.InternalRegistrationRequest;
 import com.kiskee.vocabulary.model.entity.token.VerificationToken;
 import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
 import com.kiskee.vocabulary.service.event.OnRegistrationCompleteEvent;
+import com.kiskee.vocabulary.service.provision.AbstractUserProvisionService;
 import com.kiskee.vocabulary.service.token.TokenInvalidatorService;
-import com.kiskee.vocabulary.service.user.UserProvisioningService;
-import com.kiskee.vocabulary.service.user.UserRegistrationService;
+import com.kiskee.vocabulary.service.user.UserInitializingService;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,11 +23,11 @@ import java.util.List;
 @Slf4j
 @Service
 @AllArgsConstructor
-public class RegistrationServiceImpl implements RegistrationService {
+public class RegistrationServiceImpl extends AbstractUserProvisionService implements RegistrationService {
 
     private final PasswordEncoder passwordEncoder;
-    private final UserRegistrationService userRegistrationService;
-    private final List<UserProvisioningService> userProvisioningServices;
+    @Getter
+    private final List<UserInitializingService> userInitializingServices;
     private final TokenInvalidatorService<VerificationToken> tokenInvalidatorService;
     private final ApplicationEventPublisher eventPublisher;
 
@@ -51,7 +52,7 @@ public class RegistrationServiceImpl implements RegistrationService {
 
         validate(foundToken);
 
-        userRegistrationService.updateUserAccountToActive(foundToken.getUserId());
+        userInitializingServices.getFirst().updateUserAccountToActive(foundToken.getUserId());
 
         tokenInvalidatorService.invalidateToken(foundToken);
 
@@ -64,16 +65,6 @@ public class RegistrationServiceImpl implements RegistrationService {
         if (verificationToken.isInvalidated()) {
             throw new InvalidVerificationTokenException("Verification token is already invalidated");
         }
-    }
-
-    private UserVocabularyApplication buildUserAccount(InternalRegistrationRequest userRegisterRequest) {
-        UserVocabularyApplication createdUser = userRegistrationService.createNewUser(userRegisterRequest);
-
-        userRegisterRequest.setUser(createdUser);
-
-        userProvisioningServices.forEach(provision -> provision.initDefault(userRegisterRequest));
-
-        return createdUser;
     }
 
 }

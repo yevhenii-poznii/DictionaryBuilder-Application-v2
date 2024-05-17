@@ -1,4 +1,4 @@
-package com.kiskee.vocabulary.service.oauth;
+package com.kiskee.vocabulary.service.provision.oauth;
 
 import com.kiskee.vocabulary.model.dto.registration.OAuth2ProvisionRequest;
 import com.kiskee.vocabulary.model.dto.token.OAuth2ProvisionData;

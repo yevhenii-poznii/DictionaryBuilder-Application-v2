@@ -33,7 +33,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @AllArgsConstructor
-@Builder(setterPrefix = "set")
+@Builder(setterPrefix = "set", toBuilder = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class UserVocabularyApplication implements UserDetails, UserSecureProjection {
 
