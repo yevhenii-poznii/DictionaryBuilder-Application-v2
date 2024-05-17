@@ -32,7 +32,7 @@ public class UserPreferenceService extends AbstractUserProfilePreferenceInitiali
 
     @Override
     protected <R extends RegistrationRequest> UserPreference buildEntityToSave(R registrationRequest) {
-        return mapper.toEntity(defaultPreference, registrationRequest.getUser(),PageFilter.BY_ADDED_AT_ASC,
+        return mapper.toEntity(defaultPreference, registrationRequest.getUser(), PageFilter.BY_ADDED_AT_ASC,
                 ProfileVisibility.PRIVATE);
     }
 

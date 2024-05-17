@@ -2,8 +2,9 @@ package com.kiskee.vocabulary.service.user.preference;
 
 import com.kiskee.vocabulary.config.properties.user.DefaultUserPreferenceProperties;
 import com.kiskee.vocabulary.enums.user.ProfileVisibility;
+import com.kiskee.vocabulary.enums.vocabulary.PageFilter;
+import com.kiskee.vocabulary.mapper.user.preference.UserPreferenceMapper;
 import com.kiskee.vocabulary.model.dto.registration.InternalRegistrationRequest;
-import com.kiskee.vocabulary.model.entity.user.UserProfilePreferenceType;
 import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
 import com.kiskee.vocabulary.model.entity.user.preference.UserPreference;
 import com.kiskee.vocabulary.repository.user.preference.UserPreferenceRepository;
@@ -30,28 +31,32 @@ public class UserPreferenceServiceTest {
     @Mock
     private UserPreferenceRepository userPreferenceRepository;
     @Mock
+    private UserPreferenceMapper userPreferenceMapper;
+    @Mock
     private DefaultUserPreferenceProperties defaultUserPreferenceProperties;
     @Captor
     private ArgumentCaptor<UserPreference> userPreferenceArgumentCaptor;
 
     @Test
     void testInitDefault_WhenUserVocabularyApplicationIsGiven_ThenBuildAndSaveDefaultUserPreference() {
-        UUID useId = UUID.fromString("75ab44f4-40a3-4094-a885-51ade9e6df4a");
+        UUID userId = UUID.fromString("75ab44f4-40a3-4094-a885-51ade9e6df4a");
         UserVocabularyApplication givenUserEntity = mock(UserVocabularyApplication.class);
         InternalRegistrationRequest registrationRequest = mock(InternalRegistrationRequest.class);
         when(registrationRequest.getUser()).thenReturn(givenUserEntity);
 
-        when(givenUserEntity.getId()).thenReturn(useId);
-        when(defaultUserPreferenceProperties.getRightAnswersToDisableInRepetition()).thenReturn(10);
-        when(defaultUserPreferenceProperties.getWordsPerPage()).thenReturn(100);
-        when(defaultUserPreferenceProperties.isBlurTranslation()).thenReturn(true);
+        when(givenUserEntity.getId()).thenReturn(userId);
 
-        userPreferenceService.initDefault(registrationRequest);
+        UserPreference userPreference = new UserPreference(userId, ProfileVisibility.PRIVATE, 10,
+                100, true, PageFilter.BY_ADDED_AT_ASC, givenUserEntity);
+        when(userPreferenceMapper.toEntity(defaultUserPreferenceProperties, givenUserEntity, PageFilter.BY_ADDED_AT_ASC,
+                ProfileVisibility.PRIVATE)).thenReturn(userPreference);
 
-        verify(userPreferenceRepository).save((UserProfilePreferenceType) userPreferenceArgumentCaptor.capture());
+        userPreferenceService.initUser(registrationRequest);
+
+        verify(userPreferenceRepository).save(userPreferenceArgumentCaptor.capture());
 
         UserPreference actual = userPreferenceArgumentCaptor.getValue();
-        assertThat(actual.getUser().getId()).isEqualTo(useId);
+        assertThat(actual.getUser().getId()).isEqualTo(userId);
         assertThat(actual.getProfileVisibility()).isEqualTo(ProfileVisibility.PRIVATE);
         assertThat(actual.getRightAnswersToDisableInRepetition()).isEqualTo(10);
         assertThat(actual.getWordsPerPage()).isEqualTo(100);

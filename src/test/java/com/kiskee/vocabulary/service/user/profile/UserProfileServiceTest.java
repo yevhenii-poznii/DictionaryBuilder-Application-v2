@@ -1,8 +1,8 @@
 package com.kiskee.vocabulary.service.user.profile;
 
 import com.kiskee.vocabulary.config.properties.user.DefaultUserProfileProperties;
+import com.kiskee.vocabulary.mapper.user.profile.UserProfileMapper;
 import com.kiskee.vocabulary.model.dto.registration.InternalRegistrationRequest;
-import com.kiskee.vocabulary.model.entity.user.UserProfilePreferenceType;
 import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
 import com.kiskee.vocabulary.model.entity.user.profile.UserProfile;
 import com.kiskee.vocabulary.model.entity.vocabulary.Dictionary;
@@ -16,6 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,6 +33,8 @@ public class UserProfileServiceTest {
     @Mock
     private UserProfileRepository userProfileRepository;
     @Mock
+    private UserProfileMapper userProfileMapper;
+    @Mock
     private DictionaryCreationService dictionaryCreationService;
     @Mock
     private ProfilePictureEncoder profilePictureEncoder;
@@ -47,21 +50,29 @@ public class UserProfileServiceTest {
         String username = "UsErNaMe";
         UserVocabularyApplication givenUserEntity = mock(UserVocabularyApplication.class);
         InternalRegistrationRequest registrationRequest = mock(InternalRegistrationRequest.class);
-        when(registrationRequest.getUser()).thenReturn(givenUserEntity);
 
         when(givenUserEntity.getId()).thenReturn(USER_ID);
-        when(registrationRequest.getUsername()).thenReturn(username);
 
         Dictionary dictionaryMock = mock(Dictionary.class);
         String dictionaryName = "Default Dictionary";
         when(dictionaryCreationService.addDictionary(dictionaryName)).thenReturn(dictionaryMock);
         when(dictionaryMock.getDictionaryName()).thenReturn(dictionaryName);
 
-        when(defaultUserProfileProperties.getDefaultAvatar()).thenReturn("defaultAvatar");
+        String defaultAvatar = "defaultAvatar";
+        when(defaultUserProfileProperties.getDefaultAvatar()).thenReturn(defaultAvatar);
 
-        userProfileService.initDefault(registrationRequest);
+        UserProfile userProfile = UserProfile.builder()
+                .user(givenUserEntity)
+                .publicUsername(username)
+                .dictionaries(List.of(dictionaryMock))
+                .profilePicture(defaultAvatar)
+                .build();
+        when(userProfileMapper.toEntity(registrationRequest, List.of(dictionaryMock), defaultAvatar))
+                .thenReturn(userProfile);
 
-        verify(userProfileRepository).save((UserProfilePreferenceType) userPreferenceArgumentCaptor.capture());
+        userProfileService.initUser(registrationRequest);
+
+        verify(userProfileRepository).save(userPreferenceArgumentCaptor.capture());
 
         UserProfile actual = userPreferenceArgumentCaptor.getValue();
         assertThat(actual.getUser().getId()).isEqualTo(USER_ID);
@@ -76,10 +87,8 @@ public class UserProfileServiceTest {
         String username = "UsErNaMe";
         UserVocabularyApplication givenUserEntity = mock(UserVocabularyApplication.class);
         InternalRegistrationRequest registrationRequest = mock(InternalRegistrationRequest.class);
-        when(registrationRequest.getUser()).thenReturn(givenUserEntity);
 
         when(givenUserEntity.getId()).thenReturn(USER_ID);
-        when(registrationRequest.getUsername()).thenReturn(username);
         when(registrationRequest.getPicture()).thenReturn("pictureUrl");
 
         Dictionary dictionaryMock = mock(Dictionary.class);
@@ -90,9 +99,18 @@ public class UserProfileServiceTest {
         String encodedPicture = "encodedPicture";
         when(profilePictureEncoder.encodeWithBase64(registrationRequest.getPicture())).thenReturn(encodedPicture);
 
-        userProfileService.initDefault(registrationRequest);
+        UserProfile userProfile = UserProfile.builder()
+                .user(givenUserEntity)
+                .publicUsername(username)
+                .dictionaries(List.of(dictionaryMock))
+                .profilePicture(encodedPicture)
+                .build();
+        when(userProfileMapper.toEntity(registrationRequest, List.of(dictionaryMock), encodedPicture))
+                .thenReturn(userProfile);
 
-        verify(userProfileRepository).save((UserProfilePreferenceType) userPreferenceArgumentCaptor.capture());
+        userProfileService.initUser(registrationRequest);
+
+        verify(userProfileRepository).save(userPreferenceArgumentCaptor.capture());
 
         UserProfile actual = userPreferenceArgumentCaptor.getValue();
         assertThat(actual.getUser().getId()).isEqualTo(USER_ID);

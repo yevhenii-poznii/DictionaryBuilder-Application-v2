@@ -10,7 +10,7 @@ import com.kiskee.vocabulary.model.dto.ResponseMessage;
 import com.kiskee.vocabulary.model.dto.registration.InternalRegistrationRequest;
 import com.kiskee.vocabulary.model.dto.registration.RegistrationRequest;
 import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
-import com.kiskee.vocabulary.service.registration.RegistrationService;
+import com.kiskee.vocabulary.service.provision.registration.RegistrationService;
 import com.kiskee.vocabulary.util.TimeZoneContextHolder;
 import com.kiskee.vocabulary.web.advice.ErrorResponse;
 import lombok.SneakyThrows;
