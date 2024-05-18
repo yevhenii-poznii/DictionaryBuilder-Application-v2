@@ -1,5 +1,10 @@
 package com.kiskee.vocabulary.service.user.profile;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.kiskee.vocabulary.config.properties.user.DefaultUserProfileProperties;
 import com.kiskee.vocabulary.mapper.user.profile.UserProfileMapper;
 import com.kiskee.vocabulary.model.dto.registration.InternalRegistrationRequest;
@@ -8,6 +13,8 @@ import com.kiskee.vocabulary.model.entity.user.profile.UserProfile;
 import com.kiskee.vocabulary.model.entity.vocabulary.Dictionary;
 import com.kiskee.vocabulary.repository.user.profile.UserProfileRepository;
 import com.kiskee.vocabulary.service.vocabulary.dictionary.DictionaryCreationService;
+import java.util.List;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -15,14 +22,6 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.List;
-import java.util.UUID;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class UserProfileServiceTest {
@@ -32,14 +31,19 @@ public class UserProfileServiceTest {
 
     @Mock
     private UserProfileRepository userProfileRepository;
+
     @Mock
     private UserProfileMapper userProfileMapper;
+
     @Mock
     private DictionaryCreationService dictionaryCreationService;
+
     @Mock
     private ProfilePictureEncoder profilePictureEncoder;
+
     @Mock
     private DefaultUserProfileProperties defaultUserProfileProperties;
+
     @Captor
     private ArgumentCaptor<UserProfile> userPreferenceArgumentCaptor;
 
@@ -97,7 +101,8 @@ public class UserProfileServiceTest {
         when(dictionaryMock.getDictionaryName()).thenReturn(dictionaryName);
 
         String encodedPicture = "encodedPicture";
-        when(profilePictureEncoder.encodeWithBase64(registrationRequest.getPicture())).thenReturn(encodedPicture);
+        when(profilePictureEncoder.encodeWithBase64(registrationRequest.getPicture()))
+                .thenReturn(encodedPicture);
 
         UserProfile userProfile = UserProfile.builder()
                 .user(givenUserEntity)
@@ -120,5 +125,4 @@ public class UserProfileServiceTest {
                 .extracting(Dictionary::getDictionaryName)
                 .containsExactly(dictionaryName);
     }
-
 }

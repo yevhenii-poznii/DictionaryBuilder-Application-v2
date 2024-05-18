@@ -15,5 +15,4 @@ public class EmailContextProperties {
     private String subject;
     private String templateLocation;
     private String confirmationUrl;
-
 }

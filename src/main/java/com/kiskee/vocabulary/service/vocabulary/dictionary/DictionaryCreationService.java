@@ -9,5 +9,4 @@ public interface DictionaryCreationService {
     Dictionary addDictionary(String dictionaryName);
 
     DictionarySaveResponse addDictionary(DictionarySaveRequest dictionarySaveRequest);
-
 }

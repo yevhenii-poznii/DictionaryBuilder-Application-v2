@@ -10,6 +10,8 @@ import com.kiskee.vocabulary.service.provision.AbstractUserProvisionService;
 import com.kiskee.vocabulary.service.user.OAuth2UserService;
 import com.kiskee.vocabulary.service.user.UserInitializingService;
 import com.kiskee.vocabulary.util.IdentityUtil;
+import java.util.List;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -17,17 +19,16 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
-
 @Slf4j
 @Service
 @AllArgsConstructor
 public class OAuth2UserProvisionServiceImpl extends AbstractUserProvisionService implements OAuth2UserProvisionService {
 
     private final OAuth2UserService userService;
+
     @Getter
     private final List<UserInitializingService> userInitializingServices;
+
     private final AuthenticationService authenticationService;
 
     @Override
@@ -37,8 +38,8 @@ public class OAuth2UserProvisionServiceImpl extends AbstractUserProvisionService
 
         UserSecureProjection user = userOptional.orElseGet(() -> buildUserAccount(provisionRequest));
 
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                user, null, provisionRequest.getAuthorities());
+        UsernamePasswordAuthenticationToken authenticationToken =
+                new UsernamePasswordAuthenticationToken(user, null, provisionRequest.getAuthorities());
 
         TokenData issuedRefreshToken = authenticationService.issueRefreshToken(authenticationToken);
 
@@ -48,5 +49,4 @@ public class OAuth2UserProvisionServiceImpl extends AbstractUserProvisionService
 
         return new OAuth2ProvisionData(issuedAccessToken, issuedRefreshToken);
     }
-
 }

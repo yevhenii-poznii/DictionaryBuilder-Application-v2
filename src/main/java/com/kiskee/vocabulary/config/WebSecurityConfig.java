@@ -24,6 +24,12 @@ import com.nimbusds.jose.JWEEncrypter;
 import com.nimbusds.jose.KeyLengthException;
 import com.nimbusds.jose.crypto.DirectDecrypter;
 import com.nimbusds.jose.crypto.DirectEncrypter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.context.annotation.Bean;
@@ -43,13 +49,6 @@ import org.springframework.security.web.authentication.AnonymousAuthenticationFi
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.List;
-
 @Configuration
 @EnableWebSecurity
 @AllArgsConstructor
@@ -66,26 +65,27 @@ public class WebSecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        return http
-                .httpBasic(Customizer.withDefaults())
+        return http.httpBasic(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .formLogin(AbstractHttpConfigurer::disable)
                 .securityMatcher("/**")
                 .authorizeHttpRequests(requestMatcherRegistry -> requestMatcherRegistry
-                        .requestMatchers("/signup/**").anonymous()
-                        .requestMatchers("/actuator/**").hasRole("METRICS")
-                        .requestMatchers("/error", "/auth/access").permitAll()
-                        .anyRequest().authenticated())
-                .oauth2Login(oauth2 -> oauth2
-                        .successHandler(oAuth2LoginSuccessHandler()))
-                .sessionManagement(sessionManagement -> sessionManagement
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                        .requestMatchers("/signup/**")
+                        .anonymous()
+                        .requestMatchers("/actuator/**")
+                        .hasRole("METRICS")
+                        .requestMatchers("/error", "/auth/access")
+                        .permitAll()
+                        .anyRequest()
+                        .authenticated())
+                .oauth2Login(oauth2 -> oauth2.successHandler(oAuth2LoginSuccessHandler()))
+                .sessionManagement(
+                        sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(timeZoneRequestFilter, JwtAuthenticationFilter.class)
                 .addFilterBefore(loginAuthenticationFilter(), AnonymousAuthenticationFilter.class)
-                .exceptionHandling(exception -> exception
-                        .authenticationEntryPoint(new Http403ForbiddenEntryPoint()))
+                .exceptionHandling(exception -> exception.authenticationEntryPoint(new Http403ForbiddenEntryPoint()))
                 .build();
     }
 
@@ -112,7 +112,9 @@ public class WebSecurityConfig {
 
     @Bean
     public JweStringSerializer jweStringSerializer() throws KeyLengthException, IOException {
-        return new JweStringSerializer(jweEncrypter(secretKey()), JWEAlgorithm.parse(jwtProperties.getJweAlgorithm()),
+        return new JweStringSerializer(
+                jweEncrypter(secretKey()),
+                JWEAlgorithm.parse(jwtProperties.getJweAlgorithm()),
                 EncryptionMethod.parse(jwtProperties.getJweEncryptionMethod()));
     }
 
@@ -128,8 +130,8 @@ public class WebSecurityConfig {
 
     @Bean
     public LoginAuthenticationFilter loginAuthenticationFilter() throws Exception {
-        return new LoginAuthenticationFilter(objectMapper, authenticationManager(),
-                tokenCookieAuthenticationSuccessHandler());
+        return new LoginAuthenticationFilter(
+                objectMapper, authenticationManager(), tokenCookieAuthenticationSuccessHandler());
     }
 
     @Bean
@@ -159,13 +161,12 @@ public class WebSecurityConfig {
 
     @Bean
     public AuthenticationService authenticationService() throws IOException, KeyLengthException {
-        return new AuthenticationServiceImpl(defaultJweTokenFactory, jweStringSerializer(), cookieTokenService,
-                jwtProperties);
+        return new AuthenticationServiceImpl(
+                defaultJweTokenFactory, jweStringSerializer(), cookieTokenService, jwtProperties);
     }
 
     @Bean
     public AuthenticationManager authenticationManager() throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
-
 }

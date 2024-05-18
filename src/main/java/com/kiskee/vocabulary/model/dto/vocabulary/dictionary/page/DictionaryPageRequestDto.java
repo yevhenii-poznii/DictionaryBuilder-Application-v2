@@ -24,5 +24,4 @@ public class DictionaryPageRequestDto {
     private Integer size;
 
     private PageFilter filter;
-
 }

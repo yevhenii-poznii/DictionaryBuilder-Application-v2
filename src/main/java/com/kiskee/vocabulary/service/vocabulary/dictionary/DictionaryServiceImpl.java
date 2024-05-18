@@ -18,15 +18,14 @@ import com.kiskee.vocabulary.repository.vocabulary.projections.DictionaryProject
 import com.kiskee.vocabulary.service.vocabulary.dictionary.page.DictionaryPageLoaderFactory;
 import com.kiskee.vocabulary.service.vocabulary.word.page.DictionaryPageLoader;
 import com.kiskee.vocabulary.util.IdentityUtil;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
 @Slf4j
 @Service
@@ -52,8 +51,8 @@ public class DictionaryServiceImpl implements DictionaryService, DictionaryAcces
 
     @Override
     @Transactional
-    public DictionaryPageResponseDto getDictionaryPageByOwner(Long dictionaryId,
-                                                              DictionaryPageRequestDto dictionaryPageRequest) {
+    public DictionaryPageResponseDto getDictionaryPageByOwner(
+            Long dictionaryId, DictionaryPageRequestDto dictionaryPageRequest) {
         ensureDictionaryBelongsToUser(dictionaryId);
 
         return getDictionaryPage(dictionaryId, dictionaryPageRequest);
@@ -140,21 +139,21 @@ public class DictionaryServiceImpl implements DictionaryService, DictionaryAcces
         UUID userProfileId = IdentityUtil.getUserId();
 
         if (!repository.existsByIdAndUserProfileId(dictionaryId, userProfileId)) {
-            throw new ResourceNotFoundException(String.format(ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(),
-                    Dictionary.class.getSimpleName(), dictionaryId));
+            throw new ResourceNotFoundException(String.format(
+                    ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(),
+                    Dictionary.class.getSimpleName(),
+                    dictionaryId));
         }
     }
 
-    private DictionaryPageResponseDto getDictionaryPage(Long dictionaryId,
-                                                        DictionaryPageRequestDto dictionaryPageRequest) {
-        int page = Optional.ofNullable(dictionaryPageRequest.getPage())
-                .orElse(0);
+    private DictionaryPageResponseDto getDictionaryPage(
+            Long dictionaryId, DictionaryPageRequestDto dictionaryPageRequest) {
+        int page = Optional.ofNullable(dictionaryPageRequest.getPage()).orElse(0);
 
-        int size = Optional.ofNullable(dictionaryPageRequest.getSize())
-                .orElse(100);
+        int size = Optional.ofNullable(dictionaryPageRequest.getSize()).orElse(100);
 
-        PageFilter pageFilter = Optional.ofNullable(dictionaryPageRequest.getFilter())
-                .orElse(PageFilter.BY_ADDED_AT_ASC);
+        PageFilter pageFilter =
+                Optional.ofNullable(dictionaryPageRequest.getFilter()).orElse(PageFilter.BY_ADDED_AT_ASC);
 
         PageRequest pageRequest = PageRequest.of(page, size);
 
@@ -166,8 +165,8 @@ public class DictionaryServiceImpl implements DictionaryService, DictionaryAcces
     private DictionarySaveResponse mapToResponse(Dictionary dictionary, VocabularyResponseMessageEnum responseMessage) {
         DictionaryProjection dictionaryProjection = mapper.toDto(dictionary);
 
-        return new DictionarySaveResponse(String.format(
-                responseMessage.getResponseMessage(), dictionary.getDictionaryName()), dictionaryProjection);
+        return new DictionarySaveResponse(
+                String.format(responseMessage.getResponseMessage(), dictionary.getDictionaryName()),
+                dictionaryProjection);
     }
-
 }

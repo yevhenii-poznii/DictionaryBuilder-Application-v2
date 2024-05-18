@@ -16,5 +16,4 @@ public class DefaultUserPreferenceProperties {
     private int wordsPerPage;
 
     private boolean blurTranslation;
-
 }

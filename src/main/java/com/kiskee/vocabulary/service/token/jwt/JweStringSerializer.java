@@ -8,11 +8,10 @@ import com.nimbusds.jose.JWEEncrypter;
 import com.nimbusds.jose.JWEHeader;
 import com.nimbusds.jwt.EncryptedJWT;
 import com.nimbusds.jwt.JWTClaimsSet;
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
 import java.util.Date;
 import java.util.function.Function;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @AllArgsConstructor
@@ -49,5 +48,4 @@ public class JweStringSerializer implements Function<JweToken, String> {
 
         return null;
     }
-
 }

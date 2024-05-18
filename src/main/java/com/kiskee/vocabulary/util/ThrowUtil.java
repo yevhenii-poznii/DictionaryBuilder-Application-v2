@@ -2,10 +2,9 @@ package com.kiskee.vocabulary.util;
 
 import com.kiskee.vocabulary.enums.ExceptionStatusesEnum;
 import com.kiskee.vocabulary.exception.ResourceNotFoundException;
-import lombok.experimental.UtilityClass;
-
 import java.util.function.Function;
 import java.util.function.Supplier;
+import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class ThrowUtil {
@@ -25,5 +24,4 @@ public class ThrowUtil {
 
         return () -> exception.apply(String.format(exceptionStatus.getStatus(), s1, s2));
     }
-
 }

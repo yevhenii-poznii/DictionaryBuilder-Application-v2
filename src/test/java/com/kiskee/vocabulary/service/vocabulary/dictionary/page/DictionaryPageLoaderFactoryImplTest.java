@@ -1,5 +1,8 @@
 package com.kiskee.vocabulary.service.vocabulary.dictionary.page;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
+
 import com.kiskee.vocabulary.enums.vocabulary.PageFilter;
 import com.kiskee.vocabulary.service.vocabulary.dictionary.page.impl.DictionaryPageLoaderFactoryImpl;
 import com.kiskee.vocabulary.service.vocabulary.word.page.DictionaryPageLoader;
@@ -9,30 +12,31 @@ import com.kiskee.vocabulary.service.vocabulary.word.page.impl.asc.DictionaryPag
 import com.kiskee.vocabulary.service.vocabulary.word.page.impl.desc.DictionaryPageLoaderAllDESC;
 import com.kiskee.vocabulary.service.vocabulary.word.page.impl.desc.DictionaryPageLoaderOnlyNotUseInRepetitionDESC;
 import com.kiskee.vocabulary.service.vocabulary.word.page.impl.desc.DictionaryPageLoaderOnlyUseInRepetitionDESC;
+import java.util.Arrays;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Arrays;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
-
 @ExtendWith(MockitoExtension.class)
 public class DictionaryPageLoaderFactoryImplTest {
 
     @Mock
     private DictionaryPageLoaderAllASC allASC;
+
     @Mock
     private DictionaryPageLoaderAllDESC allDESC;
+
     @Mock
     private DictionaryPageLoaderOnlyUseInRepetitionASC onlyUseInRepetitionASC;
+
     @Mock
     private DictionaryPageLoaderOnlyUseInRepetitionDESC onlyUseInRepetitionDESC;
+
     @Mock
     private DictionaryPageLoaderOnlyNotUseInRepetitionASC onlyNotUseInRepetitionASC;
+
     @Mock
     private DictionaryPageLoaderOnlyNotUseInRepetitionDESC onlyNotUseInRepetitionDESC;
 
@@ -47,8 +51,13 @@ public class DictionaryPageLoaderFactoryImplTest {
         when(onlyNotUseInRepetitionASC.getPageFilter()).thenReturn(PageFilter.ONLY_NOT_USE_IN_REPETITION_ASC);
         when(onlyNotUseInRepetitionDESC.getPageFilter()).thenReturn(PageFilter.ONLY_NOT_USE_IN_REPETITION_DESC);
 
-        dictionaryPageLoaderFactory = new DictionaryPageLoaderFactoryImpl(Arrays.asList(allASC, allDESC, onlyUseInRepetitionASC,
-                onlyUseInRepetitionDESC, onlyNotUseInRepetitionASC, onlyNotUseInRepetitionDESC));
+        dictionaryPageLoaderFactory = new DictionaryPageLoaderFactoryImpl(Arrays.asList(
+                allASC,
+                allDESC,
+                onlyUseInRepetitionASC,
+                onlyUseInRepetitionDESC,
+                onlyNotUseInRepetitionASC,
+                onlyNotUseInRepetitionDESC));
     }
 
     @Test
@@ -70,7 +79,8 @@ public class DictionaryPageLoaderFactoryImplTest {
     }
 
     @Test
-    void testGetLoader_WhenGivenONLY_USE_IN_REPETITION_ASCFilter_ThenReturnDictionaryPageLoaderOnlyUseInRepetitionASC() {
+    void
+            testGetLoader_WhenGivenONLY_USE_IN_REPETITION_ASCFilter_ThenReturnDictionaryPageLoaderOnlyUseInRepetitionASC() {
         PageFilter filter = PageFilter.ONLY_USE_IN_REPETITION_ASC;
 
         DictionaryPageLoader dictionaryPageLoader = dictionaryPageLoaderFactory.getLoader(filter);
@@ -79,7 +89,8 @@ public class DictionaryPageLoaderFactoryImplTest {
     }
 
     @Test
-    void testGetLoader_WhenGivenONLY_USE_IN_REPETITION_DESCFilter_ThenReturnDictionaryPageLoaderOnlyUseInRepetitionDESC() {
+    void
+            testGetLoader_WhenGivenONLY_USE_IN_REPETITION_DESCFilter_ThenReturnDictionaryPageLoaderOnlyUseInRepetitionDESC() {
         PageFilter filter = PageFilter.ONLY_USE_IN_REPETITION_DESC;
 
         DictionaryPageLoader dictionaryPageLoader = dictionaryPageLoaderFactory.getLoader(filter);
@@ -88,7 +99,8 @@ public class DictionaryPageLoaderFactoryImplTest {
     }
 
     @Test
-    void testGetLoader_WhenGivenONLY_NOT_USE_IN_REPETITION_ASCFilter_ThenReturnDictionaryPageLoaderOnlyNotUseInRepetitionASC() {
+    void
+            testGetLoader_WhenGivenONLY_NOT_USE_IN_REPETITION_ASCFilter_ThenReturnDictionaryPageLoaderOnlyNotUseInRepetitionASC() {
         PageFilter filter = PageFilter.ONLY_NOT_USE_IN_REPETITION_ASC;
 
         DictionaryPageLoader dictionaryPageLoader = dictionaryPageLoaderFactory.getLoader(filter);
@@ -97,12 +109,12 @@ public class DictionaryPageLoaderFactoryImplTest {
     }
 
     @Test
-    void testGetLoader_WhenGivenONLY_NOT_USE_IN_REPETITION_DESCFilter_ThenReturnDictionaryPageLoaderOnlyNotUseInRepetitionDESC() {
+    void
+            testGetLoader_WhenGivenONLY_NOT_USE_IN_REPETITION_DESCFilter_ThenReturnDictionaryPageLoaderOnlyNotUseInRepetitionDESC() {
         PageFilter filter = PageFilter.ONLY_NOT_USE_IN_REPETITION_DESC;
 
         DictionaryPageLoader dictionaryPageLoader = dictionaryPageLoaderFactory.getLoader(filter);
 
         assertThat(dictionaryPageLoader).isInstanceOf(DictionaryPageLoaderOnlyNotUseInRepetitionDESC.class);
     }
-
 }

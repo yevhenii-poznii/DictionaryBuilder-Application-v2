@@ -6,7 +6,6 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum VocabularyResponseMessageEnum {
-
     DICTIONARY_CREATED("%s dictionary created successfully"),
     DICTIONARY_ALREADY_EXISTS("Dictionary with name %s already exists for user"),
     DICTIONARY_UPDATED("%s dictionary updated successfully"),
@@ -16,5 +15,4 @@ public enum VocabularyResponseMessageEnum {
     WORD_DELETED("Word %s has been deleted");
 
     private final String responseMessage;
-
 }

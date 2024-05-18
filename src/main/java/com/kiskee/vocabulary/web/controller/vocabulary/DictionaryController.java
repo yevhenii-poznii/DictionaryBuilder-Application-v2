@@ -8,6 +8,7 @@ import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.page.DictionaryPage
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.page.DictionaryPageResponseDto;
 import com.kiskee.vocabulary.service.vocabulary.dictionary.DictionaryService;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -20,8 +21,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 @AllArgsConstructor
@@ -37,8 +36,8 @@ public class DictionaryController {
     }
 
     @GetMapping("/{dictionaryId}")
-    public DictionaryPageResponseDto getPage(@PathVariable Long dictionaryId,
-                                             @ModelAttribute @Valid DictionaryPageRequestDto pageRequest) {
+    public DictionaryPageResponseDto getPage(
+            @PathVariable Long dictionaryId, @ModelAttribute @Valid DictionaryPageRequestDto pageRequest) {
         return dictionaryService.getDictionaryPageByOwner(dictionaryId, pageRequest);
     }
 
@@ -48,8 +47,8 @@ public class DictionaryController {
     }
 
     @PutMapping("/{dictionaryId}")
-    public DictionarySaveResponse updateDictionary(@PathVariable Long dictionaryId,
-                                                   @RequestBody @Valid DictionarySaveRequest dictionarySaveRequest) {
+    public DictionarySaveResponse updateDictionary(
+            @PathVariable Long dictionaryId, @RequestBody @Valid DictionarySaveRequest dictionarySaveRequest) {
         return dictionaryService.updateDictionary(dictionaryId, dictionarySaveRequest);
     }
 
@@ -57,5 +56,4 @@ public class DictionaryController {
     public ResponseMessage deleteDictionary(@PathVariable Long dictionaryId) {
         return dictionaryService.deleteDictionary(dictionaryId);
     }
-
 }

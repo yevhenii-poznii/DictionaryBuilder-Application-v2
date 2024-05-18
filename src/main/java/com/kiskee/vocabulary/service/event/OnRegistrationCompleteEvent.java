@@ -15,5 +15,4 @@ public class OnRegistrationCompleteEvent extends ApplicationEvent {
         super(userInfo);
         this.userInfo = userInfo;
     }
-
 }

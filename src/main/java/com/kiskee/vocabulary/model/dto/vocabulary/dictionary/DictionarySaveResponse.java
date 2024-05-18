@@ -13,5 +13,4 @@ public class DictionarySaveResponse extends ResponseMessage {
         super(responseMessage);
         this.dictionary = dictionary;
     }
-
 }

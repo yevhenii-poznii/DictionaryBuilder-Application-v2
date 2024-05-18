@@ -13,5 +13,4 @@ public abstract class AbstractVocabularyService<T> {
 
         return getRepository().save(entity);
     }
-
 }

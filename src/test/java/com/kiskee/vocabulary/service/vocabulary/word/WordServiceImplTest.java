@@ -1,5 +1,14 @@
 package com.kiskee.vocabulary.service.vocabulary.word;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.kiskee.vocabulary.enums.ExceptionStatusesEnum;
 import com.kiskee.vocabulary.enums.user.UserRole;
 import com.kiskee.vocabulary.exception.ForbiddenAccessException;
@@ -17,6 +26,10 @@ import com.kiskee.vocabulary.model.entity.vocabulary.WordTranslation;
 import com.kiskee.vocabulary.repository.vocabulary.WordRepository;
 import com.kiskee.vocabulary.service.vocabulary.dictionary.DictionaryAccessValidator;
 import com.kiskee.vocabulary.service.vocabulary.word.translation.WordTranslationService;
+import java.time.Instant;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -30,20 +43,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import java.time.Instant;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 @ExtendWith(MockitoExtension.class)
 public class WordServiceImplTest {
 
@@ -54,17 +53,22 @@ public class WordServiceImplTest {
 
     @Mock
     private WordRepository wordRepository;
+
     @Mock
     private WordMapper wordMapper;
+
     @Mock
     private DictionaryAccessValidator dictionaryAccessValidator;
+
     @Mock
     private WordTranslationService wordTranslationService;
+
     @Mock
     private SecurityContext securityContext;
 
     @Captor
     private ArgumentCaptor<Word> wordCaptor;
+
     @Captor
     private ArgumentCaptor<List<Word>> wordsCaptor;
 
@@ -73,19 +77,30 @@ public class WordServiceImplTest {
         setAuth();
 
         long dictionaryId = 1L;
-        WordSaveRequest saveRequest = new WordSaveRequest("word", List.of(
-                new WordTranslationDto(null, "переклад")), "hint");
+        WordSaveRequest saveRequest =
+                new WordSaveRequest("word", List.of(new WordTranslationDto(null, "переклад")), "hint");
 
         Instant addedAt = Instant.parse("2024-03-12T12:12:00Z");
-        Word wordToSave = new Word(null, saveRequest.getWord(), true, 0,
-                saveRequest.getWordHint(), addedAt, null, dictionaryId,
+        Word wordToSave = new Word(
+                null,
+                saveRequest.getWord(),
+                true,
+                0,
+                saveRequest.getWordHint(),
+                addedAt,
+                null,
+                dictionaryId,
                 List.of(new WordTranslation(null, "переклад")));
 
         when(wordMapper.toEntity(saveRequest, dictionaryId)).thenReturn(wordToSave);
         when(wordRepository.save(wordCaptor.capture())).thenReturn(wordToSave);
 
-        WordDto wordDto = new WordDto(wordToSave.getId(), wordToSave.getWord(), wordToSave.isUseInRepetition(),
-                saveRequest.getWordTranslations(), wordToSave.getWordHint());
+        WordDto wordDto = new WordDto(
+                wordToSave.getId(),
+                wordToSave.getWord(),
+                wordToSave.isUseInRepetition(),
+                saveRequest.getWordTranslations(),
+                wordToSave.getWordHint());
         when(wordMapper.toDto(wordToSave)).thenReturn(wordDto);
 
         WordSaveResponse wordSaveResponse = wordService.addWord(dictionaryId, saveRequest);
@@ -94,18 +109,22 @@ public class WordServiceImplTest {
         verify(dictionaryAccessValidator).verifyUserHasDictionary(dictionaryId);
 
         assertThat(actualWord.getWord()).isEqualTo(wordSaveResponse.getWord().getWord());
-        assertThat(actualWord.isUseInRepetition()).isEqualTo(wordSaveResponse.getWord().isUseInRepetition());
-        assertThat(actualWord.getWordHint()).isEqualTo(wordSaveResponse.getWord().getWordHint());
-        assertThat(actualWord.getWordTranslations()).extracting(WordTranslation::getTranslation)
+        assertThat(actualWord.isUseInRepetition())
+                .isEqualTo(wordSaveResponse.getWord().isUseInRepetition());
+        assertThat(actualWord.getWordHint())
+                .isEqualTo(wordSaveResponse.getWord().getWordHint());
+        assertThat(actualWord.getWordTranslations())
+                .extracting(WordTranslation::getTranslation)
                 .containsExactlyInAnyOrderElementsOf(wordSaveResponse.getWord().getWordTranslations().stream()
-                        .map(WordTranslationDto::getTranslation).toList());
+                        .map(WordTranslationDto::getTranslation)
+                        .toList());
     }
 
     @Test
     void testAddWord_WhenDictionaryDoesNotExistForUser_ThenThrowResourceNotFoundException() {
         long dictionaryId = 1L;
-        WordSaveRequest saveRequest = new WordSaveRequest("word", List.of(
-                new WordTranslationDto(null, "переклад")), "hint");
+        WordSaveRequest saveRequest =
+                new WordSaveRequest("word", List.of(new WordTranslationDto(null, "переклад")), "hint");
 
         doThrow(ResourceNotFoundException.class).when(dictionaryAccessValidator).verifyUserHasDictionary(dictionaryId);
 
@@ -119,30 +138,52 @@ public class WordServiceImplTest {
 
         long dictionaryId = 1L;
         long wordId = 2L;
-        WordUpdateRequest updateRequest = new WordUpdateRequest("word", false, List.of(
-                new WordTranslationDto(3L, "переклад"),
-                new WordTranslationDto(null, "новий переклад")),
+        WordUpdateRequest updateRequest = new WordUpdateRequest(
+                "word",
+                false,
+                List.of(new WordTranslationDto(3L, "переклад"), new WordTranslationDto(null, "новий переклад")),
                 "hint");
 
         Instant addedAt = Instant.parse("2024-03-12T12:12:00Z");
         Instant editedAt = Instant.parse("2024-03-14T16:56:00Z");
-        Word wordToUpdate = new Word(wordId, updateRequest.getWord(), true, 0,
-                updateRequest.getWordHint(), addedAt, null, dictionaryId,
+        Word wordToUpdate = new Word(
+                wordId,
+                updateRequest.getWord(),
+                true,
+                0,
+                updateRequest.getWordHint(),
+                addedAt,
+                null,
+                dictionaryId,
                 List.of(new WordTranslation(3L, "переклад")));
         when(wordRepository.getWord(wordId)).thenReturn(wordToUpdate);
 
-        List<WordTranslation> updatedTranslations = List.of(new WordTranslation(3L, "переклад"),
-                new WordTranslation(null, "новий переклад"));
-        when(wordTranslationService.updateTranslations(updateRequest.getWordTranslations(), wordToUpdate.getWordTranslations()))
+        List<WordTranslation> updatedTranslations =
+                List.of(new WordTranslation(3L, "переклад"), new WordTranslation(null, "новий переклад"));
+        when(wordTranslationService.updateTranslations(
+                        updateRequest.getWordTranslations(), wordToUpdate.getWordTranslations()))
                 .thenReturn(updatedTranslations);
 
-        Word updatedWord = new Word(wordId, updateRequest.getWord(), updateRequest.getUseInRepetition(), 0,
-                updateRequest.getWordHint(), addedAt, editedAt, dictionaryId, updatedTranslations);
+        Word updatedWord = new Word(
+                wordId,
+                updateRequest.getWord(),
+                updateRequest.getUseInRepetition(),
+                0,
+                updateRequest.getWordHint(),
+                addedAt,
+                editedAt,
+                dictionaryId,
+                updatedTranslations);
         when(wordMapper.toEntity(wordToUpdate, updateRequest, updatedTranslations))
                 .thenReturn(updatedWord);
         when(wordRepository.save(wordCaptor.capture())).thenReturn(updatedWord);
-        when(wordMapper.toDto(updatedWord)).thenReturn(new WordDto(updatedWord.getId(), updateRequest.getWord(),
-                updateRequest.getUseInRepetition(), updateRequest.getWordTranslations(), updateRequest.getWordHint()));
+        when(wordMapper.toDto(updatedWord))
+                .thenReturn(new WordDto(
+                        updatedWord.getId(),
+                        updateRequest.getWord(),
+                        updateRequest.getUseInRepetition(),
+                        updateRequest.getWordTranslations(),
+                        updateRequest.getWordHint()));
 
         WordSaveResponse wordSaveResponse = wordService.updateWord(dictionaryId, wordId, updateRequest);
         Word actualWord = wordCaptor.getValue();
@@ -150,20 +191,25 @@ public class WordServiceImplTest {
         verify(dictionaryAccessValidator).verifyUserHasDictionary(dictionaryId);
 
         assertThat(actualWord.getWord()).isEqualTo(wordSaveResponse.getWord().getWord());
-        assertThat(actualWord.isUseInRepetition()).isEqualTo(wordSaveResponse.getWord().isUseInRepetition());
-        assertThat(actualWord.getWordHint()).isEqualTo(wordSaveResponse.getWord().getWordHint());
-        assertThat(actualWord.getWordTranslations()).extracting(WordTranslation::getTranslation)
+        assertThat(actualWord.isUseInRepetition())
+                .isEqualTo(wordSaveResponse.getWord().isUseInRepetition());
+        assertThat(actualWord.getWordHint())
+                .isEqualTo(wordSaveResponse.getWord().getWordHint());
+        assertThat(actualWord.getWordTranslations())
+                .extracting(WordTranslation::getTranslation)
                 .containsExactlyInAnyOrderElementsOf(wordSaveResponse.getWord().getWordTranslations().stream()
-                        .map(WordTranslationDto::getTranslation).toList());
+                        .map(WordTranslationDto::getTranslation)
+                        .toList());
     }
 
     @Test
     void testUpdateWord_WhenDictionaryDoesNotExistsForUser_ThenThrowResourceNotFoundException() {
         long dictionaryId = 1L;
         long wordId = 2L;
-        WordUpdateRequest updateRequest = new WordUpdateRequest("word", false, List.of(
-                new WordTranslationDto(3L, "переклад"),
-                new WordTranslationDto(null, "новий переклад")),
+        WordUpdateRequest updateRequest = new WordUpdateRequest(
+                "word",
+                false,
+                List.of(new WordTranslationDto(3L, "переклад"), new WordTranslationDto(null, "новий переклад")),
                 "hint");
 
         doThrow(ResourceNotFoundException.class).when(dictionaryAccessValidator).verifyUserHasDictionary(dictionaryId);
@@ -176,15 +222,15 @@ public class WordServiceImplTest {
     void testUpdateWord_WhenWordDoesNotExist_ThenThrowResourceNotFoundException() {
         long dictionaryId = 1L;
         long wordId = 2L;
-        WordUpdateRequest updateRequest = new WordUpdateRequest("word", false, List.of(
-                new WordTranslationDto(3L, "переклад"),
-                new WordTranslationDto(null, "новий переклад")),
+        WordUpdateRequest updateRequest = new WordUpdateRequest(
+                "word",
+                false,
+                List.of(new WordTranslationDto(3L, "переклад"), new WordTranslationDto(null, "новий переклад")),
                 "hint");
 
         when(wordRepository.getWord(wordId))
                 .thenThrow(new ResourceNotFoundException(String.format(
-                        ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(),
-                        Word.class.getSimpleName(), wordId)));
+                        ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(), Word.class.getSimpleName(), wordId)));
 
         assertThatExceptionOfType(ResourceNotFoundException.class)
                 .isThrownBy(() -> wordService.updateWord(dictionaryId, wordId, updateRequest));
@@ -194,20 +240,28 @@ public class WordServiceImplTest {
     void testUpdateWord_WhenWordDoesNotExistsForDictionary_ThenThrowForbiddenAccessException() {
         long dictionaryId = 1L;
         long wordId = 2L;
-        WordUpdateRequest updateRequest = new WordUpdateRequest("word", false, List.of(
-                new WordTranslationDto(3L, "переклад"),
-                new WordTranslationDto(null, "новий переклад")),
+        WordUpdateRequest updateRequest = new WordUpdateRequest(
+                "word",
+                false,
+                List.of(new WordTranslationDto(3L, "переклад"), new WordTranslationDto(null, "новий переклад")),
                 "hint");
 
-        Word wordToUpdate = new Word(wordId, updateRequest.getWord(), true, 0,
-                updateRequest.getWordHint(), null, null, 150L,
+        Word wordToUpdate = new Word(
+                wordId,
+                updateRequest.getWord(),
+                true,
+                0,
+                updateRequest.getWordHint(),
+                null,
+                null,
+                150L,
                 List.of(new WordTranslation(3L, "переклад")));
         when(wordRepository.getWord(wordId)).thenReturn(wordToUpdate);
 
         assertThatExceptionOfType(ForbiddenAccessException.class)
                 .isThrownBy(() -> wordService.updateWord(dictionaryId, wordId, updateRequest))
-                .withMessage(String.format(ExceptionStatusesEnum.FORBIDDEN_ACCESS.getStatus(),
-                        Word.class.getSimpleName(), wordId));
+                .withMessage(String.format(
+                        ExceptionStatusesEnum.FORBIDDEN_ACCESS.getStatus(), Word.class.getSimpleName(), wordId));
     }
 
     @Test
@@ -251,8 +305,7 @@ public class WordServiceImplTest {
 
         when(wordRepository.getWord(wordId))
                 .thenThrow(new ResourceNotFoundException(String.format(
-                        ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(),
-                        Word.class.getSimpleName(), wordId)));
+                        ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(), Word.class.getSimpleName(), wordId)));
 
         assertThatExceptionOfType(ResourceNotFoundException.class)
                 .isThrownBy(() -> wordService.deleteWord(dictionaryId, wordId));
@@ -270,8 +323,8 @@ public class WordServiceImplTest {
 
         assertThatThrownBy(() -> wordService.deleteWord(dictionaryId, wordId))
                 .isInstanceOf(ForbiddenAccessException.class)
-                .hasMessage(String.format(ExceptionStatusesEnum.FORBIDDEN_ACCESS.getStatus(),
-                        Word.class.getSimpleName(), wordId));
+                .hasMessage(String.format(
+                        ExceptionStatusesEnum.FORBIDDEN_ACCESS.getStatus(), Word.class.getSimpleName(), wordId));
     }
 
     @Test
@@ -299,8 +352,7 @@ public class WordServiceImplTest {
 
         verify(dictionaryAccessValidator).verifyUserHasDictionary(dictionaryId);
 
-        assertThat(deletedWords).extracting(Word::getId)
-                .containsExactlyInAnyOrderElementsOf(wordId);
+        assertThat(deletedWords).extracting(Word::getId).containsExactlyInAnyOrderElementsOf(wordId);
     }
 
     @Test
@@ -332,16 +384,18 @@ public class WordServiceImplTest {
 
         assertThatThrownBy(() -> wordService.deleteWords(dictionaryId, wordId))
                 .isInstanceOf(ForbiddenAccessException.class)
-                .hasMessage(String.format(ExceptionStatusesEnum.FORBIDDEN_ACCESS.getStatus(),
-                        Word.class.getSimpleName(), List.of(wordId2.getId())));
+                .hasMessage(String.format(
+                        ExceptionStatusesEnum.FORBIDDEN_ACCESS.getStatus(),
+                        Word.class.getSimpleName(),
+                        List.of(wordId2.getId())));
     }
 
     private void setAuth() {
-        UserVocabularyApplication user = new UserVocabularyApplication(USER_ID, "email", "username",
-                "noPassword", true, UserRole.ROLE_USER, null, null);
-        Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
+        UserVocabularyApplication user = new UserVocabularyApplication(
+                USER_ID, "email", "username", "noPassword", true, UserRole.ROLE_USER, null, null);
+        Authentication authentication =
+                new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
         when(securityContext.getAuthentication()).thenReturn(authentication);
         SecurityContextHolder.setContext(securityContext);
     }
-
 }

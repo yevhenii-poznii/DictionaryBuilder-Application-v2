@@ -1,11 +1,22 @@
 package com.kiskee.vocabulary.service.token.verification;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.kiskee.vocabulary.enums.ExceptionStatusesEnum;
 import com.kiskee.vocabulary.enums.token.TokenEnum;
 import com.kiskee.vocabulary.exception.ResourceNotFoundException;
 import com.kiskee.vocabulary.model.entity.token.Token;
 import com.kiskee.vocabulary.model.entity.token.VerificationToken;
 import com.kiskee.vocabulary.repository.token.TokenRepository;
+import java.time.Instant;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.function.Supplier;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -13,18 +24,6 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.time.Instant;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.function.Supplier;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class VerificationTokenServiceTest {
@@ -36,6 +35,7 @@ public class VerificationTokenServiceTest {
 
     @Mock
     private TokenRepository tokenRepository;
+
     @Mock
     private Supplier<String> tokenGenerator;
 
@@ -84,8 +84,10 @@ public class VerificationTokenServiceTest {
 
         assertThatExceptionOfType(ResourceNotFoundException.class)
                 .isThrownBy(() -> service.findTokenOrThrow(verificationTokenParam))
-                .withMessage(String.format(ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(),
-                        Token.class.getSimpleName(), verificationTokenParam));
+                .withMessage(String.format(
+                        ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(),
+                        Token.class.getSimpleName(),
+                        verificationTokenParam));
     }
 
     @Test
@@ -102,5 +104,4 @@ public class VerificationTokenServiceTest {
         assertThat(actual.getToken()).isEqualTo(verificationTokenString);
         assertThat(actual.isInvalidated()).isTrue();
     }
-
 }

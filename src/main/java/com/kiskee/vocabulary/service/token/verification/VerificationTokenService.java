@@ -4,16 +4,15 @@ import com.kiskee.vocabulary.model.entity.token.Token;
 import com.kiskee.vocabulary.model.entity.token.VerificationToken;
 import com.kiskee.vocabulary.repository.token.TokenRepository;
 import com.kiskee.vocabulary.service.token.AbstractTokenService;
-import com.kiskee.vocabulary.service.token.TokenPersistenceService;
 import com.kiskee.vocabulary.service.token.TokenInvalidatorService;
+import com.kiskee.vocabulary.service.token.TokenPersistenceService;
+import java.time.Instant;
+import java.util.UUID;
+import java.util.function.Supplier;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
-import java.time.Instant;
-import java.util.UUID;
-import java.util.function.Supplier;
 
 @Slf4j
 @Service
@@ -23,6 +22,7 @@ public class VerificationTokenService extends AbstractTokenService<UUID, Verific
 
     @Getter
     private final TokenRepository tokenRepository;
+
     private final Supplier<String> tokenGenerator;
 
     @Override
@@ -48,5 +48,4 @@ public class VerificationTokenService extends AbstractTokenService<UUID, Verific
     protected Token buildToken(UUID userId, String tokenString) {
         return new VerificationToken(tokenString, userId, Instant.now());
     }
-
 }

@@ -4,12 +4,11 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -17,8 +16,7 @@ import java.util.List;
 public class WordUpdateRequest {
 
     @NotNull
-    @Pattern(regexp = "^[a-zA-Z\\-()\\s]+$",
-            message = "Word must contain only letters, hyphens, brackets and spaces")
+    @Pattern(regexp = "^[a-zA-Z\\-()\\s]+$", message = "Word must contain only letters, hyphens, brackets and spaces")
     private String word;
 
     @NotNull
@@ -30,5 +28,4 @@ public class WordUpdateRequest {
     private List<WordTranslationDto> wordTranslations;
 
     private String wordHint;
-
 }

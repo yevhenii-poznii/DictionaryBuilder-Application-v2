@@ -30,11 +30,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public AuthenticationResponse issueAccessToken() {
         Authentication authentication = IdentityUtil.getAuthentication();
 
-        TokenData tokenData = buildToken(authentication, jwtProperties.getAccessExpirationTime());
-
-        log.info("Issued access token for user: [{}]", ((UserSecureProjection) authentication.getPrincipal()).getId());
-
-        return new AuthenticationResponse(tokenData.token(), tokenData.jweToken().getExpiresAt());
+        return issueAccessToken(authentication);
     }
 
     @Override
@@ -45,11 +41,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         validate(cookieToken, authentication);
 
-        TokenData tokenData = buildToken(authentication, jwtProperties.getAccessExpirationTime());
-
-        log.info("Issued access token for user: [{}]", ((UserSecureProjection) authentication.getPrincipal()).getId());
-
-        return new AuthenticationResponse(tokenData.token(), tokenData.jweToken().getExpiresAt());
+        return issueAccessToken(authentication);
     }
 
     @Override
@@ -73,6 +65,15 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
     }
 
+    private AuthenticationResponse issueAccessToken(Authentication authentication) {
+        TokenData tokenData = buildToken(authentication, jwtProperties.getAccessExpirationTime());
+
+        log.info("Issued access token for user: [{}]", ((UserSecureProjection) authentication.getPrincipal()).getId());
+
+        return new AuthenticationResponse(
+                tokenData.token(), tokenData.jweToken().getExpiresAt());
+    }
+
     private TokenData buildToken(Authentication authentication, long expirationTime) {
         AuthenticationData authenticationData = new AuthenticationData(authentication, expirationTime);
 
@@ -82,5 +83,4 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         return new TokenData(tokenString, jweToken);
     }
-
 }

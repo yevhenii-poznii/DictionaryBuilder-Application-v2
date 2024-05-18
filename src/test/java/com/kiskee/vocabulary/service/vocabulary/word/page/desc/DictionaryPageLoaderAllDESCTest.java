@@ -1,5 +1,11 @@
 package com.kiskee.vocabulary.service.vocabulary.word.page.desc;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import com.kiskee.vocabulary.enums.vocabulary.PageFilter;
 import com.kiskee.vocabulary.mapper.dictionary.DictionaryPageMapper;
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.page.DictionaryPageResponseDto;
@@ -8,6 +14,7 @@ import com.kiskee.vocabulary.model.dto.vocabulary.word.WordIdDto;
 import com.kiskee.vocabulary.model.entity.vocabulary.Word;
 import com.kiskee.vocabulary.repository.vocabulary.DictionaryPageRepository;
 import com.kiskee.vocabulary.service.vocabulary.word.page.impl.desc.DictionaryPageLoaderAllDESC;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -15,14 +22,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class DictionaryPageLoaderAllDESCTest {
@@ -32,6 +31,7 @@ public class DictionaryPageLoaderAllDESCTest {
 
     @Mock
     private DictionaryPageRepository repository;
+
     @Mock
     private DictionaryPageMapper mapper;
 
@@ -57,24 +57,19 @@ public class DictionaryPageLoaderAllDESCTest {
 
         List<Word> words = List.of(
                 new Word(2L, "word2", false, 0, null, null, null, 1L, List.of()),
-                new Word(1L, "word1", true, 0, null, null, null, 1L, List.of())
-        );
+                new Word(1L, "word1", true, 0, null, null, null, 1L, List.of()));
         when(repository.findByIdInOrderByAddedAtDesc(List.of(2L, 1L))).thenReturn(words);
 
         List<WordDto> wordDtos = List.of(
-                new WordDto(2L, "word2", false, List.of(), null),
-                new WordDto(1L, "word1", true, List.of(), null)
-        );
-        DictionaryPageResponseDto expectedResult = new DictionaryPageResponseDto(wordDtos,
-                page.getTotalPages(), (int) page.getTotalElements());
+                new WordDto(2L, "word2", false, List.of(), null), new WordDto(1L, "word1", true, List.of(), null));
+        DictionaryPageResponseDto expectedResult =
+                new DictionaryPageResponseDto(wordDtos, page.getTotalPages(), (int) page.getTotalElements());
         when(mapper.toDto(words, page.getTotalPages(), page.getTotalElements())).thenReturn(expectedResult);
 
         DictionaryPageResponseDto result = dictionaryPageLoaderAllDESC.loadDictionaryPage(dictionaryId, pageRequest);
 
         assertThat(result.getTotalPages()).isEqualTo(1);
         assertThat(result.getTotalElements()).isEqualTo(2);
-        assertThat(result.getWords()).extracting(WordDto::getWord)
-                .containsExactlyInAnyOrder("word1", "word2");
+        assertThat(result.getWords()).extracting(WordDto::getWord).containsExactlyInAnyOrder("word1", "word2");
     }
-
 }

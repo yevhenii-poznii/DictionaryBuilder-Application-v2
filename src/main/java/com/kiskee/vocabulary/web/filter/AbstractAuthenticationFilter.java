@@ -4,16 +4,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kiskee.vocabulary.util.TimeZoneContextHolder;
 import com.kiskee.vocabulary.web.advice.ErrorResponse;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.time.Instant;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.filter.OncePerRequestFilter;
-
-import java.io.IOException;
-import java.time.Instant;
-import java.util.Map;
 
 @Slf4j
 @Getter
@@ -36,5 +35,4 @@ public abstract class AbstractAuthenticationFilter extends OncePerRequestFilter 
 
         objectMapper.writeValue(response.getOutputStream(), errorResponse);
     }
-
 }

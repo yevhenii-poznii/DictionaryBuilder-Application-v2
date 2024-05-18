@@ -1,5 +1,15 @@
 package com.kiskee.vocabulary.service.registration;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+
 import com.kiskee.vocabulary.enums.ExceptionStatusesEnum;
 import com.kiskee.vocabulary.enums.registration.RegistrationStatus;
 import com.kiskee.vocabulary.exception.ResourceNotFoundException;
@@ -14,6 +24,9 @@ import com.kiskee.vocabulary.service.event.OnRegistrationCompleteEvent;
 import com.kiskee.vocabulary.service.provision.registration.RegistrationServiceImpl;
 import com.kiskee.vocabulary.service.token.TokenInvalidatorService;
 import com.kiskee.vocabulary.service.user.UserInitializingService;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,20 +36,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
-
 @ExtendWith(MockitoExtension.class)
 public class RegistrationServiceImplTest {
 
@@ -44,25 +43,34 @@ public class RegistrationServiceImplTest {
 
     @InjectMocks
     private RegistrationServiceImpl service;
+
     @Mock
     private PasswordEncoder passwordEncoder;
+
     @Mock
     private ApplicationEventPublisher eventPublisher;
+
     @Mock
     private UserInitializingService userService;
+
     @Mock
     private UserInitializingService userProfileService;
+
     @Mock
     private UserInitializingService userPreferenceService;
+
     @Mock
     private List<UserInitializingService> userInitializingServices;
+
     @Mock
     private TokenInvalidatorService<VerificationToken> tokenInvalidatorService;
 
     @BeforeEach
     void setUp() {
-        List<UserInitializingService> userInitializingServices = Arrays.asList(userService, userProfileService, userPreferenceService);
-        service = new RegistrationServiceImpl(passwordEncoder, userInitializingServices, tokenInvalidatorService, eventPublisher);
+        List<UserInitializingService> userInitializingServices =
+                Arrays.asList(userService, userProfileService, userPreferenceService);
+        service = new RegistrationServiceImpl(
+                passwordEncoder, userInitializingServices, tokenInvalidatorService, eventPublisher);
     }
 
     @Test
@@ -81,9 +89,9 @@ public class RegistrationServiceImplTest {
 
         ResponseMessage result = service.registerUserAccount(registrationRequest);
 
-        assertThat(result.getResponseMessage()).isEqualTo(String.format(
-                RegistrationStatus.USER_SUCCESSFULLY_CREATED.getStatus(),
-                registrationRequest.getEmail()));
+        assertThat(result.getResponseMessage())
+                .isEqualTo(String.format(
+                        RegistrationStatus.USER_SUCCESSFULLY_CREATED.getStatus(), registrationRequest.getEmail()));
 
         verify(passwordEncoder).encode(registrationRequest.getRawPassword());
         userInitializingServices.forEach(service -> verify(service).initUser(registrationRequest));
@@ -92,14 +100,15 @@ public class RegistrationServiceImplTest {
 
     @Test
     void testRegisterUserAccount_WhenUserAlreadyExistsWithTheSameEmailOrUsername_ThenThrowDuplicateUserException() {
-        InternalRegistrationRequest registrationRequest = new InternalRegistrationRequest(
-                "email@gmail.com", "username", "p#Ssword1");
+        InternalRegistrationRequest registrationRequest =
+                new InternalRegistrationRequest("email@gmail.com", "username", "p#Ssword1");
         String hashedPassword = "encodedPassword";
 
         when(passwordEncoder.encode(registrationRequest.getRawPassword())).thenReturn(hashedPassword);
 
         doThrow(new DuplicateUserException(RegistrationStatus.USER_ALREADY_EXISTS.getStatus()))
-                .when(userService).initUser(registrationRequest);
+                .when(userService)
+                .initUser(registrationRequest);
 
         assertThatExceptionOfType(DuplicateUserException.class)
                 .isThrownBy(() -> service.registerUserAccount(registrationRequest))
@@ -132,7 +141,8 @@ public class RegistrationServiceImplTest {
 
         when(tokenInvalidatorService.findTokenOrThrow(verificationToken))
                 .thenThrow(new ResourceNotFoundException(String.format(
-                        ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(), Token.class.getSimpleName(),
+                        ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(),
+                        Token.class.getSimpleName(),
                         verificationToken)));
 
         assertThatExceptionOfType(ResourceNotFoundException.class)
@@ -152,14 +162,17 @@ public class RegistrationServiceImplTest {
         when(tokenInvalidatorService.findTokenOrThrow(verificationToken)).thenReturn(tokenMock);
 
         doThrow(new ResourceNotFoundException(String.format(
-                ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(), UserVocabularyApplication.class.getSimpleName(),
-                verificationToken)))
-                .when(userService).updateUserAccountToActive(eq(USER_ID));
+                        ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(),
+                        UserVocabularyApplication.class.getSimpleName(),
+                        verificationToken)))
+                .when(userService)
+                .updateUserAccountToActive(eq(USER_ID));
 
         assertThatExceptionOfType(ResourceNotFoundException.class)
                 .isThrownBy(() -> service.completeRegistration(verificationToken))
                 .withMessage(String.format(
-                        ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(), UserVocabularyApplication.class.getSimpleName(),
+                        ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(),
+                        UserVocabularyApplication.class.getSimpleName(),
                         verificationToken));
 
         verifyNoMoreInteractions(tokenInvalidatorService);
@@ -180,5 +193,4 @@ public class RegistrationServiceImplTest {
 
         verifyNoMoreInteractions(tokenInvalidatorService);
     }
-
 }

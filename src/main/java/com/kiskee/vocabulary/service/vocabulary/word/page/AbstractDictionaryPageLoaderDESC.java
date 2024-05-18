@@ -14,5 +14,4 @@ public abstract class AbstractDictionaryPageLoaderDESC extends AbstractDictionar
     protected final Sort.Direction getSortDirection() {
         return Sort.Direction.DESC;
     }
-
 }

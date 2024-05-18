@@ -8,6 +8,9 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.List;
+import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -17,10 +20,6 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Objects;
-
 @Slf4j
 @Component
 @AllArgsConstructor
@@ -29,8 +28,9 @@ public class OAuth2LoginSuccessHandler extends SavedRequestAwareAuthenticationSu
     private final OAuth2UserProvisionService oAuth2UserProvisionService;
 
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-                                        Authentication authentication) throws IOException, ServletException {
+    public void onAuthenticationSuccess(
+            HttpServletRequest request, HttpServletResponse response, Authentication authentication)
+            throws IOException, ServletException {
         if (authentication instanceof OAuth2AuthenticationToken oauthToken) {
             OAuth2User principal = oauthToken.getPrincipal();
 
@@ -60,5 +60,4 @@ public class OAuth2LoginSuccessHandler extends SavedRequestAwareAuthenticationSu
 
         return new OAuth2ProvisionRequest(email, username, name, picture, authorities);
     }
-
 }

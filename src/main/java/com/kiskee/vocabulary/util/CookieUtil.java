@@ -2,11 +2,10 @@ package com.kiskee.vocabulary.util;
 
 import com.kiskee.vocabulary.model.dto.token.TokenData;
 import jakarta.servlet.http.Cookie;
-import lombok.experimental.UtilityClass;
-
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class CookieUtil {
@@ -16,7 +15,8 @@ public class CookieUtil {
         cookie.setPath("/");
         cookie.setHttpOnly(true);
         cookie.setSecure(true);
-        cookie.setMaxAge((int) ChronoUnit.SECONDS.between(Instant.now(), tokenData.jweToken().getExpiresAt()));
+        cookie.setMaxAge((int)
+                ChronoUnit.SECONDS.between(Instant.now(), tokenData.jweToken().getExpiresAt()));
 
         return cookie;
     }
@@ -32,5 +32,4 @@ public class CookieUtil {
 
         return null;
     }
-
 }

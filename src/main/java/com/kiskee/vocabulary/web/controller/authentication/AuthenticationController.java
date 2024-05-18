@@ -24,5 +24,4 @@ public class AuthenticationController {
     public AuthenticationResponse refresh(@CookieValue("RefreshAuthentication") String refreshToken) {
         return authenticationService.issueAccessToken(refreshToken);
     }
-
 }

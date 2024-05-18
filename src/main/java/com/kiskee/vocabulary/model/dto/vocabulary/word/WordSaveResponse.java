@@ -14,5 +14,4 @@ public class WordSaveResponse extends ResponseMessage {
         super(responseMessage);
         this.word = word;
     }
-
 }

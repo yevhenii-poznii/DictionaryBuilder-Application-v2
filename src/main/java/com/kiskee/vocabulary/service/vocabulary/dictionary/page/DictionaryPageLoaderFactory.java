@@ -6,5 +6,4 @@ import com.kiskee.vocabulary.service.vocabulary.word.page.DictionaryPageLoader;
 public interface DictionaryPageLoaderFactory {
 
     DictionaryPageLoader getLoader(PageFilter filter);
-
 }

@@ -4,7 +4,6 @@ WORKDIR /app
 
 COPY mvnw mvnw.cmd ./
 COPY .mvn .mvn/
-COPY checkstyle.xml ./
 COPY pom.xml ./
 COPY src ./src
 

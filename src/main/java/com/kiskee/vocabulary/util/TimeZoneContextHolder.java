@@ -1,8 +1,7 @@
 package com.kiskee.vocabulary.util;
 
-import lombok.experimental.UtilityClass;
-
 import java.time.ZoneId;
+import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class TimeZoneContextHolder {
@@ -20,5 +19,4 @@ public class TimeZoneContextHolder {
     public static void clear() {
         timeZoneHolder.remove();
     }
-
 }

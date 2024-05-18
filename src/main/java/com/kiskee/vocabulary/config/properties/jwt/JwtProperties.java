@@ -16,5 +16,4 @@ public class JwtProperties {
     private String jweEncryptionMethod;
     private long accessExpirationTime;
     private long refreshExpirationTime;
-
 }

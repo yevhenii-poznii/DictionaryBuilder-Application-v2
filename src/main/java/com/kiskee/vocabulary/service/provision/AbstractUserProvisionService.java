@@ -3,7 +3,6 @@ package com.kiskee.vocabulary.service.provision;
 import com.kiskee.vocabulary.model.dto.registration.RegistrationRequest;
 import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
 import com.kiskee.vocabulary.service.user.UserInitializingService;
-
 import java.util.List;
 
 public abstract class AbstractUserProvisionService {

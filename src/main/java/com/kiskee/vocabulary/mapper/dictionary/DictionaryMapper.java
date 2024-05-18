@@ -8,5 +8,4 @@ import org.mapstruct.Mapper;
 public interface DictionaryMapper {
 
     DictionaryDto toDto(Dictionary dictionary);
-
 }

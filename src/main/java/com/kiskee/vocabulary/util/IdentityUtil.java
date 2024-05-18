@@ -3,6 +3,10 @@ package com.kiskee.vocabulary.util;
 import com.kiskee.vocabulary.model.dto.token.JweToken;
 import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
 import com.kiskee.vocabulary.repository.user.projections.UserSecureProjection;
+import java.util.Collection;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.experimental.UtilityClass;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -10,11 +14,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-
-import java.util.Collection;
-import java.util.Objects;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 @UtilityClass
 public class IdentityUtil {
@@ -48,11 +47,12 @@ public class IdentityUtil {
                 .setUsername(jweToken.getSubject())
                 .build();
 
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(user, null,
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
+                user,
+                null,
                 jweToken.getAuthorities().stream()
                         .map(SimpleGrantedAuthority::new)
-                        .collect(Collectors.toList())
-        );
+                        .collect(Collectors.toList()));
 
         setAuthentication(token);
     }
@@ -68,5 +68,4 @@ public class IdentityUtil {
     private boolean hasUserRole(Collection<? extends GrantedAuthority> authorities) {
         return authorities.contains(ROLE_USER) || authorities.contains(OAUTH2_USER);
     }
-
 }

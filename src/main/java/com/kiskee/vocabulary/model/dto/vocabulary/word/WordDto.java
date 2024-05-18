@@ -1,10 +1,9 @@
 package com.kiskee.vocabulary.model.dto.vocabulary.word;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-
-import java.util.List;
 
 @Getter
 @EqualsAndHashCode
@@ -16,5 +15,4 @@ public class WordDto {
     private boolean useInRepetition;
     private List<WordTranslationDto> wordTranslations;
     private String wordHint;
-
 }

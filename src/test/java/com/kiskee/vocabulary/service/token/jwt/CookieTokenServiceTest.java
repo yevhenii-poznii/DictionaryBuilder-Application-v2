@@ -1,5 +1,12 @@
 package com.kiskee.vocabulary.service.token.jwt;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.kiskee.vocabulary.enums.ExceptionStatusesEnum;
 import com.kiskee.vocabulary.enums.token.TokenEnum;
 import com.kiskee.vocabulary.exception.ResourceNotFoundException;
@@ -8,6 +15,10 @@ import com.kiskee.vocabulary.model.dto.token.TokenData;
 import com.kiskee.vocabulary.model.entity.token.CookieToken;
 import com.kiskee.vocabulary.model.entity.token.Token;
 import com.kiskee.vocabulary.repository.token.TokenRepository;
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -15,18 +26,6 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class CookieTokenServiceTest {
@@ -90,8 +89,10 @@ public class CookieTokenServiceTest {
 
         assertThatExceptionOfType(ResourceNotFoundException.class)
                 .isThrownBy(() -> service.findTokenOrThrow(cookieTokenParam))
-                .withMessage(String.format(ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(),
-                        Token.class.getSimpleName(), cookieTokenParam));
+                .withMessage(String.format(
+                        ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(),
+                        Token.class.getSimpleName(),
+                        cookieTokenParam));
     }
 
     @Test
@@ -109,5 +110,4 @@ public class CookieTokenServiceTest {
         assertThat(actual.getToken()).isEqualTo(verificationTokenString);
         assertThat(actual.isInvalidated()).isTrue();
     }
-
 }

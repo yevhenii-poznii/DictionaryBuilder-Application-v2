@@ -12,15 +12,14 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import java.time.Instant;
+import java.util.List;
+import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.Instant;
-import java.util.List;
-import java.util.UUID;
 
 @Entity
 @Getter
@@ -51,5 +50,4 @@ public class UserProfile implements UserProfilePreferenceType {
     @OneToMany
     @JoinColumn(name = "userProfileId")
     private List<Dictionary> dictionaries;
-
 }

@@ -7,13 +7,12 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
-
-import java.io.IOException;
 
 @Slf4j
 @AllArgsConstructor
@@ -22,8 +21,9 @@ public class TokenCookieAuthenticationSuccessHandler extends SavedRequestAwareAu
     private final AuthenticationService authenticationService;
 
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-                                        Authentication authentication) throws IOException, ServletException {
+    public void onAuthenticationSuccess(
+            HttpServletRequest request, HttpServletResponse response, Authentication authentication)
+            throws IOException, ServletException {
         if (authentication instanceof UsernamePasswordAuthenticationToken) {
             TokenData tokenData = authenticationService.issueRefreshToken(authentication);
 
@@ -32,5 +32,4 @@ public class TokenCookieAuthenticationSuccessHandler extends SavedRequestAwareAu
             response.addCookie(cookie);
         }
     }
-
 }

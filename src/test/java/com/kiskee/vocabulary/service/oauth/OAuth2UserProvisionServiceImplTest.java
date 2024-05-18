@@ -1,5 +1,12 @@
 package com.kiskee.vocabulary.service.oauth;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+
 import com.kiskee.vocabulary.model.dto.authentication.AuthenticationResponse;
 import com.kiskee.vocabulary.model.dto.registration.OAuth2ProvisionRequest;
 import com.kiskee.vocabulary.model.dto.token.JweToken;
@@ -10,23 +17,15 @@ import com.kiskee.vocabulary.service.authentication.AuthenticationService;
 import com.kiskee.vocabulary.service.provision.oauth.OAuth2UserProvisionServiceImpl;
 import com.kiskee.vocabulary.service.user.OAuth2UserService;
 import com.kiskee.vocabulary.service.user.UserInitializingService;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.Authentication;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class OAuth2UserProvisionServiceImplTest {
@@ -36,8 +35,10 @@ public class OAuth2UserProvisionServiceImplTest {
 
     @Mock
     private OAuth2UserService userService;
+
     @Mock
     private List<UserInitializingService> userInitializingServices;
+
     @Mock
     private AuthenticationService authenticationService;
 
@@ -105,5 +106,4 @@ public class OAuth2UserProvisionServiceImplTest {
         assertThat(result.accessToken()).isEqualTo(accessToken);
         assertThat(result.refreshToken().token()).isEqualTo(refreshToken);
     }
-
 }

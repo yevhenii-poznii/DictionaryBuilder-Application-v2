@@ -9,13 +9,12 @@ import com.kiskee.vocabulary.repository.user.profile.UserProfileRepository;
 import com.kiskee.vocabulary.service.user.AbstractUserProfilePreferenceInitializationService;
 import com.kiskee.vocabulary.service.user.UserInitializingService;
 import com.kiskee.vocabulary.service.vocabulary.dictionary.DictionaryCreationService;
+import java.util.List;
+import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Objects;
 
 @Service
 @Order(2)
@@ -25,6 +24,7 @@ public class UserProfileService extends AbstractUserProfilePreferenceInitializat
 
     @Getter
     private final UserProfileRepository repository;
+
     private final UserProfileMapper mapper;
     private final DictionaryCreationService dictionaryCreationService;
     private final ProfilePictureEncoder profilePictureEncoder;
@@ -49,5 +49,4 @@ public class UserProfileService extends AbstractUserProfilePreferenceInitializat
                 ? profilePictureEncoder.encodeWithBase64(picture)
                 : defaultUserProfileProperties.getDefaultAvatar();
     }
-
 }
