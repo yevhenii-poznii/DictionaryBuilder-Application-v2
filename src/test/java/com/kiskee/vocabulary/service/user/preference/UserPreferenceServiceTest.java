@@ -1,5 +1,10 @@
 package com.kiskee.vocabulary.service.user.preference;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.kiskee.vocabulary.config.properties.user.DefaultUserPreferenceProperties;
 import com.kiskee.vocabulary.enums.user.ProfileVisibility;
 import com.kiskee.vocabulary.enums.vocabulary.PageFilter;
@@ -8,6 +13,7 @@ import com.kiskee.vocabulary.model.dto.registration.InternalRegistrationRequest;
 import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
 import com.kiskee.vocabulary.model.entity.user.preference.UserPreference;
 import com.kiskee.vocabulary.repository.user.preference.UserPreferenceRepository;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -16,24 +22,21 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.UUID;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 @ExtendWith(MockitoExtension.class)
 public class UserPreferenceServiceTest {
 
     @InjectMocks
     private UserPreferenceService userPreferenceService;
+
     @Mock
     private UserPreferenceRepository userPreferenceRepository;
+
     @Mock
     private UserPreferenceMapper userPreferenceMapper;
+
     @Mock
     private DefaultUserPreferenceProperties defaultUserPreferenceProperties;
+
     @Captor
     private ArgumentCaptor<UserPreference> userPreferenceArgumentCaptor;
 
@@ -46,10 +49,14 @@ public class UserPreferenceServiceTest {
 
         when(givenUserEntity.getId()).thenReturn(userId);
 
-        UserPreference userPreference = new UserPreference(userId, ProfileVisibility.PRIVATE, 10,
-                100, true, PageFilter.BY_ADDED_AT_ASC, givenUserEntity);
-        when(userPreferenceMapper.toEntity(defaultUserPreferenceProperties, givenUserEntity, PageFilter.BY_ADDED_AT_ASC,
-                ProfileVisibility.PRIVATE)).thenReturn(userPreference);
+        UserPreference userPreference = new UserPreference(
+                userId, ProfileVisibility.PRIVATE, 10, 100, true, PageFilter.BY_ADDED_AT_ASC, givenUserEntity);
+        when(userPreferenceMapper.toEntity(
+                        defaultUserPreferenceProperties,
+                        givenUserEntity,
+                        PageFilter.BY_ADDED_AT_ASC,
+                        ProfileVisibility.PRIVATE))
+                .thenReturn(userPreference);
 
         userPreferenceService.initUser(registrationRequest);
 
@@ -62,5 +69,4 @@ public class UserPreferenceServiceTest {
         assertThat(actual.getWordsPerPage()).isEqualTo(100);
         assertThat(actual.isBlurTranslation()).isTrue();
     }
-
 }

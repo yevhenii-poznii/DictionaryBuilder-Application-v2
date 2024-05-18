@@ -23,9 +23,10 @@ public abstract class RegistrationRequest {
     private String email;
 
     @NotBlank
-    @Pattern(regexp = "^[a-zA-Z0-9_\\-.]{3,50}$",
-            message = "Invalid username format. Only letters, numbers, underscore (_), hyphen (-), and dot (.) " +
-                    "are allowed.")
+    @Pattern(
+            regexp = "^[a-zA-Z0-9_\\-.]{3,50}$",
+            message = "Invalid username format. Only letters, numbers, underscore (_), hyphen (-), and dot (.) "
+                    + "are allowed.")
     private String username;
 
     @Setter
@@ -43,5 +44,4 @@ public abstract class RegistrationRequest {
     public abstract String getPicture();
 
     public abstract String getName();
-
 }

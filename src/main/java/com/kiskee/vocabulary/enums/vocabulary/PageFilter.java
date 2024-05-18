@@ -6,7 +6,6 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum PageFilter {
-
     BY_ADDED_AT_ASC("addedAtASC"),
     BY_ADDED_AT_DESC("addedAtDESC"),
     ONLY_USE_IN_REPETITION_ASC("onlyUseInRepetitionASC"),
@@ -15,5 +14,4 @@ public enum PageFilter {
     ONLY_NOT_USE_IN_REPETITION_DESC("onlyNotUseInRepetitionDESC");
 
     private final String filter;
-
 }

@@ -8,5 +8,4 @@ public interface RegistrationService {
     ResponseMessage registerUserAccount(InternalRegistrationRequest userRegisterRequest);
 
     ResponseMessage completeRegistration(String verificationToken);
-
 }

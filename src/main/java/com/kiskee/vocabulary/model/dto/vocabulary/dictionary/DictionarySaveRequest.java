@@ -17,9 +17,9 @@ public class DictionarySaveRequest {
 
     @NotNull
     @Size(max = 50)
-    @Pattern(regexp = "^[a-zA-Zа-яА-Я0-9]+([-_ ]?[a-zA-Zа-яА-Я0-9]+)*$",
-            message = "Dictionary name can only contain alphanumeric characters, underscores, hyphens, and spaces " +
-                    "within")
+    @Pattern(
+            regexp = "^[a-zA-Zа-яА-Я0-9]+([-_ ]?[a-zA-Zа-яА-Я0-9]+)*$",
+            message = "Dictionary name can only contain alphanumeric characters, underscores, hyphens, and spaces "
+                    + "within")
     private String dictionaryName;
-
 }

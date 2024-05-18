@@ -32,5 +32,4 @@ public class RegistrationController {
     public ResponseMessage confirmRegistration(@RequestParam @Valid @NotBlank String verificationToken) {
         return registrationService.completeRegistration(verificationToken);
     }
-
 }

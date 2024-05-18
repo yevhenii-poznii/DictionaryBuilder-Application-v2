@@ -7,11 +7,10 @@ import com.kiskee.vocabulary.model.entity.vocabulary.Word;
 import com.kiskee.vocabulary.repository.vocabulary.DictionaryPageRepository;
 import com.kiskee.vocabulary.service.vocabulary.word.page.AbstractDictionaryPageLoaderDESC;
 import com.kiskee.vocabulary.service.vocabulary.word.page.DictionaryPageLoader;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class DictionaryPageLoaderOnlyNotUseInRepetitionDESC extends AbstractDictionaryPageLoaderDESC
@@ -32,9 +31,8 @@ public class DictionaryPageLoaderOnlyNotUseInRepetitionDESC extends AbstractDict
         return PageFilter.ONLY_NOT_USE_IN_REPETITION_DESC;
     }
 
-    public DictionaryPageLoaderOnlyNotUseInRepetitionDESC(DictionaryPageRepository repository,
-                                                          DictionaryPageMapper mapper) {
+    public DictionaryPageLoaderOnlyNotUseInRepetitionDESC(
+            DictionaryPageRepository repository, DictionaryPageMapper mapper) {
         super(repository, mapper);
     }
-
 }

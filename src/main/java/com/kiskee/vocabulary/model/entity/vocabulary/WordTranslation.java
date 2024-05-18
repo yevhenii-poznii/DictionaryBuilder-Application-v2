@@ -22,5 +22,4 @@ public class WordTranslation {
 
     @Column(nullable = false)
     private String translation;
-
 }

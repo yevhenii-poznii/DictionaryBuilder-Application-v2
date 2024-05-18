@@ -7,5 +7,4 @@ public interface DictionaryProjection {
     String getDictionaryName();
 
     int getWordCount();
-
 }

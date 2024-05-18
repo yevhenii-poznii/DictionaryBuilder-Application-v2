@@ -6,13 +6,11 @@ import com.kiskee.vocabulary.model.entity.vocabulary.Word;
 import com.kiskee.vocabulary.repository.vocabulary.DictionaryPageRepository;
 import com.kiskee.vocabulary.service.vocabulary.word.page.AbstractDictionaryPageLoaderDESC;
 import com.kiskee.vocabulary.service.vocabulary.word.page.DictionaryPageLoader;
+import java.util.List;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
-public class DictionaryPageLoaderAllDESC extends AbstractDictionaryPageLoaderDESC
-        implements DictionaryPageLoader {
+public class DictionaryPageLoaderAllDESC extends AbstractDictionaryPageLoaderDESC implements DictionaryPageLoader {
 
     @Override
     protected List<Word> loadWordsByFilter(List<Long> wordIds) {
@@ -27,5 +25,4 @@ public class DictionaryPageLoaderAllDESC extends AbstractDictionaryPageLoaderDES
     public DictionaryPageLoaderAllDESC(DictionaryPageRepository repository, DictionaryPageMapper mapper) {
         super(repository, mapper);
     }
-
 }

@@ -9,6 +9,8 @@ import com.kiskee.vocabulary.model.dto.registration.RegistrationRequest;
 import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
 import com.kiskee.vocabulary.repository.user.UserRepository;
 import com.kiskee.vocabulary.util.ThrowUtil;
+import java.util.Optional;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -17,9 +19,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
-import java.util.UUID;
 
 @Slf4j
 @Service
@@ -30,6 +29,7 @@ public class UserService extends AbstractUserProfilePreferenceInitializationServ
 
     @Getter
     private final UserRepository repository;
+
     private final UserMapper mapper;
 
     @Override
@@ -40,7 +40,9 @@ public class UserService extends AbstractUserProfilePreferenceInitializationServ
 
         registrationRequest.setUser(user);
 
-        log.info("[{}] has been successfully created for [{}]", UserVocabularyApplication.class.getSimpleName(),
+        log.info(
+                "[{}] has been successfully created for [{}]",
+                UserVocabularyApplication.class.getSimpleName(),
                 registrationRequest.getUsername());
     }
 
@@ -56,21 +58,20 @@ public class UserService extends AbstractUserProfilePreferenceInitializationServ
 
     @Override
     public void updateUserAccountToActive(UUID userId) {
-        UserVocabularyApplication userAccount = getUserOrThrow(userId).toBuilder()
-                .setIsActive(true)
-                .build();
+        UserVocabularyApplication userAccount =
+                getUserOrThrow(userId).toBuilder().setIsActive(true).build();
 
         repository.save(userAccount);
     }
 
     private UserVocabularyApplication getUserOrThrow(String usernameOrEmail) throws UsernameNotFoundException {
-        return repository.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail)
+        return repository
+                .findByUsernameOrEmail(usernameOrEmail, usernameOrEmail)
                 .orElseThrow(ThrowUtil.throwNotFoundException(UsernameNotFoundException::new, "User", usernameOrEmail));
     }
 
     private UserVocabularyApplication getUserOrThrow(UUID userId) throws ResourceNotFoundException {
-        return repository.findById(userId)
-                .orElseThrow(ThrowUtil.throwNotFoundException("User", userId.toString()));
+        return repository.findById(userId).orElseThrow(ThrowUtil.throwNotFoundException("User", userId.toString()));
     }
 
     private void ensureUniqueUser(String username, String email) {
@@ -85,5 +86,4 @@ public class UserService extends AbstractUserProfilePreferenceInitializationServ
     protected <R extends RegistrationRequest> UserVocabularyApplication buildEntityToSave(R registrationRequest) {
         return mapper.toEntity(registrationRequest, UserRole.ROLE_USER);
     }
-
 }

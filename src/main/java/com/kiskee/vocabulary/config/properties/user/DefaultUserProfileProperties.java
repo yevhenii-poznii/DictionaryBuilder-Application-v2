@@ -12,5 +12,4 @@ import org.springframework.stereotype.Component;
 public class DefaultUserProfileProperties {
 
     private String defaultAvatar;
-
 }

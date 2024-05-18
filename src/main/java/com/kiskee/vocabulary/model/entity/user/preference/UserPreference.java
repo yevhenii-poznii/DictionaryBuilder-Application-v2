@@ -13,13 +13,12 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
+import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.UUID;
 
 @Entity
 @Getter
@@ -51,5 +50,4 @@ public class UserPreference implements UserProfilePreferenceType {
     @MapsId
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private UserVocabularyApplication user;
-
 }

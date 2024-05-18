@@ -2,12 +2,11 @@ package com.kiskee.vocabulary.repository.vocabulary;
 
 import com.kiskee.vocabulary.model.dto.vocabulary.word.WordIdDto;
 import com.kiskee.vocabulary.model.entity.vocabulary.Word;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
-
-import java.util.List;
 
 public interface DictionaryPageRepository extends JpaRepository<Word, Long> {
 
@@ -26,5 +25,4 @@ public interface DictionaryPageRepository extends JpaRepository<Word, Long> {
 
     @EntityGraph(attributePaths = {"wordTranslations"})
     List<Word> findByIdInAndUseInRepetitionOrderByAddedAtDesc(List<Long> wordIds, boolean useInRepetition);
-
 }

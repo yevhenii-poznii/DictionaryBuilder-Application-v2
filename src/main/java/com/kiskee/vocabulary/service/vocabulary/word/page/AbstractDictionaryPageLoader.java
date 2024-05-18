@@ -7,6 +7,7 @@ import com.kiskee.vocabulary.model.dto.vocabulary.word.WordIdDto;
 import com.kiskee.vocabulary.model.entity.vocabulary.Word;
 import com.kiskee.vocabulary.repository.vocabulary.DictionaryPageRepository;
 import com.kiskee.vocabulary.util.IdentityUtil;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -14,8 +15,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-
-import java.util.List;
 
 @Slf4j
 @Getter
@@ -52,16 +51,17 @@ public abstract class AbstractDictionaryPageLoader {
 
         Page<WordIdDto> page = findWordIdsPage(dictionaryId, pageableWithSort);
 
-        List<Long> wordIds = page.stream()
-                .map(WordIdDto::getId)
-                .toList();
+        List<Long> wordIds = page.stream().map(WordIdDto::getId).toList();
 
         List<Word> words = loadWordsByFilter(wordIds);
 
-        log.info("Loaded [{}] words from [{}] dictionary for [{}] by [{}] filter", words.size(), dictionaryId,
-                IdentityUtil.getUserId(), getPageFilter());
+        log.info(
+                "Loaded [{}] words from [{}] dictionary for [{}] by [{}] filter",
+                words.size(),
+                dictionaryId,
+                IdentityUtil.getUserId(),
+                getPageFilter());
 
         return mapper.toDto(words, page.getTotalPages(), page.getTotalElements());
     }
-
 }

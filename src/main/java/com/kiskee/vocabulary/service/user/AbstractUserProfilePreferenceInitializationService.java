@@ -1,9 +1,8 @@
 package com.kiskee.vocabulary.service.user;
 
 import com.kiskee.vocabulary.model.dto.registration.RegistrationRequest;
-import org.springframework.data.jpa.repository.JpaRepository;
-
 import java.util.UUID;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 public abstract class AbstractUserProfilePreferenceInitializationService<E> {
 
@@ -15,5 +14,4 @@ public abstract class AbstractUserProfilePreferenceInitializationService<E> {
         E entity = buildEntityToSave(registrationRequest);
         return getRepository().save(entity);
     }
-
 }

@@ -7,5 +7,4 @@ public class DuplicateUserException extends DuplicateResourceException {
     public DuplicateUserException(String message) {
         super(message);
     }
-
 }

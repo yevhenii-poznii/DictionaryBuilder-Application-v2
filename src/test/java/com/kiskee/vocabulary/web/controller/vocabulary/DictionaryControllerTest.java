@@ -1,5 +1,15 @@
 package com.kiskee.vocabulary.web.controller.vocabulary;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kiskee.vocabulary.enums.ExceptionStatusesEnum;
 import com.kiskee.vocabulary.enums.vocabulary.PageFilter;
@@ -18,6 +28,11 @@ import com.kiskee.vocabulary.model.entity.vocabulary.Dictionary;
 import com.kiskee.vocabulary.service.vocabulary.dictionary.DictionaryService;
 import com.kiskee.vocabulary.util.TimeZoneContextHolder;
 import com.kiskee.vocabulary.web.advice.ErrorResponse;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.SneakyThrows;
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,37 +50,25 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(DictionaryController.class)
 public class DictionaryControllerTest {
 
     @Autowired
     private WebApplicationContext webApplicationContext;
+
     private MockMvc mockMvc;
+
     @MockBean
     private DictionaryService dictionaryService;
+
     @Autowired
     private ObjectMapper objectMapper;
 
     @BeforeEach
     public void setup() {
-        this.mockMvc = MockMvcBuilders.webAppContextSetup(this.webApplicationContext).build();
+        this.mockMvc =
+                MockMvcBuilders.webAppContextSetup(this.webApplicationContext).build();
     }
 
     @Test
@@ -73,10 +76,10 @@ public class DictionaryControllerTest {
     void testCreateDictionary_WhenGivenValidRequestBody_ThenReturnDictionarySaveResponseAndStatusCreated() {
         DictionarySaveRequest requestBody = new DictionarySaveRequest("dictionaryName");
 
-        String responseMessage = String.format(VocabularyResponseMessageEnum.DICTIONARY_CREATED.getResponseMessage(),
-                requestBody.getDictionaryName());
-        DictionarySaveResponse expectedResponseBody = new DictionarySaveResponse(responseMessage,
-                new DictionaryDto(1L, "dictionaryName", 0));
+        String responseMessage = String.format(
+                VocabularyResponseMessageEnum.DICTIONARY_CREATED.getResponseMessage(), requestBody.getDictionaryName());
+        DictionarySaveResponse expectedResponseBody =
+                new DictionarySaveResponse(responseMessage, new DictionaryDto(1L, "dictionaryName", 0));
 
         when(dictionaryService.addDictionary(requestBody)).thenReturn(expectedResponseBody);
 
@@ -117,7 +120,8 @@ public class DictionaryControllerTest {
 
         when(dictionaryService.addDictionary(requestBody))
                 .thenThrow(new DuplicateResourceException(String.format(
-                        VocabularyResponseMessageEnum.DICTIONARY_ALREADY_EXISTS.getResponseMessage(), requestBody.getDictionaryName())));
+                        VocabularyResponseMessageEnum.DICTIONARY_ALREADY_EXISTS.getResponseMessage(),
+                        requestBody.getDictionaryName())));
 
         mockMvc.perform(post("/dictionaries")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -139,7 +143,8 @@ public class DictionaryControllerTest {
 
         DictionaryPageResponseDto expectedResponseBody = returnDictionaryPageResponseDto();
 
-        when(dictionaryService.getDictionaryPageByOwner(dictionaryId, pageRequest)).thenReturn(expectedResponseBody);
+        when(dictionaryService.getDictionaryPageByOwner(dictionaryId, pageRequest))
+                .thenReturn(expectedResponseBody);
 
         MvcResult result = mockMvc.perform(get("/dictionaries/" + dictionaryId)
                         .param("page", pageRequest.getPage().toString())
@@ -163,7 +168,9 @@ public class DictionaryControllerTest {
 
         when(dictionaryService.getDictionaryPageByOwner(dictionaryId, pageRequest))
                 .thenThrow(new ResourceNotFoundException(String.format(
-                        ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(), Dictionary.class.getSimpleName(), dictionaryId)));
+                        ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(),
+                        Dictionary.class.getSimpleName(),
+                        dictionaryId)));
 
         mockMvc.perform(get("/dictionaries/" + dictionaryId)
                         .param("page", pageRequest.getPage().toString())
@@ -172,8 +179,7 @@ public class DictionaryControllerTest {
                 .andDo(print())
                 .andExpectAll(
                         status().isNotFound(),
-                        jsonPath("$.errors.responseMessage")
-                                .value("Dictionary [1] hasn't been found"));
+                        jsonPath("$.errors.responseMessage").value("Dictionary [1] hasn't been found"));
 
         TimeZoneContextHolder.clear();
     }
@@ -197,10 +203,7 @@ public class DictionaryControllerTest {
                         .param("size", pageRequest.getSize().toString())
                         .param("filter", pageRequest.getFilter().toString()))
                 .andDo(print())
-                .andExpectAll(
-                        status().isBadRequest(),
-                        jsonPath("$.status").value("Bad Request")
-                )
+                .andExpectAll(status().isBadRequest(), jsonPath("$.status").value("Bad Request"))
                 .andReturn();
 
         String actualResponseBody = result.getResponse().getContentAsString();
@@ -208,7 +211,8 @@ public class DictionaryControllerTest {
 
         assertThat(errorResponse.getErrors())
                 .extractingFromEntries(Map.Entry::getValue)
-                .containsExactlyInAnyOrderElementsOf(errors.stream().map(Object::toString).collect(Collectors.toList()));
+                .containsExactlyInAnyOrderElementsOf(
+                        errors.stream().map(Object::toString).collect(Collectors.toList()));
 
         TimeZoneContextHolder.clear();
     }
@@ -216,20 +220,14 @@ public class DictionaryControllerTest {
     @Test
     @SneakyThrows
     void testGetDictionaries_WhenUserHasTwoDictionaries_ThenReturnTwoDictionariesDtoAndStatusOk() {
-        List<DictionaryDto> dictionaries = List.of(
-                new DictionaryDto(1L, "Default Dictionary", 0),
-                new DictionaryDto(2L, "Dictionary 1", 123)
-        );
+        List<DictionaryDto> dictionaries =
+                List.of(new DictionaryDto(1L, "Default Dictionary", 0), new DictionaryDto(2L, "Dictionary 1", 123));
 
         when(dictionaryService.getDictionaries()).thenReturn(dictionaries);
 
-        mockMvc.perform(get("/dictionaries")
-                        .contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/dictionaries").contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpectAll(
-                        status().isOk(),
-                        jsonPath("$.length()").value(2)
-                );
+                .andExpectAll(status().isOk(), jsonPath("$.length()").value(2));
     }
 
     @Test
@@ -239,13 +237,9 @@ public class DictionaryControllerTest {
 
         when(dictionaryService.getDictionaries()).thenReturn(dictionaries);
 
-        mockMvc.perform(get("/dictionaries")
-                        .contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/dictionaries").contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpectAll(
-                        status().isOk(),
-                        jsonPath("$.length()").value(0)
-                );
+                .andExpectAll(status().isOk(), jsonPath("$.length()").value(0));
     }
 
     @SneakyThrows
@@ -272,10 +266,10 @@ public class DictionaryControllerTest {
 
         long dictionaryId = 1L;
 
-        String responseMessage = String.format(VocabularyResponseMessageEnum.DICTIONARY_UPDATED.getResponseMessage(),
-                requestBody.getDictionaryName());
-        DictionarySaveResponse expectedResponseBody = new DictionarySaveResponse(responseMessage,
-                new DictionaryDto(dictionaryId, "dictionaryName", 0));
+        String responseMessage = String.format(
+                VocabularyResponseMessageEnum.DICTIONARY_UPDATED.getResponseMessage(), requestBody.getDictionaryName());
+        DictionarySaveResponse expectedResponseBody =
+                new DictionarySaveResponse(responseMessage, new DictionaryDto(dictionaryId, "dictionaryName", 0));
 
         when(dictionaryService.updateDictionary(dictionaryId, requestBody)).thenReturn(expectedResponseBody);
 
@@ -301,7 +295,8 @@ public class DictionaryControllerTest {
 
         when(dictionaryService.updateDictionary(dictionaryId, requestBody))
                 .thenThrow(new DuplicateResourceException(String.format(
-                        VocabularyResponseMessageEnum.DICTIONARY_ALREADY_EXISTS.getResponseMessage(), requestBody.getDictionaryName())));
+                        VocabularyResponseMessageEnum.DICTIONARY_ALREADY_EXISTS.getResponseMessage(),
+                        requestBody.getDictionaryName())));
 
         mockMvc.perform(put("/dictionaries/" + dictionaryId)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -326,7 +321,9 @@ public class DictionaryControllerTest {
 
         when(dictionaryService.updateDictionary(dictionaryId, requestBody))
                 .thenThrow(new ResourceNotFoundException(String.format(
-                        ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(), Dictionary.class.getSimpleName(), dictionaryId)));
+                        ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(),
+                        Dictionary.class.getSimpleName(),
+                        dictionaryId)));
 
         mockMvc.perform(put("/dictionaries/" + dictionaryId)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -334,8 +331,7 @@ public class DictionaryControllerTest {
                 .andDo(print())
                 .andExpectAll(
                         status().isNotFound(),
-                        jsonPath("$.errors.responseMessage")
-                                .value("Dictionary [1] hasn't been found"));
+                        jsonPath("$.errors.responseMessage").value("Dictionary [1] hasn't been found"));
 
         TimeZoneContextHolder.clear();
     }
@@ -349,13 +345,11 @@ public class DictionaryControllerTest {
                 .thenReturn(new ResponseMessage(String.format(
                         VocabularyResponseMessageEnum.DICTIONARY_DELETED.getResponseMessage(), "dictionaryName")));
 
-        mockMvc.perform(delete("/dictionaries/" + dictionaryId)
-                        .contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(delete("/dictionaries/" + dictionaryId).contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpectAll(
                         status().isOk(),
-                        jsonPath("$.responseMessage")
-                                .value("dictionaryName dictionary deleted successfully"));
+                        jsonPath("$.responseMessage").value("dictionaryName dictionary deleted successfully"));
     }
 
     @Test
@@ -367,49 +361,61 @@ public class DictionaryControllerTest {
 
         when(dictionaryService.deleteDictionary(dictionaryId))
                 .thenThrow(new ResourceNotFoundException(String.format(
-                        ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(), Dictionary.class.getSimpleName(), dictionaryId)));
+                        ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(),
+                        Dictionary.class.getSimpleName(),
+                        dictionaryId)));
 
-        mockMvc.perform(delete("/dictionaries/" + dictionaryId)
-                        .contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(delete("/dictionaries/" + dictionaryId).contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpectAll(
                         status().isNotFound(),
-                        jsonPath("$.errors.responseMessage")
-                                .value("Dictionary [1] hasn't been found"));
+                        jsonPath("$.errors.responseMessage").value("Dictionary [1] hasn't been found"));
 
         TimeZoneContextHolder.clear();
     }
 
     static Stream<String> invalidRequestBody() {
         return Stream.of(
-                null, "", " ", "MoreThan50CharsMoreThan50CharsMoreThan50CharsMoreThan50CharsMoreThan50Chars",
-                "dictionaryName!", "dictionaryName@", "dictionaryName#", "dictionaryName$", "dictionaryName%",
-                "dictionaryName ", " dictionaryName"
-        );
+                null,
+                "",
+                " ",
+                "MoreThan50CharsMoreThan50CharsMoreThan50CharsMoreThan50CharsMoreThan50Chars",
+                "dictionaryName!",
+                "dictionaryName@",
+                "dictionaryName#",
+                "dictionaryName$",
+                "dictionaryName%",
+                "dictionaryName ",
+                " dictionaryName");
     }
 
     static Stream<Tuple> invalidRequestParams() {
         return Stream.of(
-                Tuple.tuple(new DictionaryPageRequestDto(-1, 100, PageFilter.BY_ADDED_AT_ASC),
+                Tuple.tuple(
+                        new DictionaryPageRequestDto(-1, 100, PageFilter.BY_ADDED_AT_ASC),
                         List.of("must be greater than or equal to 0")),
-                Tuple.tuple(new DictionaryPageRequestDto(0, 19, PageFilter.BY_ADDED_AT_ASC),
+                Tuple.tuple(
+                        new DictionaryPageRequestDto(0, 19, PageFilter.BY_ADDED_AT_ASC),
                         List.of("must be greater than or equal to 20")),
-                Tuple.tuple(new DictionaryPageRequestDto(-1, 19, PageFilter.BY_ADDED_AT_ASC),
-                        List.of("must be greater than or equal to 0", "must be greater than or equal to 20"))
-        );
+                Tuple.tuple(
+                        new DictionaryPageRequestDto(-1, 19, PageFilter.BY_ADDED_AT_ASC),
+                        List.of("must be greater than or equal to 0", "must be greater than or equal to 20")));
     }
 
     private static DictionaryPageResponseDto returnDictionaryPageResponseDto() {
         List<WordDto> words = List.of(
-                new WordDto(1L, "word1", true, List.of(
-                        new WordTranslationDto(1L, "translation1"),
-                        new WordTranslationDto(2L, "translation2")
-                ), "hint1"),
-                new WordDto(2L, "word2", false, List.of(
-                        new WordTranslationDto(3L, "translation3"),
-                        new WordTranslationDto(4L, "translation4")
-                ), "hint2"));
+                new WordDto(
+                        1L,
+                        "word1",
+                        true,
+                        List.of(new WordTranslationDto(1L, "translation1"), new WordTranslationDto(2L, "translation2")),
+                        "hint1"),
+                new WordDto(
+                        2L,
+                        "word2",
+                        false,
+                        List.of(new WordTranslationDto(3L, "translation3"), new WordTranslationDto(4L, "translation4")),
+                        "hint2"));
         return new DictionaryPageResponseDto(words, 0, 2);
     }
-
 }

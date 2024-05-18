@@ -3,6 +3,7 @@ package com.kiskee.vocabulary.service.event;
 import com.kiskee.vocabulary.repository.user.projections.UserSecureProjection;
 import com.kiskee.vocabulary.service.email.EmailSenderService;
 import com.kiskee.vocabulary.service.token.TokenPersistenceService;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -10,8 +11,6 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.UUID;
 
 @Slf4j
 @Service
@@ -37,5 +36,4 @@ public class RegistrationListener implements ApplicationListener<OnRegistrationC
 
         emailSenderService.sendVerificationEmail(userInfo, verificationToken);
     }
-
 }

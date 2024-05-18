@@ -11,9 +11,9 @@ import org.mapstruct.Mapper;
 @Mapper(config = UserBaseMapper.class)
 public interface UserPreferenceMapper extends UserBaseMapper {
 
-    UserPreference toEntity(DefaultUserPreferenceProperties defaultPreference,
-                            UserVocabularyApplication user,
-                            PageFilter pageFilter,
-                            ProfileVisibility profileVisibility);
-
+    UserPreference toEntity(
+            DefaultUserPreferenceProperties defaultPreference,
+            UserVocabularyApplication user,
+            PageFilter pageFilter,
+            ProfileVisibility profileVisibility);
 }

@@ -12,5 +12,4 @@ public interface UserMapper extends UserBaseMapper {
     @Mapping(source = "registrationRequest.active", target = "isActive")
     @Mapping(source = "registrationRequest.hashedPassword", target = "password")
     UserVocabularyApplication toEntity(RegistrationRequest registrationRequest, UserRole role);
-
 }

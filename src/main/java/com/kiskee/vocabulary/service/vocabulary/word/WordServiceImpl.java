@@ -16,14 +16,13 @@ import com.kiskee.vocabulary.repository.vocabulary.WordRepository;
 import com.kiskee.vocabulary.service.vocabulary.dictionary.DictionaryAccessValidator;
 import com.kiskee.vocabulary.service.vocabulary.word.translation.WordTranslationService;
 import com.kiskee.vocabulary.util.IdentityUtil;
+import java.util.List;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.Set;
 
 @Slf4j
 @Service
@@ -80,8 +79,8 @@ public class WordServiceImpl implements WordService {
 
         displayLog(LogMessageEnum.WORD_DELETED, wordToDelete);
 
-        return new ResponseMessage(String.format(
-                VocabularyResponseMessageEnum.WORD_DELETED.getResponseMessage(), wordToDelete));
+        return new ResponseMessage(
+                String.format(VocabularyResponseMessageEnum.WORD_DELETED.getResponseMessage(), wordToDelete));
     }
 
     @Override
@@ -106,15 +105,16 @@ public class WordServiceImpl implements WordService {
 
         if (CollectionUtils.isNotEmpty(forbiddenWords)) {
             throw new ForbiddenAccessException(String.format(
-                    ExceptionStatusesEnum.FORBIDDEN_ACCESS.getStatus(),
-                    Word.class.getSimpleName(), forbiddenWords));
+                    ExceptionStatusesEnum.FORBIDDEN_ACCESS.getStatus(), Word.class.getSimpleName(), forbiddenWords));
         }
     }
 
     private void verifyWordBelongsToSpecifiedDictionary(Word word, Long dictionaryId) {
         if (!word.getDictionaryId().equals(dictionaryId)) {
-            throw new ForbiddenAccessException(String.format(ExceptionStatusesEnum.FORBIDDEN_ACCESS.getStatus(),
-                    Word.class.getSimpleName(), word.getId().toString()));
+            throw new ForbiddenAccessException(String.format(
+                    ExceptionStatusesEnum.FORBIDDEN_ACCESS.getStatus(),
+                    Word.class.getSimpleName(),
+                    word.getId().toString()));
         }
     }
 
@@ -122,14 +122,12 @@ public class WordServiceImpl implements WordService {
         log.info(logMessage.getMessage(), word.getWord(), word.getDictionaryId(), IdentityUtil.getUserId());
     }
 
-    private WordSaveResponse mapToResponse(Word word,
-                                           VocabularyResponseMessageEnum messageEnum,
-                                           LogMessageEnum logMessageEnum) {
+    private WordSaveResponse mapToResponse(
+            Word word, VocabularyResponseMessageEnum messageEnum, LogMessageEnum logMessageEnum) {
         displayLog(logMessageEnum, word);
 
         WordDto wordDto = mapper.toDto(word);
 
         return new WordSaveResponse(String.format(messageEnum.getResponseMessage(), wordDto.getWord()), wordDto);
     }
-
 }

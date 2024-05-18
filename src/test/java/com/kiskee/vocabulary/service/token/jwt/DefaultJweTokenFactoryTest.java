@@ -1,18 +1,17 @@
 package com.kiskee.vocabulary.service.token.jwt;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+
 import com.kiskee.vocabulary.enums.user.UserRole;
 import com.kiskee.vocabulary.model.dto.authentication.AuthenticationData;
 import com.kiskee.vocabulary.model.dto.token.JweToken;
 import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-
-import java.util.UUID;
-
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @ExtendWith(MockitoExtension.class)
 public class DefaultJweTokenFactoryTest {
@@ -24,10 +23,9 @@ public class DefaultJweTokenFactoryTest {
 
     @Test
     void test_WhenGivenAuthenticationData_ThenReturnJweToken() {
-        UserVocabularyApplication user = new UserVocabularyApplication(USER_ID, "email", "username",
-                "noPassword", true,  UserRole.ROLE_USER, null, null);
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                user, null);
+        UserVocabularyApplication user = new UserVocabularyApplication(
+                USER_ID, "email", "username", "noPassword", true, UserRole.ROLE_USER, null, null);
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(user, null);
         AuthenticationData authenticationData = new AuthenticationData(authenticationToken, 1000L);
 
         JweToken jweToken = defaultJweTokenFactory.apply(authenticationData);
@@ -36,5 +34,4 @@ public class DefaultJweTokenFactoryTest {
         assertThat(jweToken.getId()).isEqualTo(USER_ID);
         assertThat(jweToken.getSubject()).isEqualTo(user.getUsername());
     }
-
 }

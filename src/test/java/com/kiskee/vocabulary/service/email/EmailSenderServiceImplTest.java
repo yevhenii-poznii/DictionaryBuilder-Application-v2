@@ -1,5 +1,13 @@
 package com.kiskee.vocabulary.service.email;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.kiskee.vocabulary.config.properties.email.EmailContextProperties;
 import com.kiskee.vocabulary.enums.user.UserRole;
 import com.kiskee.vocabulary.exception.email.SendEmailException;
@@ -18,14 +26,6 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 @ExtendWith(MockitoExtension.class)
 public class EmailSenderServiceImplTest {
 
@@ -34,15 +34,17 @@ public class EmailSenderServiceImplTest {
 
     @Mock
     private JavaMailSenderImpl mailSender;
+
     @Mock
     private TemplateEngine templateEngine;
+
     @Mock
     private EmailContextProperties emailContextProperties;
 
     @Test
     void testSendVerificationEmail_WhenParamsProvided_ThenSendEmail() {
-        UserSecureProjection userDataForEmail = new UserVocabularyApplication(null, "someEmail@gmail.com",
-                "username", null, false, UserRole.ROLE_USER, null, null);
+        UserSecureProjection userDataForEmail = new UserVocabularyApplication(
+                null, "someEmail@gmail.com", "username", null, false, UserRole.ROLE_USER, null, null);
         String verificationTokenString = "generatedToken";
 
         when(emailContextProperties.getConfirmationUrl()).thenReturn("http://localhost/signup?token=");
@@ -64,8 +66,8 @@ public class EmailSenderServiceImplTest {
     @Test
     @SneakyThrows
     void testSendVerificationEmail_When_Then() {
-        UserSecureProjection userDataForEmail = new UserVocabularyApplication(null, "someEmail@gmail.com",
-                "username", null, false, UserRole.ROLE_USER, null, null);
+        UserSecureProjection userDataForEmail = new UserVocabularyApplication(
+                null, "someEmail@gmail.com", "username", null, false, UserRole.ROLE_USER, null, null);
         String verificationTokenDto = "generatedToken";
 
         when(emailContextProperties.getConfirmationUrl()).thenReturn("http://localhost/signup?token=");
@@ -79,11 +81,11 @@ public class EmailSenderServiceImplTest {
         when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
 
         doThrow(new MessagingException("Some error"))
-                .when(mimeMessage).setFrom(new InternetAddress("admin@vocabulary.com"));
+                .when(mimeMessage)
+                .setFrom(new InternetAddress("admin@vocabulary.com"));
 
         assertThatExceptionOfType(SendEmailException.class)
                 .isThrownBy(() -> emailSenderService.sendVerificationEmail(userDataForEmail, verificationTokenDto))
                 .withMessage("Some error");
     }
-
 }

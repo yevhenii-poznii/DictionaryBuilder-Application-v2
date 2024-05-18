@@ -9,5 +9,4 @@ public interface DictionaryPageLoader {
     PageFilter getPageFilter();
 
     DictionaryPageResponseDto loadDictionaryPage(Long dictionaryId, PageRequest pageRequest);
-
 }

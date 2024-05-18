@@ -10,6 +10,7 @@ import com.kiskee.vocabulary.service.event.OnRegistrationCompleteEvent;
 import com.kiskee.vocabulary.service.provision.AbstractUserProvisionService;
 import com.kiskee.vocabulary.service.token.TokenInvalidatorService;
 import com.kiskee.vocabulary.service.user.UserInitializingService;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -18,16 +19,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 @Slf4j
 @Service
 @AllArgsConstructor
 public class RegistrationServiceImpl extends AbstractUserProvisionService implements RegistrationService {
 
     private final PasswordEncoder passwordEncoder;
+
     @Getter
     private final List<UserInitializingService> userInitializingServices;
+
     private final TokenInvalidatorService<VerificationToken> tokenInvalidatorService;
     private final ApplicationEventPublisher eventPublisher;
 
@@ -41,8 +42,8 @@ public class RegistrationServiceImpl extends AbstractUserProvisionService implem
 
         eventPublisher.publishEvent(new OnRegistrationCompleteEvent(userAccount));
 
-        return new ResponseMessage(String.format(RegistrationStatus.USER_SUCCESSFULLY_CREATED.getStatus(),
-                userAccount.getEmail()));
+        return new ResponseMessage(
+                String.format(RegistrationStatus.USER_SUCCESSFULLY_CREATED.getStatus(), userAccount.getEmail()));
     }
 
     @Override
@@ -66,5 +67,4 @@ public class RegistrationServiceImpl extends AbstractUserProvisionService implem
             throw new InvalidVerificationTokenException("Verification token is already invalidated");
         }
     }
-
 }

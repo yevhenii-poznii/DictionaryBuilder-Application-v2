@@ -3,10 +3,9 @@ package com.kiskee.vocabulary.service.token;
 import com.kiskee.vocabulary.model.entity.token.Token;
 import com.kiskee.vocabulary.repository.token.TokenRepository;
 import com.kiskee.vocabulary.util.ThrowUtil;
-import lombok.extern.slf4j.Slf4j;
-
 import java.time.Instant;
 import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public abstract class AbstractTokenService<T, S extends Token> {
@@ -35,8 +34,10 @@ public abstract class AbstractTokenService<T, S extends Token> {
 
         getTokenRepository().save(token);
 
-        log.info("[{}] [{}] for user [{}] has been successfully invalidated",
-                token.getClass().getSimpleName(), token.getToken(), token.getUserId());
+        log.info(
+                "[{}] [{}] for user [{}] has been successfully invalidated",
+                token.getClass().getSimpleName(),
+                token.getToken(),
+                token.getUserId());
     }
-
 }

@@ -9,5 +9,4 @@ public interface UserSecureProjection {
     String getEmail();
 
     String getUsername();
-
 }

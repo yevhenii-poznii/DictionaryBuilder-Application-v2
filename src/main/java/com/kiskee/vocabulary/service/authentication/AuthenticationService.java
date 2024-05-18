@@ -11,5 +11,4 @@ public interface AuthenticationService {
     AuthenticationResponse issueAccessToken(String refreshToken);
 
     TokenData issueRefreshToken(Authentication authentication);
-
 }

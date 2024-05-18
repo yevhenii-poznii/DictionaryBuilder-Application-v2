@@ -6,13 +6,12 @@ import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jwt.EncryptedJWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.proc.DefaultJWTClaimsVerifier;
-import lombok.AllArgsConstructor;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
-
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
+import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @AllArgsConstructor
@@ -29,8 +28,8 @@ public class JweStringDeserializer implements Function<String, JweToken> {
 
         JWTClaimsSet claimsSet = encryptedJWT.getJWTClaimsSet();
 
-        DefaultJWTClaimsVerifier<SecurityContext> claimsVerifier = new DefaultJWTClaimsVerifier<>(
-                claimsSet, Set.of("sub", "exp", "iat", "jti", "authorities"));
+        DefaultJWTClaimsVerifier<SecurityContext> claimsVerifier =
+                new DefaultJWTClaimsVerifier<>(claimsSet, Set.of("sub", "exp", "iat", "jti", "authorities"));
         claimsVerifier.verify(claimsSet, null);
 
         return JweToken.builder()
@@ -41,5 +40,4 @@ public class JweStringDeserializer implements Function<String, JweToken> {
                 .setExpiresAt(claimsSet.getExpirationTime().toInstant())
                 .build();
     }
-
 }

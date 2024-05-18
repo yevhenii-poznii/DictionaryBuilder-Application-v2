@@ -1,5 +1,12 @@
 package com.kiskee.vocabulary.service.authentication;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.kiskee.vocabulary.config.properties.jwt.JwtProperties;
 import com.kiskee.vocabulary.enums.user.UserRole;
 import com.kiskee.vocabulary.model.dto.authentication.AuthenticationData;
@@ -11,6 +18,8 @@ import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
 import com.kiskee.vocabulary.service.token.jwt.CookieTokenIssuer;
 import com.kiskee.vocabulary.service.token.jwt.DefaultJweTokenFactory;
 import com.kiskee.vocabulary.service.token.jwt.JweStringSerializer;
+import java.util.List;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,16 +35,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.rememberme.CookieTheftException;
 import org.springframework.security.web.authentication.rememberme.InvalidCookieException;
 
-import java.util.List;
-import java.util.UUID;
-
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 @ExtendWith(MockitoExtension.class)
 public class AuthenticationServiceTest {
 
@@ -44,12 +43,16 @@ public class AuthenticationServiceTest {
 
     @Mock
     private SecurityContext securityContext;
+
     @Mock
     private DefaultJweTokenFactory defaultJweTokenFactory;
+
     @Mock
     private JweStringSerializer tokenStringSerializer;
+
     @Mock
     private CookieTokenIssuer cookieTokenIssuer;
+
     @Mock
     private JwtProperties jwtProperties;
 
@@ -64,9 +67,10 @@ public class AuthenticationServiceTest {
     void testIssueAccessToken_WhenAuthenticationHasSet_ThenReturnAccessToken() {
         String tokenString = "tokenString";
 
-        UserVocabularyApplication user = new UserVocabularyApplication(USER_ID, "email", "username",
-                "noPassword", true, UserRole.ROLE_USER, null, null);
-        Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
+        UserVocabularyApplication user = new UserVocabularyApplication(
+                USER_ID, "email", "username", "noPassword", true, UserRole.ROLE_USER, null, null);
+        Authentication authentication =
+                new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
         when(securityContext.getAuthentication()).thenReturn(authentication);
         when(jwtProperties.getAccessExpirationTime()).thenReturn(1000L);
 
@@ -91,9 +95,10 @@ public class AuthenticationServiceTest {
 
         String tokenString = "tokenString";
 
-        UserVocabularyApplication user = new UserVocabularyApplication(USER_ID, "email", "username",
-                "noPassword", true, UserRole.ROLE_USER, null, null);
-        Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
+        UserVocabularyApplication user = new UserVocabularyApplication(
+                USER_ID, "email", "username", "noPassword", true, UserRole.ROLE_USER, null, null);
+        Authentication authentication =
+                new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
         when(securityContext.getAuthentication()).thenReturn(authentication);
         when(jwtProperties.getAccessExpirationTime()).thenReturn(1000L);
 
@@ -114,9 +119,10 @@ public class AuthenticationServiceTest {
     void testIssueAccessToken_WhenRefreshTokenIsProvidedAndDoesNotBelongToUser_ThenThrowCookieTheftException() {
         String refreshToken = "refreshToken";
 
-        UserVocabularyApplication user = new UserVocabularyApplication(USER_ID, "email", "username",
-                "noPassword", true, UserRole.ROLE_USER, null, null);
-        Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
+        UserVocabularyApplication user = new UserVocabularyApplication(
+                USER_ID, "email", "username", "noPassword", true, UserRole.ROLE_USER, null, null);
+        Authentication authentication =
+                new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
         when(securityContext.getAuthentication()).thenReturn(authentication);
 
         CookieToken cookieToken = mock(CookieToken.class);
@@ -132,9 +138,10 @@ public class AuthenticationServiceTest {
     void testIssueAccessToken_WhenRefreshTokenIsProvidedAndAlreadyInvalidated_ThenThrowInvalidCookieException() {
         String refreshToken = "refreshToken";
 
-        UserVocabularyApplication user = new UserVocabularyApplication(USER_ID, "email", "username",
-                "noPassword", true, UserRole.ROLE_USER, null, null);
-        Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
+        UserVocabularyApplication user = new UserVocabularyApplication(
+                USER_ID, "email", "username", "noPassword", true, UserRole.ROLE_USER, null, null);
+        Authentication authentication =
+                new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
         when(securityContext.getAuthentication()).thenReturn(authentication);
 
         CookieToken cookieToken = mock(CookieToken.class);
@@ -151,8 +158,8 @@ public class AuthenticationServiceTest {
     void testIssueRefreshToken_WhenAuthenticationHasSet_ThenReturnRefreshToken() {
         String tokenString = "tokenString";
 
-        UserVocabularyApplication user = new UserVocabularyApplication(USER_ID, "email", "username",
-                "noPassword", true, UserRole.ROLE_USER, null, null);
+        UserVocabularyApplication user = new UserVocabularyApplication(
+                USER_ID, "email", "username", "noPassword", true, UserRole.ROLE_USER, null, null);
         Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, List.of());
 
         when(jwtProperties.getRefreshExpirationTime()).thenReturn(1000L);
@@ -165,5 +172,4 @@ public class AuthenticationServiceTest {
 
         assertThat(tokenData.token()).isEqualTo(tokenString);
     }
-
 }

@@ -1,9 +1,8 @@
 package com.kiskee.vocabulary.service.user.profile;
 
+import java.util.Base64;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
-
-import java.util.Base64;
 
 @Component
 public class ProfilePictureEncoder {
@@ -16,5 +15,4 @@ public class ProfilePictureEncoder {
         // data:image/png;base64, + base64 encoded image
         return Base64.getEncoder().encodeToString(imageBytes);
     }
-
 }

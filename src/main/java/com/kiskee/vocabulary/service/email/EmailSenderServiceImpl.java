@@ -5,6 +5,7 @@ import com.kiskee.vocabulary.exception.email.SendEmailException;
 import com.kiskee.vocabulary.repository.user.projections.UserSecureProjection;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import java.nio.charset.StandardCharsets;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -14,8 +15,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
-
-import java.nio.charset.StandardCharsets;
 
 @Slf4j
 @Service
@@ -40,11 +39,9 @@ public class EmailSenderServiceImpl implements EmailSenderService {
 
             throw new SendEmailException(e.getMessage());
         }
-
     }
 
-    private void sendEmail(UserSecureProjection userInfo, String verificationToken)
-            throws MessagingException {
+    private void sendEmail(UserSecureProjection userInfo, String verificationToken) throws MessagingException {
         String confirmationLink = emailContext.getConfirmationUrl() + verificationToken;
 
         Context context = buildMessageContext(userInfo.getUsername(), confirmationLink);
@@ -60,9 +57,7 @@ public class EmailSenderServiceImpl implements EmailSenderService {
         MimeMessage mimeMessage = mailSender.createMimeMessage();
 
         MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(
-                mimeMessage,
-                MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
-                StandardCharsets.UTF_8.name());
+                mimeMessage, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, StandardCharsets.UTF_8.name());
 
         mimeMessageHelper.setFrom(emailContext.getFrom());
         mimeMessageHelper.setTo(userEmail);
@@ -79,5 +74,4 @@ public class EmailSenderServiceImpl implements EmailSenderService {
 
         return context;
     }
-
 }

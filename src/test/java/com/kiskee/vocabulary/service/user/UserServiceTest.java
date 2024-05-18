@@ -1,5 +1,14 @@
 package com.kiskee.vocabulary.service.user;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+
 import com.kiskee.vocabulary.enums.ExceptionStatusesEnum;
 import com.kiskee.vocabulary.enums.registration.RegistrationStatus;
 import com.kiskee.vocabulary.enums.user.UserRole;
@@ -9,6 +18,8 @@ import com.kiskee.vocabulary.mapper.user.UserMapper;
 import com.kiskee.vocabulary.model.dto.registration.InternalRegistrationRequest;
 import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
 import com.kiskee.vocabulary.repository.user.UserRepository;
+import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -19,18 +30,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
-import java.util.Optional;
-import java.util.UUID;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
-
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
 
@@ -38,17 +37,20 @@ public class UserServiceTest {
 
     @InjectMocks
     private UserService service;
+
     @Mock
     private UserRepository repository;
+
     @Mock
     private UserMapper mapper;
+
     @Captor
     private ArgumentCaptor<UserVocabularyApplication> userVocabularyApplicationArgumentCaptor;
 
     @Test
     void testInitNewUser_WhenValidUserRegisterRequestDto_ThenCreateNewUser() {
-        InternalRegistrationRequest registrationRequest = new InternalRegistrationRequest(
-                "email@gmail.com", "username", "p#Ssword1");
+        InternalRegistrationRequest registrationRequest =
+                new InternalRegistrationRequest("email@gmail.com", "username", "p#Ssword1");
         registrationRequest.setHashedPassword("encodedPassword");
 
         when(repository.existsByUsernameOrEmail(registrationRequest.getUsername(), registrationRequest.getEmail()))
@@ -76,8 +78,8 @@ public class UserServiceTest {
 
     @Test
     void testCreateNewUser_WhenUserAlreadyExistsWithTheSameEmailOrUsername_ThenThrowDuplicateUserException() {
-        InternalRegistrationRequest registrationRequest = new InternalRegistrationRequest(
-                "email@gmail.com", "username", "p#Ssword1");
+        InternalRegistrationRequest registrationRequest =
+                new InternalRegistrationRequest("email@gmail.com", "username", "p#Ssword1");
         registrationRequest.setHashedPassword("encodedPassword");
 
         when(repository.existsByUsernameOrEmail(registrationRequest.getUsername(), registrationRequest.getEmail()))
@@ -119,8 +121,7 @@ public class UserServiceTest {
 
         assertThatExceptionOfType(ResourceNotFoundException.class)
                 .isThrownBy(() -> service.updateUserAccountToActive(USER_ID))
-                .withMessage(String.format(ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(),
-                        "User", USER_ID));
+                .withMessage(String.format(ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(), "User", USER_ID));
 
         verify(repository, never()).save(any(UserVocabularyApplication.class));
     }
@@ -128,7 +129,8 @@ public class UserServiceTest {
     @Test
     void testLoadUserByUsername_WhenUserExists_ThenReturnUserDetails() {
         String username = "username";
-        UserVocabularyApplication userAccount = UserVocabularyApplication.builder().setUsername(username).build();
+        UserVocabularyApplication userAccount =
+                UserVocabularyApplication.builder().setUsername(username).build();
         when(repository.findByUsernameOrEmail(username, username)).thenReturn(Optional.of(userAccount));
 
         UserDetails user = service.loadUserByUsername("username");
@@ -144,15 +146,15 @@ public class UserServiceTest {
 
         assertThatExceptionOfType(UsernameNotFoundException.class)
                 .isThrownBy(() -> service.loadUserByUsername(username))
-                .withMessage(String.format(ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(),
-                        "User", username));
+                .withMessage(String.format(ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(), "User", username));
     }
 
     @Test
     void testLoadUserByEmail_WhenUserExists_ThenReturnUserVocabularyApplication() {
         String email = "email@email.com";
 
-        UserVocabularyApplication userAccount = UserVocabularyApplication.builder().setEmail(email).build();
+        UserVocabularyApplication userAccount =
+                UserVocabularyApplication.builder().setEmail(email).build();
         when(repository.findByEmail(email)).thenReturn(Optional.of(userAccount));
 
         Optional<UserVocabularyApplication> user = service.loadUserByEmail(email);
@@ -171,5 +173,4 @@ public class UserServiceTest {
 
         assertThat(user).isEmpty();
     }
-
 }

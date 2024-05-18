@@ -11,5 +11,4 @@ public class DictionaryDto implements DictionaryProjection {
     private Long id;
     private String dictionaryName;
     private int wordCount;
-
 }
