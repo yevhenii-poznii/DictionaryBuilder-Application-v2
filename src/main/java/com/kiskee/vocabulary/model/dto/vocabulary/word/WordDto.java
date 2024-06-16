@@ -14,5 +14,16 @@ public class WordDto {
     private String word;
     private boolean useInRepetition;
     private List<WordTranslationDto> wordTranslations;
+    private int counterRightAnswers;
     private String wordHint;
+
+    public void incrementCounterRightAnswers() {
+        this.counterRightAnswers++;
+    }
+
+    public void decrementCounterRightAnswers() {
+        if (this.counterRightAnswers > 0) {
+            this.counterRightAnswers--;
+        }
+    }
 }

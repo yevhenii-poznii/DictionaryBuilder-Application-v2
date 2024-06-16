@@ -44,6 +44,12 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationFilter {
                 ? CookieUtil.extractTokenFromCookie(request.getCookies())
                 : authorizationHeader.substring(7);
 
+        auth(jwt, response);
+
+        filterChain.doFilter(request, response);
+    }
+
+    protected void auth(String jwt, HttpServletResponse response) throws IOException {
         JweToken jweToken;
 
         try {
@@ -59,7 +65,5 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationFilter {
         if (subject != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             IdentityUtil.setAuthentication(jweToken);
         }
-
-        filterChain.doFilter(request, response);
     }
 }

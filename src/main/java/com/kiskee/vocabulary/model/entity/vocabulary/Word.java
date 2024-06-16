@@ -9,6 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
+import jakarta.persistence.PrePersist;
 import java.time.Instant;
 import java.util.List;
 import lombok.AccessLevel;
@@ -16,6 +17,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
 @Data
 @Entity
@@ -40,10 +42,12 @@ public class Word {
     @Column
     private String wordHint;
 
+    @CreationTimestamp
     @Column(nullable = false)
     private Instant addedAt;
 
     @Column
+    //    @UpdateTimestamp
     private Instant editedAt;
 
     @Column(nullable = false)
@@ -53,6 +57,12 @@ public class Word {
     @JoinColumn(name = "wordId")
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<WordTranslation> wordTranslations;
+
+    @PrePersist
+    protected void onCreate() {
+        this.useInRepetition = true;
+        //        this.addedAt = Instant.now();
+    }
 
     @Override
     public String toString() {

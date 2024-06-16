@@ -42,17 +42,13 @@ public abstract class AbstractDictionaryPageLoader {
 
     protected Pageable pageableWithSort(PageRequest pageRequest) {
         Sort.Direction sort = getSortDirection();
-
         return pageRequest.withSort(sort, ORDER_BY);
     }
 
     private DictionaryPageResponseDto loadPage(Long dictionaryId, PageRequest pageRequest) {
         Pageable pageableWithSort = pageableWithSort(pageRequest);
-
         Page<WordIdDto> page = findWordIdsPage(dictionaryId, pageableWithSort);
-
         List<Long> wordIds = page.stream().map(WordIdDto::getId).toList();
-
         List<Word> words = loadWordsByFilter(wordIds);
 
         log.info(

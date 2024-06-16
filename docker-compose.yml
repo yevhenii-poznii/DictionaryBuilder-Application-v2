@@ -26,8 +26,20 @@ services:
     restart: always
     depends_on:
       - db
+      - redis
     ports:
       - "8443:8443"
+    networks:
+      - custom
+
+  redis:
+    image: redis:7.2.5
+    container_name: vocabulary-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - vocabulary-redis-data:/data
     networks:
       - custom
 
@@ -60,6 +72,8 @@ services:
 volumes:
   vocabulary-v2-postgres-data:
     name: vocabulary-v2-postgres-data
+  vocabulary-redis-data:
+    name: vocabulary-redis-data
   vocabulary-grafana-data:
     name: vocabulary-grafana-data
   vocabulary-secrets:
