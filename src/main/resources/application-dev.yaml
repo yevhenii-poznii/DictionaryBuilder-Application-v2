@@ -49,7 +49,7 @@ vocabulary:
       from: ${MAIL_SENDER}
       subject: "Please verify your registration"
       template-location: email/confirm-registration.html
-      confirmation-url: https://localhost:3000/signup?verificationToken=
+      confirmation-url: https://localhost:3000/?verificationToken=
   user:
     profile:
       default-avatar: ${DEFAULT_AVATAR}

@@ -23,7 +23,10 @@ public class IdentityUtil {
 
     public UUID getUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return getUserId(authentication);
+    }
 
+    public UUID getUserId(Authentication authentication) {
         if (isAuthenticated(authentication)) {
             return ((UserSecureProjection) authentication.getPrincipal()).getId();
         }

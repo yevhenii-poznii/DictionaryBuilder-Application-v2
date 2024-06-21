@@ -5,10 +5,10 @@ import com.kiskee.vocabulary.model.dto.repetition.WSResponse;
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.page.DictionaryPageRequestDto;
 import com.kiskee.vocabulary.service.vocabulary.repetition.InputRepetitionService;
 import jakarta.validation.Valid;
-import java.security.Principal;
 import lombok.AllArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.annotation.SendToUser;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,8 +31,8 @@ public class InputRepetitionController {
 
     @MessageMapping("/handle")
     @SendToUser("/queue/response")
-    public WSResponse handleRepetitionMessage(Principal principal, WSRequest request) {
-        return inputRepetitionService.check(principal, request);
+    public WSResponse handleRepetitionMessage(Authentication authentication, WSRequest request) {
+        return inputRepetitionService.check(authentication, request);
     }
 
     @PutMapping

@@ -7,11 +7,9 @@ import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.page.DictionaryPage
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.page.DictionaryPageResponseDto;
 import com.kiskee.vocabulary.model.dto.vocabulary.word.WordDto;
 import com.kiskee.vocabulary.repository.redis.RedisRepository;
-import com.kiskee.vocabulary.repository.user.projections.UserSecureProjection;
 import com.kiskee.vocabulary.service.vocabulary.AbstractDictionaryService;
 import com.kiskee.vocabulary.service.vocabulary.dictionary.page.DictionaryPageLoaderFactory;
 import com.kiskee.vocabulary.util.IdentityUtil;
-import java.security.Principal;
 import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Deque;
@@ -21,7 +19,7 @@ import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 @Getter
@@ -61,13 +59,9 @@ public class InputRepetitionService extends AbstractDictionaryService implements
     }
 
     @Override
-    public WSResponse check(Principal principal, WSRequest request) {
-        UUID userId = IdentityUtil.getUserId();
-        System.out.println(principal);
-        UsernamePasswordAuthenticationToken principal1 = (UsernamePasswordAuthenticationToken) principal;
-        System.out.println(((UserSecureProjection) principal1.getPrincipal()).getId());
-        UUID id = ((UserSecureProjection) principal1.getPrincipal()).getId();
-        RepetitionData repetitionData = repository.getByUserId(id);
+    public WSResponse check(Authentication authentication, WSRequest request) {
+        UUID userId = IdentityUtil.getUserId(authentication);
+        RepetitionData repetitionData = repository.getByUserId(userId);
 
         if (isNextOperationWithoutInput(request)) {
             return handleNextOperation(repetitionData);
@@ -75,7 +69,7 @@ public class InputRepetitionService extends AbstractDictionaryService implements
         if (isSkipOperationWithoutInput(request)) {
             return handleSkipOperation(repetitionData);
         }
-        return handleCheckOperation(request, repetitionData, id);
+        return handleCheckOperation(request, repetitionData, userId);
     }
 
     public void pause() {}
@@ -106,19 +100,15 @@ public class InputRepetitionService extends AbstractDictionaryService implements
             // TODO update report
             passedWords.clear();
         }
-
         WordDto currentWord = repetitionData.getCurrentWord();
         List<String> translationsToCheck = Arrays.asList(request.getInput().split(", "));
-
         long correctTranslationsCount = currentWord.getWordTranslations().stream()
                 .filter(translation -> translationsToCheck.contains(translation.getTranslation()))
                 .count();
         boolean isCorrect = correctTranslationsCount > 0;
-
         RepetitionData updateRepetitionData = updateRepetitionData(repetitionData, isCorrect);
 
         repository.save(userId, updateRepetitionData);
-
         return new WSResponse(repetitionData.getCurrentWord().getWord(), isCorrect);
     }
 

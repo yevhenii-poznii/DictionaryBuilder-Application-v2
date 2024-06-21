@@ -1,13 +1,14 @@
 package com.kiskee.vocabulary.model.dto.vocabulary.word;
 
 import jakarta.validation.constraints.Pattern;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Getter
-@EqualsAndHashCode
+@Data
 @AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class WordTranslationDto {
 
     private Long id;

@@ -11,7 +11,5 @@ public interface RedisRepository {
 
     void save(UUID userId, RepetitionData repetitionData);
 
-    //    void fillRepetitionWords(UUID userId, RepetitionData repetitionData);
-
     void clearByUserId(UUID userId);
 }
