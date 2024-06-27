@@ -1,13 +1,16 @@
 package com.kiskee.vocabulary.service.vocabulary.repetition;
 
-import com.kiskee.vocabulary.model.dto.repetition.WSRequest;
-import com.kiskee.vocabulary.model.dto.repetition.WSResponse;
-import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.page.DictionaryPageRequestDto;
+import com.kiskee.vocabulary.model.dto.repetition.RepetitionStartFilterRequest;
+import com.kiskee.vocabulary.model.dto.repetition.RepetitionStatusResponse;
+import com.kiskee.vocabulary.model.dto.repetition.message.WSRequest;
+import com.kiskee.vocabulary.model.dto.repetition.message.WSResponse;
 import org.springframework.security.core.Authentication;
 
 public interface RepetitionService {
 
-    void start(long dictionaryId, DictionaryPageRequestDto request);
+    RepetitionStatusResponse isRepetitionRunning();
 
-    WSResponse check(Authentication principal, WSRequest request);
+    void start(long dictionaryId, RepetitionStartFilterRequest request);
+
+    WSResponse handleRepetitionMessage(Authentication principal, WSRequest request);
 }

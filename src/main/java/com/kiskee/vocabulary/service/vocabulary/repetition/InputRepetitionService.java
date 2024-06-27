@@ -1,16 +1,16 @@
 package com.kiskee.vocabulary.service.vocabulary.repetition;
 
+import com.kiskee.vocabulary.exception.repetition.RepetitionException;
 import com.kiskee.vocabulary.model.dto.redis.RepetitionData;
-import com.kiskee.vocabulary.model.dto.repetition.WSRequest;
-import com.kiskee.vocabulary.model.dto.repetition.WSResponse;
-import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.page.DictionaryPageRequestDto;
-import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.page.DictionaryPageResponseDto;
+import com.kiskee.vocabulary.model.dto.repetition.RepetitionStartFilterRequest;
+import com.kiskee.vocabulary.model.dto.repetition.RepetitionStatusResponse;
+import com.kiskee.vocabulary.model.dto.repetition.message.WSRequest;
+import com.kiskee.vocabulary.model.dto.repetition.message.WSResponse;
 import com.kiskee.vocabulary.model.dto.vocabulary.word.WordDto;
 import com.kiskee.vocabulary.repository.redis.RedisRepository;
 import com.kiskee.vocabulary.service.vocabulary.AbstractDictionaryService;
 import com.kiskee.vocabulary.service.vocabulary.dictionary.page.DictionaryPageLoaderFactory;
 import com.kiskee.vocabulary.util.IdentityUtil;
-import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Deque;
 import java.util.List;
@@ -33,40 +33,48 @@ public class InputRepetitionService extends AbstractDictionaryService implements
     private final int amountPassedWordsToUpdate = 10;
 
     @Override
-    public void start(long dictionaryId, DictionaryPageRequestDto request) {
+    public RepetitionStatusResponse isRepetitionRunning() {
+        if (repository.existsByUserId(IdentityUtil.getUserId())) {
+            return new RepetitionStatusResponse(true);
+        }
+        return new RepetitionStatusResponse(false);
+    }
+
+    @Override
+    public void start(long dictionaryId, RepetitionStartFilterRequest request) {
         UUID userId = IdentityUtil.getUserId();
 
         if (repository.existsByUserId(userId)) {
             // TODO throw custom exception
-            throw new RuntimeException();
+            throw new RepetitionException("Repetition is already running");
         }
 
         // TODO verify dictionary owner before load
-        DictionaryPageResponseDto repetitionPage = load(dictionaryId, request);
-
-        Deque<WordDto> repetitionWords = new ArrayDeque<>(repetitionPage.getWords());
-        WordDto next = repetitionWords.pop();
-
-        RepetitionData repetitionData = RepetitionData.builder()
-                .repetitionWords(repetitionWords)
-                .passedWords(new ArrayDeque<>())
-                .currentWord(next)
-                .totalElements(repetitionPage.getTotalElements())
-                .userId(userId)
-                .build();
-
-        repository.save(userId, repetitionData);
+//        DictionaryPageResponseDto repetitionPage = load(dictionaryId, request);
+//
+//        Deque<WordDto> repetitionWords = new ArrayDeque<>(repetitionPage.getWords());
+//        WordDto next = repetitionWords.pop();
+//
+//        RepetitionData repetitionData = RepetitionData.builder()
+//                .repetitionWords(repetitionWords)
+//                .passedWords(new ArrayDeque<>())
+//                .currentWord(next)
+//                .totalElements(repetitionPage.getTotalElements())
+//                .userId(userId)
+//                .build();
+//
+//        repository.save(userId, repetitionData);
     }
 
     @Override
-    public WSResponse check(Authentication authentication, WSRequest request) {
+    public WSResponse handleRepetitionMessage(Authentication authentication, WSRequest request) {
         UUID userId = IdentityUtil.getUserId(authentication);
         RepetitionData repetitionData = repository.getByUserId(userId);
 
-        if (isNextOperationWithoutInput(request)) {
+        if (isNextOperation(request)) {
             return handleNextOperation(repetitionData);
         }
-        if (isSkipOperationWithoutInput(request)) {
+        if (isSkipOperation(request)) {
             return handleSkipOperation(repetitionData);
         }
         return handleCheckOperation(request, repetitionData, userId);
@@ -76,11 +84,11 @@ public class InputRepetitionService extends AbstractDictionaryService implements
 
     public void stop() {}
 
-    private boolean isNextOperationWithoutInput(WSRequest request) {
+    private boolean isNextOperation(WSRequest request) {
         return Objects.isNull(request.getInput()) && request.getOperation() == WSRequest.Operation.NEXT;
     }
 
-    private boolean isSkipOperationWithoutInput(WSRequest request) {
+    private boolean isSkipOperation(WSRequest request) {
         return Objects.isNull(request.getInput()) && request.getOperation() == WSRequest.Operation.SKIP;
     }
 

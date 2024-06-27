@@ -1,4 +1,4 @@
-package com.kiskee.vocabulary.model.dto.repetition;
+package com.kiskee.vocabulary.model.dto.repetition.message;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
