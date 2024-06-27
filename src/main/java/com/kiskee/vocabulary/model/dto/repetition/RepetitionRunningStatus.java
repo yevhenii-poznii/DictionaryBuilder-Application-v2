@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
-public class RepetitionStatusResponse {
+public class RepetitionRunningStatus {
 
     private boolean isRunning;
 }

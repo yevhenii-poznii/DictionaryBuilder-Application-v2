@@ -2,14 +2,13 @@ package com.kiskee.vocabulary.service.vocabulary.repetition;
 
 import com.kiskee.vocabulary.exception.repetition.RepetitionException;
 import com.kiskee.vocabulary.model.dto.redis.RepetitionData;
+import com.kiskee.vocabulary.model.dto.repetition.RepetitionRunningStatus;
 import com.kiskee.vocabulary.model.dto.repetition.RepetitionStartFilterRequest;
-import com.kiskee.vocabulary.model.dto.repetition.RepetitionStatusResponse;
 import com.kiskee.vocabulary.model.dto.repetition.message.WSRequest;
 import com.kiskee.vocabulary.model.dto.repetition.message.WSResponse;
 import com.kiskee.vocabulary.model.dto.vocabulary.word.WordDto;
 import com.kiskee.vocabulary.repository.redis.RedisRepository;
-import com.kiskee.vocabulary.service.vocabulary.AbstractDictionaryService;
-import com.kiskee.vocabulary.service.vocabulary.dictionary.page.DictionaryPageLoaderFactory;
+import com.kiskee.vocabulary.service.vocabulary.repetition.loader.RepetitionWordLoaderFactory;
 import com.kiskee.vocabulary.util.IdentityUtil;
 import java.util.Arrays;
 import java.util.Deque;
@@ -25,19 +24,25 @@ import org.springframework.stereotype.Service;
 @Getter
 @Service
 @AllArgsConstructor
-public class InputRepetitionService extends AbstractDictionaryService implements RepetitionService {
+public class InputRepetitionService implements RepetitionService {
 
-    private final DictionaryPageLoaderFactory dictionaryPageLoaderFactory;
+    private final RepetitionWordLoaderFactory repetitionWordLoaderFactory;
     private final RedisRepository repository;
 
     private final int amountPassedWordsToUpdate = 10;
 
     @Override
-    public RepetitionStatusResponse isRepetitionRunning() {
+    public RepetitionRunningStatus isRepetitionRunning() {
         if (repository.existsByUserId(IdentityUtil.getUserId())) {
-            return new RepetitionStatusResponse(true);
+            return new RepetitionRunningStatus(true);
         }
-        return new RepetitionStatusResponse(false);
+        return new RepetitionRunningStatus(false);
+    }
+
+    public List<WordDto> test(Long dictionaryId, RepetitionStartFilterRequest request) {
+        return repetitionWordLoaderFactory
+                .getLoader(request.getCriteriaFilter().getFilterType())
+                .loadRepetitionWordPage(dictionaryId, request);
     }
 
     @Override
@@ -50,20 +55,23 @@ public class InputRepetitionService extends AbstractDictionaryService implements
         }
 
         // TODO verify dictionary owner before load
-//        DictionaryPageResponseDto repetitionPage = load(dictionaryId, request);
-//
-//        Deque<WordDto> repetitionWords = new ArrayDeque<>(repetitionPage.getWords());
-//        WordDto next = repetitionWords.pop();
-//
-//        RepetitionData repetitionData = RepetitionData.builder()
-//                .repetitionWords(repetitionWords)
-//                .passedWords(new ArrayDeque<>())
-//                .currentWord(next)
-//                .totalElements(repetitionPage.getTotalElements())
-//                .userId(userId)
-//                .build();
-//
-//        repository.save(userId, repetitionData);
+        List<WordDto> repetitionWords = repetitionWordLoaderFactory
+                .getLoader(request.getCriteriaFilter().getFilterType())
+                .loadRepetitionWordPage(dictionaryId, request);
+        //        DictionaryPageResponseDto repetitionPage = load(dictionaryId, request);
+
+        //        Deque<WordDto> repetitionWords = new ArrayDeque<>(repetitionPage.getWords());
+        //        WordDto next = repetitionWords.pop();
+        //
+        //        RepetitionData repetitionData = RepetitionData.builder()
+        //                .repetitionWords(repetitionWords)
+        //                .passedWords(new ArrayDeque<>())
+        //                .currentWord(next)
+        //                .totalElements(repetitionPage.getTotalElements())
+        //                .userId(userId)
+        //                .build();
+        //
+        //        repository.save(userId, repetitionData);
     }
 
     @Override

@@ -1,11 +1,13 @@
 package com.kiskee.vocabulary.web.controller.repetition;
 
+import com.kiskee.vocabulary.model.dto.repetition.RepetitionRunningStatus;
 import com.kiskee.vocabulary.model.dto.repetition.RepetitionStartFilterRequest;
-import com.kiskee.vocabulary.model.dto.repetition.RepetitionStatusResponse;
 import com.kiskee.vocabulary.model.dto.repetition.message.WSRequest;
 import com.kiskee.vocabulary.model.dto.repetition.message.WSResponse;
+import com.kiskee.vocabulary.model.dto.vocabulary.word.WordDto;
 import com.kiskee.vocabulary.service.vocabulary.repetition.InputRepetitionService;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.annotation.SendToUser;
@@ -26,9 +28,15 @@ public class InputRepetitionController {
 
     private final InputRepetitionService inputRepetitionService;
 
-    @GetMapping("/check-status")
-    public RepetitionStatusResponse checkRepetitionStatus() {
+    @GetMapping("/running")
+    public RepetitionRunningStatus isRepetitionRunning() {
         return inputRepetitionService.isRepetitionRunning();
+    }
+
+    @GetMapping("/test/{dictionaryId}")
+    public List<WordDto> test(
+            @PathVariable long dictionaryId, @RequestBody @Valid RepetitionStartFilterRequest request) {
+        return inputRepetitionService.test(dictionaryId, request);
     }
 
     @PostMapping("/{dictionaryId}")
@@ -43,10 +51,8 @@ public class InputRepetitionController {
     }
 
     @PutMapping
-    public void pause() {
-    }
+    public void pause() {}
 
     @DeleteMapping
-    public void stop() {
-    }
+    public void stop() {}
 }

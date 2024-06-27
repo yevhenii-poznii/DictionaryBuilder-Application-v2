@@ -18,4 +18,3 @@ public class DefaultCriteriaFilter implements CriteriaFilter {
         BY_COUNT
     }
 }
-
