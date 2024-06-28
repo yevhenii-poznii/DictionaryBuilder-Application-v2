@@ -86,7 +86,7 @@ public class GlobalExceptionHandler {
 
         ErrorResponse response = new ErrorResponse(status.getReasonPhrase(), errors, timestamp);
 
-        log.info(logMessage, response.getStatus(), errors, timestamp);
+        log.info(logMessage, response.status(), errors, timestamp);
 
         return ResponseEntity.status(status).body(response);
     }

@@ -2,17 +2,19 @@ package com.kiskee.vocabulary.model.dto.redis;
 
 import com.kiskee.vocabulary.exception.repetition.RepetitionException;
 import com.kiskee.vocabulary.model.dto.vocabulary.word.WordDto;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 import java.util.Deque;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.UUID;
+
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
@@ -28,6 +30,8 @@ public class RepetitionData {
     private List<Pause> pauses;
     private int rightAnswersCount;
     private int wrongAnswersCount;
+    //TODO implement skipped words
+    private int skippedWordsCount;
     private int totalElements;
     private int totalElementsPassed;
     private UUID userId;
@@ -42,13 +46,25 @@ public class RepetitionData {
         return this;
     }
 
-    public String setNext() throws RepetitionException {
+    public WordDto setNext() {
         if (this.getRepetitionWords().isEmpty()) {
-            throw new RepetitionException("No more words to repeat");
+            setCurrentWord(null);
+            return null;
         }
         WordDto next = this.getRepetitionWords().pop();
         this.setCurrentWord(next);
-        return next.getWord();
+        return next;
+    }
+
+    public void startPause() {
+        this.getPauses().add(Pause.start());
+    }
+
+    public void endPause() throws RepetitionException {
+        if (this.getPauses().isEmpty() || Objects.nonNull(this.getPauses().getLast().getEndTime())) {
+            throw new RepetitionException("No pause to end");
+        }
+        this.getPauses().getLast().end();
     }
 
     private void incrementTotalElementsPassed() {
@@ -71,5 +87,4 @@ public class RepetitionData {
         this.passedWords.add(getCurrentWord());
         setNext();
     }
-
 }

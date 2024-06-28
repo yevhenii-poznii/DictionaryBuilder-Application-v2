@@ -1,6 +1,6 @@
 package com.kiskee.vocabulary.model.dto.vocabulary.word;
 
-import java.util.List;
+import java.util.Set;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,7 +14,7 @@ public class WordDto {
     private Long id;
     private String word;
     private boolean useInRepetition;
-    private List<WordTranslationDto> wordTranslations;
+    private Set<WordTranslationDto> wordTranslations;
     private int counterRightAnswers;
     private String wordHint;
 

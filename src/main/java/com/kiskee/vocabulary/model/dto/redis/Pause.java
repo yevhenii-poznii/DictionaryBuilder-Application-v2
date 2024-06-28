@@ -1,8 +1,7 @@
 package com.kiskee.vocabulary.model.dto.redis;
 
-import lombok.Getter;
-
 import java.time.Instant;
+import lombok.Getter;
 
 @Getter
 public class Pause {

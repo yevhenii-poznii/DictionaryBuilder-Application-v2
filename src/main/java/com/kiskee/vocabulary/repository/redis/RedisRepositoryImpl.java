@@ -2,11 +2,12 @@ package com.kiskee.vocabulary.repository.redis;
 
 import com.kiskee.vocabulary.exception.ResourceNotFoundException;
 import com.kiskee.vocabulary.model.dto.redis.RepetitionData;
+
+import java.util.Objects;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
-
-import java.util.UUID;
 
 @Repository
 @AllArgsConstructor
@@ -22,7 +23,7 @@ public class RedisRepositoryImpl implements RedisRepository {
     @Override
     public RepetitionData getByUserId(UUID userId) {
         RepetitionData repetitionData = redisTemplate.opsForValue().get(userId.toString());
-        if (repetitionData == null) {
+        if (Objects.isNull(repetitionData)) {
             throw new ResourceNotFoundException(String.format("Repetition data not found for user [%s]", userId));
         }
         return repetitionData;

@@ -8,5 +8,10 @@ import lombok.Data;
 public class WSResponse {
 
     private String word;
+    private String wordHint;
     private Boolean previousAnswerIsCorrect;
+    private int rightAnswersCount;
+    private int wrongAnswersCount;
+    private int totalElements;
+    private int totalElementsPassed;
 }
