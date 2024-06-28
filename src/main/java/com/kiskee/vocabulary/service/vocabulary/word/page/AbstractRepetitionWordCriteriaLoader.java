@@ -25,11 +25,11 @@ public abstract class AbstractRepetitionWordCriteriaLoader {
     protected abstract List<Word> loadAll(Long dictionaryId, RepetitionStartFilterRequest request);
 
     public List<WordDto> loadRepetitionWordPage(Long dictionaryId, RepetitionStartFilterRequest request) {
-        List<Word> repetitionWords = load(dictionaryId, request);
+        List<Word> repetitionWords = loadByFilter(dictionaryId, request);
         return mapper.toDto(repetitionWords);
     }
 
-    private List<Word> load(Long dictionaryId, RepetitionStartFilterRequest request) {
+    private List<Word> loadByFilter(Long dictionaryId, RepetitionStartFilterRequest request) {
         return switch (request.getRepetitionFilter()) {
             case REPETITION_ONLY -> loadRepetitionOnly(dictionaryId, request);
             case NOT_REPETITION_ONLY -> loadNotRepetitionOnly(dictionaryId, request);

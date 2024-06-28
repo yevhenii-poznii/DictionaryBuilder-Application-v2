@@ -2,10 +2,11 @@ package com.kiskee.vocabulary.repository.redis;
 
 import com.kiskee.vocabulary.exception.ResourceNotFoundException;
 import com.kiskee.vocabulary.model.dto.redis.RepetitionData;
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
+
+import java.util.UUID;
 
 @Repository
 @AllArgsConstructor

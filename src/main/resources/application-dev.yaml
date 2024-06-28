@@ -63,6 +63,8 @@ vocabulary:
     jwe-encryption-method: ${JWE_ENCRYPTION_METHOD:A256GCM}
     access-expiration-time: ${JWE_ACCESS_EXPIRATION_TIME:1800}
     refresh-expiration-time: ${JWE_REFRESH_EXPIRATION_TIME:2419200}
+  repetition:
+    words-to-update-count: ${WORDS_TO_UPDATE_COUNT:10}
 config:
   mvc:
     allowed-origins: https://localhost:3000

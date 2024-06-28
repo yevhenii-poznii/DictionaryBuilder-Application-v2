@@ -14,6 +14,7 @@ public class WSRequest {
     private Operation operation;
 
     public enum Operation {
+        START,
         NEXT,
         SKIP
     }
