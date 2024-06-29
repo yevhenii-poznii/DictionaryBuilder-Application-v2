@@ -9,9 +9,10 @@ public class WSResponse {
 
     private String word;
     private String wordHint;
-    private Boolean previousAnswerIsCorrect;
+    private Long correctTranslationsCount;
     private int rightAnswersCount;
     private int wrongAnswersCount;
+    private int skippedWordsCount;
     private int totalElements;
     private int totalElementsPassed;
 }

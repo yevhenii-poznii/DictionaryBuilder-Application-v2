@@ -4,10 +4,8 @@ import com.kiskee.vocabulary.model.dto.repetition.RepetitionRunningStatus;
 import com.kiskee.vocabulary.model.dto.repetition.RepetitionStartFilterRequest;
 import com.kiskee.vocabulary.model.dto.repetition.message.WSRequest;
 import com.kiskee.vocabulary.model.dto.repetition.message.WSResponse;
-import com.kiskee.vocabulary.model.dto.vocabulary.word.WordDto;
-import com.kiskee.vocabulary.service.vocabulary.repetition.InputRepetitionService;
+import com.kiskee.vocabulary.service.vocabulary.repetition.RepetitionService;
 import jakarta.validation.Valid;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.annotation.SendToUser;
@@ -26,22 +24,32 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/repetition")
 public class InputRepetitionController {
 
-    private final InputRepetitionService inputRepetitionService;
+    private final RepetitionService inputRepetitionService;
 
     @GetMapping("/running")
     public RepetitionRunningStatus isRepetitionRunning() {
         return inputRepetitionService.isRepetitionRunning();
     }
 
-    @GetMapping("/test/{dictionaryId}")
-    public List<WordDto> test(
+    @PostMapping("/{dictionaryId}")
+    public RepetitionRunningStatus start(
             @PathVariable long dictionaryId, @RequestBody @Valid RepetitionStartFilterRequest request) {
-        return inputRepetitionService.test(dictionaryId, request);
+        return inputRepetitionService.start(dictionaryId, request);
     }
 
-    @PostMapping("/{dictionaryId}")
-    public void start(@PathVariable long dictionaryId, @RequestBody @Valid RepetitionStartFilterRequest request) {
-        inputRepetitionService.start(dictionaryId, request);
+    @PutMapping("/pause")
+    public RepetitionRunningStatus pause() {
+        return inputRepetitionService.pause();
+    }
+
+    @PutMapping("/unpause")
+    public RepetitionRunningStatus unpause() {
+        return inputRepetitionService.unpause();
+    }
+
+    @DeleteMapping
+    public RepetitionRunningStatus stop() {
+        return inputRepetitionService.stop();
     }
 
     @MessageMapping("/handle")
@@ -49,10 +57,4 @@ public class InputRepetitionController {
     public WSResponse handleMessage(Authentication authentication, WSRequest request) {
         return inputRepetitionService.handleRepetitionMessage(authentication, request);
     }
-
-    @PutMapping
-    public void pause() {}
-
-    @DeleteMapping
-    public void stop() {}
 }

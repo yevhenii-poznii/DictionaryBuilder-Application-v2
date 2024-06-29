@@ -10,7 +10,13 @@ public interface RepetitionService {
 
     RepetitionRunningStatus isRepetitionRunning();
 
-    void start(long dictionaryId, RepetitionStartFilterRequest request);
+    RepetitionRunningStatus start(long dictionaryId, RepetitionStartFilterRequest request);
+
+    RepetitionRunningStatus pause();
+
+    RepetitionRunningStatus unpause();
+
+    RepetitionRunningStatus stop();
 
     WSResponse handleRepetitionMessage(Authentication principal, WSRequest request);
 }

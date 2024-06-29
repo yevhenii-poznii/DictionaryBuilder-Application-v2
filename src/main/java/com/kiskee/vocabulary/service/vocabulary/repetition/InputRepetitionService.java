@@ -13,12 +13,6 @@ import com.kiskee.vocabulary.repository.redis.RedisRepository;
 import com.kiskee.vocabulary.service.vocabulary.dictionary.DictionaryAccessValidator;
 import com.kiskee.vocabulary.service.vocabulary.repetition.loader.RepetitionWordLoaderFactory;
 import com.kiskee.vocabulary.util.IdentityUtil;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.Authentication;
-import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.ArrayDeque;
@@ -30,6 +24,13 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Service;
 
 @Getter
 @Service
@@ -46,22 +47,17 @@ public class InputRepetitionService implements RepetitionService {
 
     @Override
     public RepetitionRunningStatus isRepetitionRunning() {
-        if (repository.existsByUserId(IdentityUtil.getUserId())) {
-            return new RepetitionRunningStatus(true);
-        }
-        return new RepetitionRunningStatus(false);
-    }
+        UUID userId = IdentityUtil.getUserId();
 
-    public List<WordDto> test(Long dictionaryId, RepetitionStartFilterRequest request) {
-        List<WordDto> words = repetitionWordLoaderFactory
-                .getLoader(request.getCriteriaFilter().getFilterType())
-                .loadRepetitionWordPage(dictionaryId, request);
-        Collections.shuffle(words);
-        return words;
+        if (repository.existsByUserId(userId)) {
+            RepetitionData repetitionData = repository.getByUserId(userId);
+            return new RepetitionRunningStatus(true, repetitionData.isPaused());
+        }
+        return new RepetitionRunningStatus(false, false);
     }
 
     @Override
-    public void start(long dictionaryId, RepetitionStartFilterRequest request) {
+    public RepetitionRunningStatus start(long dictionaryId, RepetitionStartFilterRequest request) {
         UUID userId = IdentityUtil.getUserId();
 
         if (repository.existsByUserId(userId)) {
@@ -83,13 +79,59 @@ public class InputRepetitionService implements RepetitionService {
                 .repetitionWords(repetitionWords)
                 .passedWords(new ArrayDeque<>())
                 .currentWord(next)
-                .totalElements(words.size())
                 .pauses(new ArrayList<>())
                 .startTime(Instant.now())
+                .totalElements(words.size())
                 .userId(userId)
                 .build();
 
         repository.save(userId, repetitionData);
+        return new RepetitionRunningStatus(true, repetitionData.isPaused());
+    }
+
+    public RepetitionRunningStatus pause() {
+        UUID userId = IdentityUtil.getUserId();
+
+        if (!repository.existsByUserId(userId)) {
+            throw new RepetitionException("Repetition is not running");
+        }
+        RepetitionData repetitionData = repository.getByUserId(userId);
+        repetitionData.startPause();
+
+        repository.save(userId, repetitionData);
+        return new RepetitionRunningStatus(true, true);
+    }
+
+    public RepetitionRunningStatus unpause() {
+        UUID userId = IdentityUtil.getUserId();
+
+        if (!repository.existsByUserId(userId)) {
+            throw new RepetitionException("Repetition is not running");
+        }
+        RepetitionData repetitionData = repository.getByUserId(userId);
+        repetitionData.endPause();
+
+        repository.save(userId, repetitionData);
+        return new RepetitionRunningStatus(true, false);
+    }
+
+    public RepetitionRunningStatus stop() {
+        UUID userId = IdentityUtil.getUserId();
+
+        if (!repository.existsByUserId(userId)) {
+            throw new RepetitionException("Repetition is not running");
+        }
+        RepetitionData repetitionData = repository.getByUserId(userId);
+
+        if (!repetitionData.getPassedWords().isEmpty()) {
+            // TODO update passed words
+            repetitionData.getPassedWords().clear();
+        }
+
+        // TODO update report
+
+        repository.clearByUserId(userId);
+        return new RepetitionRunningStatus(false, false);
     }
 
     @Override
@@ -106,50 +148,6 @@ public class InputRepetitionService implements RepetitionService {
         return handleCheckOperation(request, repetitionData, userId);
     }
 
-    public void pause() {
-        UUID userId = IdentityUtil.getUserId();
-
-        if (!repository.existsByUserId(userId)) {
-            throw new RepetitionException("Repetition is not running");
-        }
-        RepetitionData repetitionData = repository.getByUserId(userId);
-        repetitionData.startPause();
-
-        repository.save(userId, repetitionData);
-    }
-
-    public void unpause() {
-        UUID userId = IdentityUtil.getUserId();
-
-        if (!repository.existsByUserId(userId)) {
-            throw new RepetitionException("Repetition is not running");
-        }
-        RepetitionData repetitionData = repository.getByUserId(userId);
-        repetitionData.endPause();
-
-        repository.save(userId, repetitionData);
-    }
-
-    public void stop() {
-        UUID userId = IdentityUtil.getUserId();
-
-        if (!repository.existsByUserId(userId)) {
-            throw new RepetitionException("Repetition is not running");
-        }
-
-        RepetitionData repetitionData = repository.getByUserId(userId);
-
-        if (!repetitionData.getPassedWords().isEmpty()) {
-            // TODO update passed words
-            // TODO update report
-            repetitionData.getPassedWords().clear();
-        }
-
-        // TODO update report
-
-        repository.clearByUserId(userId);
-    }
-
     private boolean isStartOperation(WSRequest request) {
         return Objects.isNull(request.getInput()) && request.getOperation() == WSRequest.Operation.START;
     }
@@ -163,16 +161,14 @@ public class InputRepetitionService implements RepetitionService {
 
         validateNextNonNull(next);
         return mapper.toWSResponse(repetitionData);
-//        return new WSResponse(next.getWord(), next.getWordHint(), null);
     }
 
     private WSResponse handleSkipOperation(RepetitionData repetitionData, UUID userId) {
-        WordDto next = repetitionData.setNext();
-        repository.save(userId, repetitionData);
+        RepetitionData updatedData = repetitionData.skip();
+        repository.save(userId, updatedData);
 
-        validateNextNonNull(next);
-        return mapper.toWSResponse(repetitionData);
-//        return new WSResponse(next.getWord(), next.getWordHint(), null);
+        validateNextNonNull(updatedData.getCurrentWord());
+        return mapper.toWSResponse(updatedData);
     }
 
     private WSResponse handleCheckOperation(WSRequest request, RepetitionData repetitionData, UUID userId) {
@@ -184,19 +180,23 @@ public class InputRepetitionService implements RepetitionService {
         }
         WordDto currentWord = repetitionData.getCurrentWord();
 
-        List<String> translationsToCheck = Arrays.asList(request.getInput().split(", "));
-        long correctTranslationsCount = calculateCorrectTranslationsCount(currentWord.getWordTranslations(), translationsToCheck);
-        boolean isCorrect = correctTranslationsCount > 0;
+        if (Objects.isNull(currentWord)) {
+            // TODO update report
+            throw new RepetitionException("No more words to repeat");
+        }
 
-        RepetitionData updatedRepetitionData = repetitionData.updateData(isCorrect);
+        List<String> translationsToCheck = Arrays.asList(request.getInput().split(", "));
+        long correctTranslationsCount =
+                calculateCorrectTranslationsCount(currentWord.getWordTranslations(), translationsToCheck);
+
+        RepetitionData updatedRepetitionData = repetitionData.updateData(correctTranslationsCount > 0);
         repository.save(userId, updatedRepetitionData);
 
-//        validateNextNonNull(updatedRepetitionData.getCurrentWord());
-        return mapper.toWSResponse(updatedRepetitionData, isCorrect);
-//        return new WSResponse(updatedRepetitionData.getCurrentWord().getWord(), updatedRepetitionData.getCurrentWord().getWordHint(), isCorrect);
+        return mapper.toWSResponse(updatedRepetitionData, correctTranslationsCount);
     }
 
-    private long calculateCorrectTranslationsCount(Set<WordTranslationDto> actualTranslations, List<String> translationsToCheck) {
+    private long calculateCorrectTranslationsCount(
+            Set<WordTranslationDto> actualTranslations, List<String> translationsToCheck) {
         return translationsToCheck.stream()
                 .filter(translation -> actualTranslations.contains(new WordTranslationDto(translation)))
                 .count();

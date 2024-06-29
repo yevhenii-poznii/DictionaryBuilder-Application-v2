@@ -2,19 +2,17 @@ package com.kiskee.vocabulary.model.dto.redis;
 
 import com.kiskee.vocabulary.exception.repetition.RepetitionException;
 import com.kiskee.vocabulary.model.dto.vocabulary.word.WordDto;
-
 import java.time.Instant;
 import java.util.Deque;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.UUID;
-
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.collections4.CollectionUtils;
 
 @Data
 @Builder
@@ -30,7 +28,6 @@ public class RepetitionData {
     private List<Pause> pauses;
     private int rightAnswersCount;
     private int wrongAnswersCount;
-    //TODO implement skipped words
     private int skippedWordsCount;
     private int totalElements;
     private int totalElementsPassed;
@@ -42,29 +39,43 @@ public class RepetitionData {
         } else {
             this.incrementWrongAnswersCount();
         }
-        this.addPassedWord();
+        this.getPassedWords().add(getCurrentWord());
+        this.setNext();
         return this;
     }
 
-    public WordDto setNext() {
-        if (this.getRepetitionWords().isEmpty()) {
-            setCurrentWord(null);
-            return null;
-        }
-        WordDto next = this.getRepetitionWords().pop();
-        this.setCurrentWord(next);
-        return next;
+    public RepetitionData skip() {
+        this.skippedWordsCount++;
+        this.setNext();
+        return this;
     }
 
-    public void startPause() {
-        this.getPauses().add(Pause.start());
+    public boolean isPaused() {
+        return CollectionUtils.isNotEmpty(this.getPauses())
+                && Objects.isNull(this.getPauses().getLast().getEndTime());
+    }
+
+    public void startPause() throws RepetitionException {
+        if (!this.isPaused()) {
+            this.getPauses().add(Pause.start());
+        }
+        throw new RepetitionException("Pause already started");
     }
 
     public void endPause() throws RepetitionException {
-        if (this.getPauses().isEmpty() || Objects.nonNull(this.getPauses().getLast().getEndTime())) {
-            throw new RepetitionException("No pause to end");
+        if (this.isPaused()) {
+            this.getPauses().getLast().end();
         }
-        this.getPauses().getLast().end();
+        throw new RepetitionException("No pause to end");
+    }
+
+    private void setNext() {
+        if (this.getRepetitionWords().isEmpty()) {
+            setCurrentWord(null);
+            return;
+        }
+        WordDto next = this.getRepetitionWords().pop();
+        this.setCurrentWord(next);
     }
 
     private void incrementTotalElementsPassed() {
@@ -81,10 +92,5 @@ public class RepetitionData {
         this.wrongAnswersCount++;
         this.currentWord.decrementCounterRightAnswers();
         incrementTotalElementsPassed();
-    }
-
-    private void addPassedWord() throws NoSuchElementException {
-        this.passedWords.add(getCurrentWord());
-        setNext();
     }
 }

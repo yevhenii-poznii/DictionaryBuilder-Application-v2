@@ -11,4 +11,5 @@ import lombok.NoArgsConstructor;
 public class RepetitionRunningStatus {
 
     private boolean isRunning;
+    private boolean paused;
 }
