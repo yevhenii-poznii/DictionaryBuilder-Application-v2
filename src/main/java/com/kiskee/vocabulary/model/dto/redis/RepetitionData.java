@@ -21,7 +21,7 @@ import org.apache.commons.collections4.CollectionUtils;
 public class RepetitionData {
 
     private Deque<WordDto> repetitionWords;
-    private Deque<WordDto> passedWords;
+    private List<WordDto> passedWords;
     private WordDto currentWord;
     private Instant startTime;
     private Instant endTime;
@@ -58,6 +58,7 @@ public class RepetitionData {
     public void startPause() throws RepetitionException {
         if (!this.isPaused()) {
             this.getPauses().add(Pause.start());
+            return;
         }
         throw new RepetitionException("Pause already started");
     }
@@ -65,6 +66,7 @@ public class RepetitionData {
     public void endPause() throws RepetitionException {
         if (this.isPaused()) {
             this.getPauses().getLast().end();
+            return;
         }
         throw new RepetitionException("No pause to end");
     }

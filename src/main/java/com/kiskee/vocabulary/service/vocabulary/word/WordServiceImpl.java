@@ -13,27 +13,35 @@ import com.kiskee.vocabulary.model.dto.vocabulary.word.WordUpdateRequest;
 import com.kiskee.vocabulary.model.entity.vocabulary.Word;
 import com.kiskee.vocabulary.model.entity.vocabulary.WordTranslation;
 import com.kiskee.vocabulary.repository.vocabulary.WordRepository;
+import com.kiskee.vocabulary.service.user.preference.WordPreferenceService;
 import com.kiskee.vocabulary.service.vocabulary.dictionary.DictionaryAccessValidator;
 import com.kiskee.vocabulary.service.vocabulary.word.translation.WordTranslationService;
 import com.kiskee.vocabulary.util.IdentityUtil;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
-import lombok.AllArgsConstructor;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.retry.annotation.Retryable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
-@AllArgsConstructor
-public class WordServiceImpl implements WordService {
+@RequiredArgsConstructor
+public class WordServiceImpl implements WordService, WordCounterUpdateService {
 
     private final WordRepository repository;
     private final WordMapper mapper;
 
     private final DictionaryAccessValidator dictionaryAccessValidator;
     private final WordTranslationService wordTranslationService;
+
+    private final WordPreferenceService wordPreferenceService;
 
     @Override
     @Transactional
@@ -95,6 +103,30 @@ public class WordServiceImpl implements WordService {
         repository.deleteAll(wordsToDelete);
 
         return new ResponseMessage(String.format("Words %s have been deleted", wordsToDelete));
+    }
+
+    // TODO
+    @Async
+    @Override
+    @Retryable
+    @Transactional
+    public void updateRightAnswersCounters(UUID userId, List<WordDto> wordsToUpdate) {
+        if (CollectionUtils.isEmpty(wordsToUpdate)) {
+            return;
+        }
+        Map<Long, Integer> wordIdsToUpdate =
+                wordsToUpdate.stream().collect(Collectors.toMap(WordDto::getId, WordDto::getCounterRightAnswers));
+
+        List<Word> existingWords = repository.findByIdIn(wordIdsToUpdate.keySet());
+
+        int rightAnswersToDisableInRepetition = wordPreferenceService
+                .getWordPreference(IdentityUtil.getUserId())
+                .getRightAnswersToDisableInRepetition();
+        existingWords.forEach(word ->
+                word.setCounterRightAnswers(wordIdsToUpdate.get(word.getId()), rightAnswersToDisableInRepetition));
+
+        repository.saveAll(existingWords);
+        log.info("Right answers counters have been updated for words: {}", wordIdsToUpdate.keySet());
     }
 
     private void verifyWordBelongsToSpecifiedDictionary(List<Word> words, Long dictionaryId) {

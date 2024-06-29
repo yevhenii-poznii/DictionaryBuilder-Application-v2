@@ -47,7 +47,6 @@ public class Word {
     private Instant addedAt;
 
     @Column
-    //    @UpdateTimestamp
     private Instant editedAt;
 
     @Column(nullable = false)
@@ -61,11 +60,17 @@ public class Word {
     @PrePersist
     protected void onCreate() {
         this.useInRepetition = true;
-        //        this.addedAt = Instant.now();
     }
 
     @Override
     public String toString() {
         return getWord();
+    }
+
+    public void setCounterRightAnswers(int counterRightAnswers, int rightAnswersToDisableInRepetition) {
+        this.counterRightAnswers = counterRightAnswers;
+        if (this.counterRightAnswers >= rightAnswersToDisableInRepetition) {
+            this.useInRepetition = false;
+        }
     }
 }

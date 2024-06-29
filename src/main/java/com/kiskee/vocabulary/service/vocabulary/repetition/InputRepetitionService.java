@@ -12,8 +12,8 @@ import com.kiskee.vocabulary.model.dto.vocabulary.word.WordTranslationDto;
 import com.kiskee.vocabulary.repository.redis.RedisRepository;
 import com.kiskee.vocabulary.service.vocabulary.dictionary.DictionaryAccessValidator;
 import com.kiskee.vocabulary.service.vocabulary.repetition.loader.RepetitionWordLoaderFactory;
+import com.kiskee.vocabulary.service.vocabulary.word.WordCounterUpdateService;
 import com.kiskee.vocabulary.util.IdentityUtil;
-
 import java.time.Instant;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -24,14 +24,15 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
-
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Getter
 @Service
 @RequiredArgsConstructor
@@ -41,6 +42,7 @@ public class InputRepetitionService implements RepetitionService {
     private final RedisRepository repository;
     private final RepetitionWordMapper mapper;
     private final DictionaryAccessValidator dictionaryAccessValidator;
+    private final WordCounterUpdateService wordCounterUpdateService;
 
     @Value("${vocabulary.repetition.words-to-update-count}")
     private int wordsToUpdateCount;
@@ -77,7 +79,7 @@ public class InputRepetitionService implements RepetitionService {
         WordDto next = repetitionWords.pop();
         RepetitionData repetitionData = RepetitionData.builder()
                 .repetitionWords(repetitionWords)
-                .passedWords(new ArrayDeque<>())
+                .passedWords(new ArrayList<>())
                 .currentWord(next)
                 .pauses(new ArrayList<>())
                 .startTime(Instant.now())
@@ -123,14 +125,15 @@ public class InputRepetitionService implements RepetitionService {
         }
         RepetitionData repetitionData = repository.getByUserId(userId);
 
-        if (!repetitionData.getPassedWords().isEmpty()) {
-            // TODO update passed words
-            repetitionData.getPassedWords().clear();
+        List<WordDto> passedWords = repetitionData.getPassedWords();
+        if (!passedWords.isEmpty()) {
+            ArrayList<WordDto> wordsToUpdate = new ArrayList<>(passedWords);
+            wordCounterUpdateService.updateRightAnswersCounters(userId, wordsToUpdate);
         }
-
         // TODO update report
 
         repository.clearByUserId(userId);
+        log.info("Repetition has been stopped for user [{}]", userId);
         return new RepetitionRunningStatus(false, false);
     }
 
@@ -172,10 +175,10 @@ public class InputRepetitionService implements RepetitionService {
     }
 
     private WSResponse handleCheckOperation(WSRequest request, RepetitionData repetitionData, UUID userId) {
-        Deque<WordDto> passedWords = repetitionData.getPassedWords();
+        List<WordDto> passedWords = repetitionData.getPassedWords();
         if (CollectionUtils.isNotEmpty(passedWords) && passedWords.size() >= wordsToUpdateCount) {
-            // TODO update passed words
-            // TODO update report
+            ArrayList<WordDto> wordsToUpdate = new ArrayList<>(passedWords);
+            wordCounterUpdateService.updateRightAnswersCounters(userId, wordsToUpdate);
             passedWords.clear();
         }
         WordDto currentWord = repetitionData.getCurrentWord();
@@ -184,7 +187,6 @@ public class InputRepetitionService implements RepetitionService {
             // TODO update report
             throw new RepetitionException("No more words to repeat");
         }
-
         List<String> translationsToCheck = Arrays.asList(request.getInput().split(", "));
         long correctTranslationsCount =
                 calculateCorrectTranslationsCount(currentWord.getWordTranslations(), translationsToCheck);
