@@ -88,6 +88,7 @@ public class InputRepetitionService implements RepetitionService {
                 .build();
 
         repository.save(userId, repetitionData);
+        log.info("Repetition has been started for user [{}]", userId);
         return new RepetitionRunningStatus(true, repetitionData.isPaused());
     }
 
@@ -101,6 +102,7 @@ public class InputRepetitionService implements RepetitionService {
         repetitionData.startPause();
 
         repository.save(userId, repetitionData);
+        log.info("Repetition has been paused for user [{}]", userId);
         return new RepetitionRunningStatus(true, true);
     }
 
@@ -114,6 +116,7 @@ public class InputRepetitionService implements RepetitionService {
         repetitionData.endPause();
 
         repository.save(userId, repetitionData);
+        log.info("Repetition has been unpaused for user [{}]", userId);
         return new RepetitionRunningStatus(true, false);
     }
 
@@ -171,6 +174,7 @@ public class InputRepetitionService implements RepetitionService {
         repository.save(userId, updatedData);
 
         validateNextNonNull(updatedData.getCurrentWord());
+        log.info("Word has been skipped for user [{}]", userId);
         return mapper.toWSResponse(updatedData);
     }
 
@@ -193,7 +197,7 @@ public class InputRepetitionService implements RepetitionService {
 
         RepetitionData updatedRepetitionData = repetitionData.updateData(correctTranslationsCount > 0);
         repository.save(userId, updatedRepetitionData);
-
+        log.info("Word has been checked for user [{}]", userId);
         return mapper.toWSResponse(updatedRepetitionData, correctTranslationsCount);
     }
 

@@ -5,13 +5,14 @@ import com.kiskee.vocabulary.model.dto.repetition.RepetitionStartFilterRequest;
 import com.kiskee.vocabulary.model.dto.vocabulary.word.WordDto;
 import com.kiskee.vocabulary.model.entity.vocabulary.Word;
 import com.kiskee.vocabulary.repository.repetition.RepetitionWordRepository;
+import com.kiskee.vocabulary.util.IdentityUtil;
 import java.util.List;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Getter
 @Slf4j
+@Getter
 @RequiredArgsConstructor
 public abstract class AbstractRepetitionWordCriteriaLoader {
 
@@ -26,6 +27,7 @@ public abstract class AbstractRepetitionWordCriteriaLoader {
 
     public List<WordDto> loadRepetitionWordPage(Long dictionaryId, RepetitionStartFilterRequest request) {
         List<Word> repetitionWords = loadByFilter(dictionaryId, request);
+        log.info("Loaded {} words for repetition for user: {}", repetitionWords.size(), IdentityUtil.getUserId());
         return mapper.toDto(repetitionWords);
     }
 
