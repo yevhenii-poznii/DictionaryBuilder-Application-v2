@@ -32,6 +32,7 @@ import com.kiskee.vocabulary.service.vocabulary.dictionary.page.DictionaryPageLo
 import com.kiskee.vocabulary.service.vocabulary.word.page.DictionaryPageLoader;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterEach;
@@ -455,13 +456,15 @@ public class DictionaryServiceImplTest {
                         1L,
                         "word1",
                         true,
-                        List.of(new WordTranslationDto(1L, "translation1"), new WordTranslationDto(2L, "translation2")),
+                        Set.of(new WordTranslationDto(1L, "translation1"), new WordTranslationDto(2L, "translation2")),
+                        0,
                         "hint1"),
                 new WordDto(
                         2L,
                         "word2",
                         false,
-                        List.of(new WordTranslationDto(3L, "translation3"), new WordTranslationDto(4L, "translation4")),
+                        Set.of(new WordTranslationDto(3L, "translation3"), new WordTranslationDto(4L, "translation4")),
+                        0,
                         "hint2"));
 
         return new DictionaryPageResponseDto(words, 0, 2);

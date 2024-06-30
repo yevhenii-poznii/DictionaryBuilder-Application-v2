@@ -130,7 +130,7 @@ public class RegistrationControllerTest {
         String actualResponseBody = result.getResponse().getContentAsString();
         ErrorResponse errorResponse = objectMapper.readValue(actualResponseBody, ErrorResponse.class);
 
-        assertThat(errorResponse.getErrors())
+        assertThat(errorResponse.errors())
                 .extractingFromEntries(Map.Entry::getValue)
                 .containsExactlyElementsOf(errors.stream().map(Object::toString).collect(Collectors.toList()));
 

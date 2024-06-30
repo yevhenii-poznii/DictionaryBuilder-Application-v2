@@ -15,6 +15,7 @@ import com.kiskee.vocabulary.model.entity.vocabulary.Word;
 import com.kiskee.vocabulary.repository.vocabulary.DictionaryPageRepository;
 import com.kiskee.vocabulary.service.vocabulary.word.page.impl.asc.DictionaryPageLoaderOnlyNotUseInRepetitionASC;
 import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -64,8 +65,8 @@ public class DictionaryPageLoaderOnlyNotUseInRepetitionASCTest {
                 .thenReturn(words);
 
         List<WordDto> wordDtos = List.of(
-                new WordDto(1L, "word1", false, List.of(), "hint1"),
-                new WordDto(2L, "word2", false, List.of(), "hint2"));
+                new WordDto(1L, "word1", false, Set.of(), 0, "hint1"),
+                new WordDto(2L, "word2", false, Set.of(), 0, "hint2"));
         DictionaryPageResponseDto expectedResult =
                 new DictionaryPageResponseDto(wordDtos, page.getTotalPages(), (int) page.getTotalElements());
         when(mapper.toDto(words, page.getTotalPages(), page.getTotalElements())).thenReturn(expectedResult);

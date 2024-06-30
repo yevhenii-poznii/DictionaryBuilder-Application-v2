@@ -119,14 +119,16 @@ public class WordServiceImpl implements WordService, WordCounterUpdateService {
 
         List<Word> existingWords = repository.findByIdIn(wordIdsToUpdate.keySet());
 
-        int rightAnswersToDisableInRepetition = wordPreferenceService
-                .getWordPreference(IdentityUtil.getUserId())
-                .getRightAnswersToDisableInRepetition();
+        int rightAnswersToDisableInRepetition =
+                wordPreferenceService.getWordPreference(userId).getRightAnswersToDisableInRepetition();
         existingWords.forEach(word ->
                 word.setCounterRightAnswers(wordIdsToUpdate.get(word.getId()), rightAnswersToDisableInRepetition));
 
         repository.saveAll(existingWords);
-        log.info("Right answers counters have been updated for words: {}", wordIdsToUpdate.keySet());
+        log.info(
+                "Right answers counters have been updated for words: {} for user: {}",
+                wordIdsToUpdate.keySet(),
+                userId);
     }
 
     private void verifyWordBelongsToSpecifiedDictionary(List<Word> words, Long dictionaryId) {

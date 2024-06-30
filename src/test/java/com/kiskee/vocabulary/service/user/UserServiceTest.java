@@ -96,15 +96,9 @@ public class UserServiceTest {
     void testUpdateUserAccountToActive_WhenUserExists_ThenUpdateUserAccountToActive() {
         UserVocabularyApplication userAccount = mock(UserVocabularyApplication.class);
         when(repository.findById(USER_ID)).thenReturn(Optional.of(userAccount));
-        UserVocabularyApplication.UserVocabularyApplicationBuilder builder =
-                mock(UserVocabularyApplication.UserVocabularyApplicationBuilder.class);
 
-        when(userAccount.toBuilder()).thenReturn(builder);
-        when(builder.setIsActive(true)).thenReturn(builder);
-
-        UserVocabularyApplication updatedUserToActive = mock(UserVocabularyApplication.class);
-        when(updatedUserToActive.isActive()).thenReturn(true);
-        when(builder.build()).thenReturn(updatedUserToActive);
+        when(userAccount.setActive(true)).thenReturn(userAccount);
+        when(userAccount.isActive()).thenReturn(true);
 
         service.updateUserAccountToActive(USER_ID);
 

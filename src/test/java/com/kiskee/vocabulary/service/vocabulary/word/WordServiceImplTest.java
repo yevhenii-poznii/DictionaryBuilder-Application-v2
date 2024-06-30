@@ -27,6 +27,7 @@ import com.kiskee.vocabulary.repository.vocabulary.WordRepository;
 import com.kiskee.vocabulary.service.vocabulary.dictionary.DictionaryAccessValidator;
 import com.kiskee.vocabulary.service.vocabulary.word.translation.WordTranslationService;
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -99,7 +100,8 @@ public class WordServiceImplTest {
                 wordToSave.getId(),
                 wordToSave.getWord(),
                 wordToSave.isUseInRepetition(),
-                saveRequest.getWordTranslations(),
+                new HashSet<>(saveRequest.getWordTranslations()),
+                0,
                 wordToSave.getWordHint());
         when(wordMapper.toDto(wordToSave)).thenReturn(wordDto);
 
@@ -181,8 +183,9 @@ public class WordServiceImplTest {
                 .thenReturn(new WordDto(
                         updatedWord.getId(),
                         updateRequest.getWord(),
-                        updateRequest.getUseInRepetition(),
-                        updateRequest.getWordTranslations(),
+                        updatedWord.isUseInRepetition(),
+                        new HashSet<>(updateRequest.getWordTranslations()),
+                        0,
                         updateRequest.getWordHint()));
 
         WordSaveResponse wordSaveResponse = wordService.updateWord(dictionaryId, wordId, updateRequest);

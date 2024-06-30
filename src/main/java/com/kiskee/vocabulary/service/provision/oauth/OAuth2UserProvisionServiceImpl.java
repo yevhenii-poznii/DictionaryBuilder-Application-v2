@@ -43,12 +43,10 @@ public class OAuth2UserProvisionServiceImpl extends AbstractUserProvisionService
 
         TokenData issuedRefreshToken = authenticationService.issueRefreshToken(authenticationToken);
 
-        // TODO investigate whether this is necessary to make accessToken and send to client or cookie is enough
         IdentityUtil.setAuthentication(issuedRefreshToken.jweToken());
 
         String issuedAccessToken = authenticationService.issueAccessToken().getToken();
 
         return new OAuth2ProvisionData(issuedAccessToken, issuedRefreshToken);
-        // TODO end;
     }
 }
