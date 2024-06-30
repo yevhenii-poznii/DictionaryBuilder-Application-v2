@@ -38,7 +38,7 @@ public class OAuth2LoginSuccessHandler extends SavedRequestAwareAuthenticationSu
 
             OAuth2ProvisionData provisionData = oAuth2UserProvisionService.provisionUser(userProvisionRequest);
 
-            String redirectUrl = String.format("http://localhost:3000/signin?token=%s", provisionData.accessToken());
+            String redirectUrl = String.format("https://localhost:3000/?token=%s", provisionData.accessToken());
 
             Cookie cookie = CookieUtil.buildCookie(provisionData.refreshToken());
 

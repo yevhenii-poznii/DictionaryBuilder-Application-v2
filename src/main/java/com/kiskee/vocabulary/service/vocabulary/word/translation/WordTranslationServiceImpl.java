@@ -46,7 +46,7 @@ public class WordTranslationServiceImpl implements WordTranslationService {
         AtomicLong uniqueKeyForNullId = new AtomicLong(-1);
 
         return Stream.concat(
-                        existingTranslationsMap.values().stream(),
+                        existingTranslationsMap.values().stream().limit(translationsToUpdate.size()),
                         translationsToUpdate.stream()
                                 .filter(translation -> selectValid(translation, existingTranslationsMap)))
                 .collect(Collectors.toMap(

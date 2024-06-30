@@ -3,6 +3,7 @@ package com.kiskee.vocabulary.web.advice;
 import com.kiskee.vocabulary.exception.DuplicateResourceException;
 import com.kiskee.vocabulary.exception.ForbiddenAccessException;
 import com.kiskee.vocabulary.exception.ResourceNotFoundException;
+import com.kiskee.vocabulary.exception.repetition.RepetitionException;
 import com.kiskee.vocabulary.exception.token.InvalidVerificationTokenException;
 import com.kiskee.vocabulary.exception.user.DuplicateUserException;
 import com.kiskee.vocabulary.util.TimeZoneContextHolder;
@@ -14,6 +15,7 @@ import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.BindingResult;
@@ -46,8 +48,8 @@ public class GlobalExceptionHandler {
         return handleCustomException(exception, HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
-    @ExceptionHandler(DuplicateResourceException.class)
-    public ResponseEntity<ErrorResponse> handleDuplicateResourceException(DuplicateResourceException exception) {
+    @ExceptionHandler({DuplicateResourceException.class, RepetitionException.class})
+    public ResponseEntity<ErrorResponse> handleDuplicateResourceException(Exception exception) {
         return handleCustomException(exception, HttpStatus.BAD_REQUEST);
     }
 
@@ -66,7 +68,7 @@ public class GlobalExceptionHandler {
         return handleCustomException(exception, HttpStatus.CONFLICT);
     }
 
-    @ExceptionHandler(ForbiddenAccessException.class)
+    @ExceptionHandler({ForbiddenAccessException.class, AccessDeniedException.class})
     public ResponseEntity<ErrorResponse> handleForbiddenAccessException(ForbiddenAccessException exception) {
         return handleCustomException(exception, HttpStatus.FORBIDDEN);
     }
@@ -84,7 +86,7 @@ public class GlobalExceptionHandler {
 
         ErrorResponse response = new ErrorResponse(status.getReasonPhrase(), errors, timestamp);
 
-        log.info(logMessage, response.getStatus(), errors, timestamp);
+        log.info(logMessage, response.status(), errors, timestamp);
 
         return ResponseEntity.status(status).body(response);
     }

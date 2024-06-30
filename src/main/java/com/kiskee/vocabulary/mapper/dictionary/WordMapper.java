@@ -16,10 +16,6 @@ public interface WordMapper {
 
     WordDto toDto(Word word);
 
-    @Mappings({
-        @Mapping(target = "useInRepetition", constant = "true"),
-        @Mapping(target = "addedAt", expression = "java(java.time.Instant.now())")
-    })
     Word toEntity(WordSaveRequest saveRequest, Long dictionaryId);
 
     @Mappings({

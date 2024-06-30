@@ -16,7 +16,7 @@ create table user_profile
     profile_picture text         not null,
     created_at      timestamp(6) not null,
 
-    constraint fk_user_id foreign key (user_id) references user_vocabulary_application (id)
+    constraint fk_user_id foreign key (user_id) references user_vocabulary_application (id) on delete cascade
 );
 
 create table user_preference
@@ -33,7 +33,7 @@ create table user_preference
                                                                         'ONLY_NOT_USE_IN_REPETITION_ASC',
                                                                         'ONLY_NOT_USE_IN_REPETITION_DESC')),
 
-    constraint fk_user_id foreign key (user_id) references user_vocabulary_application (id)
+    constraint fk_user_id foreign key (user_id) references user_vocabulary_application (id) on delete cascade
 );
 
 create table dictionary
@@ -43,7 +43,7 @@ create table dictionary
     user_profile_id uuid,
 
     unique (dictionary_name, user_profile_id),
-    constraint fk_user_profile_id foreign key (user_profile_id) references user_profile (user_id)
+    constraint fk_user_profile_id foreign key (user_profile_id) references user_profile (user_id) on delete cascade
 );
 
 create table word

@@ -20,17 +20,15 @@ import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.hibernate.annotations.UuidGenerator;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+@Data
 @Entity
-@Getter
-@Setter
 @AllArgsConstructor
 @Builder(setterPrefix = "set", toBuilder = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -86,5 +84,10 @@ public class UserVocabularyApplication implements UserDetails, UserSecureProject
     @Override
     public boolean isEnabled() {
         return isActive();
+    }
+
+    public UserVocabularyApplication setActive(boolean isActive) {
+        this.isActive = isActive;
+        return this;
     }
 }

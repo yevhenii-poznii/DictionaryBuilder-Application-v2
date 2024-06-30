@@ -85,7 +85,7 @@ public class WordControllerTest {
         String word = "word";
         WordSaveRequest saveRequest = new WordSaveRequest(
                 word,
-                List.of(new WordTranslationDto(null, "переклад"), new WordTranslationDto(null, "переклад")),
+                List.of(new WordTranslationDto(null, "переклад"), new WordTranslationDto(null, "перекладд")),
                 "hint");
 
         WordSaveResponse expectedResponse = new WordSaveResponse(
@@ -94,7 +94,8 @@ public class WordControllerTest {
                         1L,
                         word,
                         true,
-                        List.of(new WordTranslationDto(1L, "переклад"), new WordTranslationDto(2L, "переклад")),
+                        Set.of(new WordTranslationDto(1L, "переклад"), new WordTranslationDto(2L, "перекладд")),
+                        0,
                         "hint"));
         when(wordService.addWord(dictionaryId, saveRequest)).thenReturn(expectedResponse);
 
@@ -157,7 +158,6 @@ public class WordControllerTest {
         String word = "word";
         WordUpdateRequest updateRequest = new WordUpdateRequest(
                 word,
-                false,
                 List.of(new WordTranslationDto(1L, "перекладдд"), new WordTranslationDto(2L, "перекладд")),
                 "hinthint");
 
@@ -167,7 +167,8 @@ public class WordControllerTest {
                         10L,
                         word,
                         false,
-                        List.of(new WordTranslationDto(1L, "перекладдд"), new WordTranslationDto(2L, "перекладд")),
+                        Set.of(new WordTranslationDto(1L, "перекладдд"), new WordTranslationDto(2L, "перекладд")),
+                        0,
                         "hinthint"));
         when(wordService.updateWord(dictionaryId, wordId, updateRequest)).thenReturn(expectedResponse);
 

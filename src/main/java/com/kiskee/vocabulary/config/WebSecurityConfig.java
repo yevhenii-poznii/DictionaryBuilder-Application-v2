@@ -17,6 +17,7 @@ import com.kiskee.vocabulary.web.auth.TokenCookieAuthenticationSuccessHandler;
 import com.kiskee.vocabulary.web.filter.JwtAuthenticationFilter;
 import com.kiskee.vocabulary.web.filter.LoginAuthenticationFilter;
 import com.kiskee.vocabulary.web.filter.TimeZoneRequestFilter;
+import com.kiskee.vocabulary.web.filter.WebSocketAuthenticationFilter;
 import com.nimbusds.jose.EncryptionMethod;
 import com.nimbusds.jose.JWEAlgorithm;
 import com.nimbusds.jose.JWEDecrypter;
@@ -83,6 +84,7 @@ public class WebSecurityConfig {
                 .sessionManagement(
                         sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(webSocketAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(timeZoneRequestFilter, JwtAuthenticationFilter.class)
                 .addFilterBefore(loginAuthenticationFilter(), AnonymousAuthenticationFilter.class)
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(new Http403ForbiddenEntryPoint()))
@@ -126,6 +128,11 @@ public class WebSecurityConfig {
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() throws KeyLengthException, IOException {
         return new JwtAuthenticationFilter(objectMapper, jweStringDeserializer());
+    }
+
+    @Bean
+    public WebSocketAuthenticationFilter webSocketAuthenticationFilter() throws IOException, KeyLengthException {
+        return new WebSocketAuthenticationFilter(objectMapper, jweStringDeserializer());
     }
 
     @Bean

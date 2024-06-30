@@ -9,6 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
+import jakarta.persistence.PrePersist;
 import java.time.Instant;
 import java.util.List;
 import lombok.AccessLevel;
@@ -16,6 +17,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
 @Data
 @Entity
@@ -40,6 +42,7 @@ public class Word {
     @Column
     private String wordHint;
 
+    @CreationTimestamp
     @Column(nullable = false)
     private Instant addedAt;
 
@@ -54,8 +57,20 @@ public class Word {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<WordTranslation> wordTranslations;
 
+    @PrePersist
+    protected void onCreate() {
+        this.useInRepetition = true;
+    }
+
     @Override
     public String toString() {
         return getWord();
+    }
+
+    public void setCounterRightAnswers(int counterRightAnswers, int rightAnswersToDisableInRepetition) {
+        this.counterRightAnswers = counterRightAnswers;
+        if (this.counterRightAnswers >= rightAnswersToDisableInRepetition) {
+            this.useInRepetition = false;
+        }
     }
 }

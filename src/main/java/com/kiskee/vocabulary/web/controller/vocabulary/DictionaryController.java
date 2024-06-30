@@ -9,6 +9,7 @@ import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.page.DictionaryPage
 import com.kiskee.vocabulary.service.vocabulary.dictionary.DictionaryService;
 import jakarta.validation.Valid;
 import java.util.List;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -50,6 +52,13 @@ public class DictionaryController {
     public DictionarySaveResponse updateDictionary(
             @PathVariable Long dictionaryId, @RequestBody @Valid DictionarySaveRequest dictionarySaveRequest) {
         return dictionaryService.updateDictionary(dictionaryId, dictionarySaveRequest);
+    }
+
+    @DeleteMapping
+    public ResponseMessage deleteDictionaries(@RequestParam Set<Long> dictionaryIds) {
+        System.out.println(dictionaryIds);
+        // TODO implement
+        return new ResponseMessage(String.format("Deleted %d dictionaries: %s", dictionaryIds.size(), dictionaryIds));
     }
 
     @DeleteMapping("/{dictionaryId}")

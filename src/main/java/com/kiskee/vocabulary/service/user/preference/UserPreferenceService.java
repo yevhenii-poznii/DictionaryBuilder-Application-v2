@@ -5,10 +5,12 @@ import com.kiskee.vocabulary.enums.user.ProfileVisibility;
 import com.kiskee.vocabulary.enums.vocabulary.PageFilter;
 import com.kiskee.vocabulary.mapper.user.preference.UserPreferenceMapper;
 import com.kiskee.vocabulary.model.dto.registration.RegistrationRequest;
+import com.kiskee.vocabulary.model.dto.user.WordPreference;
 import com.kiskee.vocabulary.model.entity.user.preference.UserPreference;
 import com.kiskee.vocabulary.repository.user.preference.UserPreferenceRepository;
 import com.kiskee.vocabulary.service.user.AbstractUserProfilePreferenceInitializationService;
 import com.kiskee.vocabulary.service.user.UserInitializingService;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.core.annotation.Order;
@@ -18,7 +20,7 @@ import org.springframework.stereotype.Service;
 @Order(2)
 @AllArgsConstructor
 public class UserPreferenceService extends AbstractUserProfilePreferenceInitializationService<UserPreference>
-        implements UserInitializingService {
+        implements UserInitializingService, WordPreferenceService {
 
     @Getter
     private final UserPreferenceRepository repository;
@@ -29,6 +31,11 @@ public class UserPreferenceService extends AbstractUserProfilePreferenceInitiali
     @Override
     public <R extends RegistrationRequest> void initUser(R registrationRequest) {
         initEntityAndSave(registrationRequest);
+    }
+
+    @Override
+    public WordPreference getWordPreference(UUID userId) {
+        return repository.findWordPreferenceByUserId(userId);
     }
 
     @Override

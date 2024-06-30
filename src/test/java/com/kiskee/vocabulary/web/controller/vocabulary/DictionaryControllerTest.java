@@ -31,6 +31,7 @@ import com.kiskee.vocabulary.web.advice.ErrorResponse;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.SneakyThrows;
@@ -209,7 +210,7 @@ public class DictionaryControllerTest {
         String actualResponseBody = result.getResponse().getContentAsString();
         ErrorResponse errorResponse = objectMapper.readValue(actualResponseBody, ErrorResponse.class);
 
-        assertThat(errorResponse.getErrors())
+        assertThat(errorResponse.errors())
                 .extractingFromEntries(Map.Entry::getValue)
                 .containsExactlyInAnyOrderElementsOf(
                         errors.stream().map(Object::toString).collect(Collectors.toList()));
@@ -408,13 +409,15 @@ public class DictionaryControllerTest {
                         1L,
                         "word1",
                         true,
-                        List.of(new WordTranslationDto(1L, "translation1"), new WordTranslationDto(2L, "translation2")),
+                        Set.of(new WordTranslationDto(1L, "translation1"), new WordTranslationDto(2L, "translation2")),
+                        0,
                         "hint1"),
                 new WordDto(
                         2L,
                         "word2",
                         false,
-                        List.of(new WordTranslationDto(3L, "translation3"), new WordTranslationDto(4L, "translation4")),
+                        Set.of(new WordTranslationDto(3L, "translation3"), new WordTranslationDto(4L, "translation4")),
+                        0,
                         "hint2"));
         return new DictionaryPageResponseDto(words, 0, 2);
     }

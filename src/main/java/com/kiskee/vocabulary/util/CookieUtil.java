@@ -1,5 +1,6 @@
 package com.kiskee.vocabulary.util;
 
+import com.kiskee.vocabulary.exception.ForbiddenAccessException;
 import com.kiskee.vocabulary.model.dto.token.TokenData;
 import jakarta.servlet.http.Cookie;
 import java.time.Instant;
@@ -26,7 +27,7 @@ public class CookieUtil {
             return Arrays.stream(cookies)
                     .filter(cookie -> cookie.getName().equals("RefreshAuthentication"))
                     .findFirst()
-                    .orElseThrow(() -> new RuntimeException("Refresh token not found"))
+                    .orElseThrow(() -> new ForbiddenAccessException("Cookie token not found"))
                     .getValue();
         }
 

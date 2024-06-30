@@ -58,9 +58,7 @@ public class UserService extends AbstractUserProfilePreferenceInitializationServ
 
     @Override
     public void updateUserAccountToActive(UUID userId) {
-        UserVocabularyApplication userAccount =
-                getUserOrThrow(userId).toBuilder().setIsActive(true).build();
-
+        UserVocabularyApplication userAccount = getUserOrThrow(userId).setActive(true);
         repository.save(userAccount);
     }
 
