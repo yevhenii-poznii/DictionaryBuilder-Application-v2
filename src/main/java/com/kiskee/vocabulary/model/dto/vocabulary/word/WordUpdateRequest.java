@@ -19,8 +19,8 @@ public class WordUpdateRequest {
     @Pattern(regexp = "^[a-zA-Z\\-()\\s]+$", message = "Word must contain only letters, hyphens, brackets and spaces")
     private String word;
 
-    @NotNull
-    private Boolean useInRepetition;
+    //    @NotNull
+    //    private Boolean useInRepetition;
 
     @Valid
     @NotNull

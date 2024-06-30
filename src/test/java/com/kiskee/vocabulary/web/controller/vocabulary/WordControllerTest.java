@@ -192,7 +192,6 @@ public class WordControllerTest {
         String word = "word";
         WordUpdateRequest updateRequest = new WordUpdateRequest(
                 word,
-                false,
                 List.of(new WordTranslationDto(1L, "перекладдд"), new WordTranslationDto(2L, "перекладд")),
                 "hinthint");
 
@@ -219,7 +218,6 @@ public class WordControllerTest {
         String word = "word";
         WordUpdateRequest updateRequest = new WordUpdateRequest(
                 word,
-                false,
                 List.of(new WordTranslationDto(1L, "перекладдд"), new WordTranslationDto(2L, "перекладд")),
                 "hinthint");
 
@@ -364,9 +362,9 @@ public class WordControllerTest {
 
     static Stream<WordUpdateRequest> invalidWordUpdateRequest() {
         return Stream.of(
-                new WordUpdateRequest(null, null, null, "hint"),
-                new WordUpdateRequest("", true, List.of(), "hint"),
-                new WordUpdateRequest("word123", true, List.of(new WordTranslationDto(null, "translation")), "hint"));
+                new WordUpdateRequest(null, null, "hint"),
+                new WordUpdateRequest("", List.of(), "hint"),
+                new WordUpdateRequest("word123", List.of(new WordTranslationDto(null, "translation")), "hint"));
     }
 
     static Stream<WordSaveRequest> invalidWordSaveRequest() {

@@ -6,6 +6,7 @@ import com.kiskee.vocabulary.exception.DuplicateResourceException;
 import com.kiskee.vocabulary.exception.ResourceNotFoundException;
 import com.kiskee.vocabulary.mapper.dictionary.DictionaryMapper;
 import com.kiskee.vocabulary.model.dto.ResponseMessage;
+import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionaryDetailDto;
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionaryDto;
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionarySaveRequest;
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionarySaveResponse;
@@ -60,11 +61,18 @@ public class DictionaryServiceImpl extends AbstractDictionaryService
     @Override
     public List<DictionaryDto> getDictionaries() {
         UUID userProfileId = IdentityUtil.getUserId();
-
         List<DictionaryDto> dictionaries = repository.findAllByUserProfileId(userProfileId);
 
         log.info("Retrieved [{}] dictionaries for user [{}]", dictionaries.size(), userProfileId);
+        return dictionaries;
+    }
 
+    @Override
+    public List<DictionaryDetailDto> getDetailedDictionaries() {
+        UUID userProfileId = IdentityUtil.getUserId();
+        List<DictionaryDetailDto> dictionaries = repository.findDetailedDictionariesByUserProfileId(userProfileId);
+
+        log.info("Retrieved [{}] detailed dictionaries for user [{}]", dictionaries.size(), userProfileId);
         return dictionaries;
     }
 

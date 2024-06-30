@@ -142,7 +142,6 @@ public class WordServiceImplTest {
         long wordId = 2L;
         WordUpdateRequest updateRequest = new WordUpdateRequest(
                 "word",
-                false,
                 List.of(new WordTranslationDto(3L, "переклад"), new WordTranslationDto(null, "новий переклад")),
                 "hint");
 
@@ -169,7 +168,7 @@ public class WordServiceImplTest {
         Word updatedWord = new Word(
                 wordId,
                 updateRequest.getWord(),
-                updateRequest.getUseInRepetition(),
+                wordToUpdate.isUseInRepetition(),
                 0,
                 updateRequest.getWordHint(),
                 addedAt,
@@ -211,7 +210,6 @@ public class WordServiceImplTest {
         long wordId = 2L;
         WordUpdateRequest updateRequest = new WordUpdateRequest(
                 "word",
-                false,
                 List.of(new WordTranslationDto(3L, "переклад"), new WordTranslationDto(null, "новий переклад")),
                 "hint");
 
@@ -227,7 +225,6 @@ public class WordServiceImplTest {
         long wordId = 2L;
         WordUpdateRequest updateRequest = new WordUpdateRequest(
                 "word",
-                false,
                 List.of(new WordTranslationDto(3L, "переклад"), new WordTranslationDto(null, "новий переклад")),
                 "hint");
 
@@ -245,7 +242,6 @@ public class WordServiceImplTest {
         long wordId = 2L;
         WordUpdateRequest updateRequest = new WordUpdateRequest(
                 "word",
-                false,
                 List.of(new WordTranslationDto(3L, "переклад"), new WordTranslationDto(null, "новий переклад")),
                 "hint");
 

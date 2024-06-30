@@ -18,7 +18,7 @@ import com.kiskee.vocabulary.enums.vocabulary.VocabularyResponseMessageEnum;
 import com.kiskee.vocabulary.exception.DuplicateResourceException;
 import com.kiskee.vocabulary.exception.ResourceNotFoundException;
 import com.kiskee.vocabulary.mapper.dictionary.DictionaryMapper;
-import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionaryDto;
+import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionaryDetailDto;
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionarySaveRequest;
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionarySaveResponse;
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.page.DictionaryPageRequestDto;
@@ -117,8 +117,8 @@ public class DictionaryServiceImplTest {
                 .build();
         when(dictionaryRepository.save(dictionaryArgumentCaptor.capture())).thenReturn(savedDictionary);
 
-        DictionaryDto dictionaryDto = new DictionaryDto(1L, saveRequest.getDictionaryName(), 0);
-        when(dictionaryMapper.toDto(savedDictionary)).thenReturn(dictionaryDto);
+        DictionaryDetailDto dictionaryDetailDto = new DictionaryDetailDto(1L, saveRequest.getDictionaryName(), 0, 0, 0);
+        when(dictionaryMapper.toDto(savedDictionary)).thenReturn(dictionaryDetailDto);
 
         DictionarySaveResponse result = dictionaryService.addDictionary(saveRequest);
 
@@ -261,7 +261,7 @@ public class DictionaryServiceImplTest {
     }
 
     @Test
-    void testGetDictionaries_WhenUserHasTwoDictionaries_Then() {
+    void testGetDetailedDictionaries_WhenUserHasTwoDictionaries_ThenReturnDetailedDictionaries() {
         UserVocabularyApplication user = new UserVocabularyApplication(
                 USER_ID, "email", "username", "noPassword", true, UserRole.ROLE_USER, null, null);
         Authentication authentication =
@@ -269,23 +269,25 @@ public class DictionaryServiceImplTest {
         when(securityContext.getAuthentication()).thenReturn(authentication);
         SecurityContextHolder.setContext(securityContext);
 
-        List<DictionaryDto> dictionaries =
-                List.of(new DictionaryDto(1L, "Default Dictionary", 0), new DictionaryDto(2L, "Dictionary 1", 123));
+        List<DictionaryDetailDto> dictionaries = List.of(
+                new DictionaryDetailDto(1L, "Default Dictionary", 0, 0, 0),
+                new DictionaryDetailDto(2L, "Dictionary 1", 123, 23, 100));
 
-        when(dictionaryRepository.findAllByUserProfileId(USER_ID)).thenReturn(dictionaries);
+        when(dictionaryRepository.findDetailedDictionariesByUserProfileId(USER_ID))
+                .thenReturn(dictionaries);
 
-        List<DictionaryDto> result = dictionaryService.getDictionaries();
+        List<DictionaryDetailDto> result = dictionaryService.getDetailedDictionaries();
 
         assertThat(result.size()).isEqualTo(2);
-        assertThat(result).extracting(DictionaryDto::getId).containsExactly(1L, 2L);
+        assertThat(result).extracting(DictionaryDetailDto::getId).containsExactly(1L, 2L);
         assertThat(result)
-                .extracting(DictionaryDto::getDictionaryName)
+                .extracting(DictionaryDetailDto::getDictionaryName)
                 .containsExactly("Default Dictionary", "Dictionary 1");
-        assertThat(result).extracting(DictionaryDto::getWordCount).containsExactly(0, 123);
+        assertThat(result).extracting(DictionaryDetailDto::getWordCount).containsExactly(0, 123);
     }
 
     @Test
-    void testGetDictionaries_WhenUserHasNoDictionaries_ThenReturnEmptyList() {
+    void testGetDetailedDictionaries_WhenUserHasNoDictionaries_ThenReturnEmptyList() {
         UserVocabularyApplication user = new UserVocabularyApplication(
                 USER_ID, "email", "username", "noPassword", true, UserRole.ROLE_USER, null, null);
         Authentication authentication =
@@ -293,9 +295,10 @@ public class DictionaryServiceImplTest {
         when(securityContext.getAuthentication()).thenReturn(authentication);
         SecurityContextHolder.setContext(securityContext);
 
-        when(dictionaryRepository.findAllByUserProfileId(USER_ID)).thenReturn(Collections.emptyList());
+        when(dictionaryRepository.findDetailedDictionariesByUserProfileId(USER_ID))
+                .thenReturn(Collections.emptyList());
 
-        List<DictionaryDto> result = dictionaryService.getDictionaries();
+        List<DictionaryDetailDto> result = dictionaryService.getDetailedDictionaries();
 
         assertThat(result).isEmpty();
     }
@@ -386,7 +389,7 @@ public class DictionaryServiceImplTest {
 
         when(dictionaryRepository.save(dictionaryArgumentCaptor.capture())).thenReturn(dictionaryToUpdate);
         when(dictionaryMapper.toDto(dictionaryToUpdate))
-                .thenReturn(new DictionaryDto(dictionaryId, "dictionaryName", 0));
+                .thenReturn(new DictionaryDetailDto(dictionaryId, "dictionaryName", 0, 0, 0));
 
         dictionaryService.updateDictionary(dictionaryId, dictionarySaveRequest);
 

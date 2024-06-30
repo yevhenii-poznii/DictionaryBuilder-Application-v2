@@ -44,4 +44,10 @@ public class Dictionary implements DictionaryProjection {
 
     @Formula(value = SQLCountQueries.WORD_COUNT_QUERY)
     private int wordCount;
+
+    @Formula(value = SQLCountQueries.USE_IN_REPETITION_TRUE_COUNT)
+    private int wordsWithUseInRepetitionTrueCounter;
+
+    @Formula(value = SQLCountQueries.USE_IN_REPETITION_FALSE_COUNT)
+    private int wordsWithUseInRepetitionFalseCounter;
 }

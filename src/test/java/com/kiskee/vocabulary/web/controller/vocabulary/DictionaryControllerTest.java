@@ -17,7 +17,7 @@ import com.kiskee.vocabulary.enums.vocabulary.VocabularyResponseMessageEnum;
 import com.kiskee.vocabulary.exception.DuplicateResourceException;
 import com.kiskee.vocabulary.exception.ResourceNotFoundException;
 import com.kiskee.vocabulary.model.dto.ResponseMessage;
-import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionaryDto;
+import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionaryDetailDto;
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionarySaveRequest;
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionarySaveResponse;
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.page.DictionaryPageRequestDto;
@@ -80,7 +80,7 @@ public class DictionaryControllerTest {
         String responseMessage = String.format(
                 VocabularyResponseMessageEnum.DICTIONARY_CREATED.getResponseMessage(), requestBody.getDictionaryName());
         DictionarySaveResponse expectedResponseBody =
-                new DictionarySaveResponse(responseMessage, new DictionaryDto(1L, "dictionaryName", 0));
+                new DictionarySaveResponse(responseMessage, new DictionaryDetailDto(1L, "dictionaryName", 0, 0, 0));
 
         when(dictionaryService.addDictionary(requestBody)).thenReturn(expectedResponseBody);
 
@@ -220,13 +220,14 @@ public class DictionaryControllerTest {
 
     @Test
     @SneakyThrows
-    void testGetDictionaries_WhenUserHasTwoDictionaries_ThenReturnTwoDictionariesDtoAndStatusOk() {
-        List<DictionaryDto> dictionaries =
-                List.of(new DictionaryDto(1L, "Default Dictionary", 0), new DictionaryDto(2L, "Dictionary 1", 123));
+    void testGetDetailedDictionaries_WhenUserHasTwoDictionaries_ThenReturnTwoDictionariesDtoAndStatusOk() {
+        List<DictionaryDetailDto> dictionaries = List.of(
+                new DictionaryDetailDto(1L, "Default Dictionary", 0, 0, 0),
+                new DictionaryDetailDto(2L, "Dictionary 1", 123, 23, 100));
 
-        when(dictionaryService.getDictionaries()).thenReturn(dictionaries);
+        when(dictionaryService.getDetailedDictionaries()).thenReturn(dictionaries);
 
-        mockMvc.perform(get("/dictionaries").contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/dictionaries/detailed").contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpectAll(status().isOk(), jsonPath("$.length()").value(2));
     }
@@ -234,9 +235,9 @@ public class DictionaryControllerTest {
     @Test
     @SneakyThrows
     void testGetDictionaries_WhenUserHasNoDictionaries_ThenReturnEmptyListAndStatusOk() {
-        List<DictionaryDto> dictionaries = List.of();
+        List<DictionaryDetailDto> dictionaries = List.of();
 
-        when(dictionaryService.getDictionaries()).thenReturn(dictionaries);
+        when(dictionaryService.getDetailedDictionaries()).thenReturn(dictionaries);
 
         mockMvc.perform(get("/dictionaries").contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
@@ -269,8 +270,8 @@ public class DictionaryControllerTest {
 
         String responseMessage = String.format(
                 VocabularyResponseMessageEnum.DICTIONARY_UPDATED.getResponseMessage(), requestBody.getDictionaryName());
-        DictionarySaveResponse expectedResponseBody =
-                new DictionarySaveResponse(responseMessage, new DictionaryDto(dictionaryId, "dictionaryName", 0));
+        DictionarySaveResponse expectedResponseBody = new DictionarySaveResponse(
+                responseMessage, new DictionaryDetailDto(dictionaryId, "dictionaryName", 0, 0, 0));
 
         when(dictionaryService.updateDictionary(dictionaryId, requestBody)).thenReturn(expectedResponseBody);
 

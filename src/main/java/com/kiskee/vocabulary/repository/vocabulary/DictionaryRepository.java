@@ -1,5 +1,6 @@
 package com.kiskee.vocabulary.repository.vocabulary;
 
+import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionaryDetailDto;
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionaryDto;
 import com.kiskee.vocabulary.model.entity.vocabulary.Dictionary;
 import com.kiskee.vocabulary.util.ThrowUtil;
@@ -15,6 +16,8 @@ public interface DictionaryRepository extends JpaRepository<Dictionary, Long> {
     boolean existsByIdAndUserProfileId(Long id, UUID userProfileId);
 
     List<DictionaryDto> findAllByUserProfileId(UUID userProfileId);
+
+    List<DictionaryDetailDto> findDetailedDictionariesByUserProfileId(UUID userProfileId);
 
     Optional<Dictionary> findByIdAndUserProfileId(Long id, UUID userProfileId);
 

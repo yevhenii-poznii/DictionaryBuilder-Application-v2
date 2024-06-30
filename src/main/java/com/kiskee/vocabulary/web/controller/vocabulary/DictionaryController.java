@@ -1,6 +1,7 @@
 package com.kiskee.vocabulary.web.controller.vocabulary;
 
 import com.kiskee.vocabulary.model.dto.ResponseMessage;
+import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionaryDetailDto;
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionaryDto;
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionarySaveRequest;
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionarySaveResponse;
@@ -46,6 +47,11 @@ public class DictionaryController {
     @GetMapping
     public List<DictionaryDto> getDictionaries() {
         return dictionaryService.getDictionaries();
+    }
+
+    @GetMapping("/detailed")
+    public List<DictionaryDetailDto> getDetailedDictionaries() {
+        return dictionaryService.getDetailedDictionaries();
     }
 
     @PutMapping("/{dictionaryId}")
