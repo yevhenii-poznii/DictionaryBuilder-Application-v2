@@ -250,9 +250,65 @@ public class WordControllerTest {
                 .andReturn();
     }
 
+    @SneakyThrows
+    @ParameterizedTest
+    @MethodSource("updateRepetitionParameters")
+    void testUpdateRepetition_WhenDictionaryAndWordExistForUser_ThenUpdateRepetition(boolean useInRepetition) {
+        long dictionaryId = 1L;
+        long wordId = 10L;
+
+        ResponseMessage responseMessage = new ResponseMessage(
+                VocabularyResponseMessageEnum.WORD_FOR_REPETITION_IS_SET.getResponseMessage());
+
+        when(wordService.updateRepetition(dictionaryId, wordId, useInRepetition)).thenReturn(responseMessage);
+
+        mockMvc.perform(put("/dictionaries/{dictionaryId}/words/{wordId}/repetition", dictionaryId, wordId)
+                        .param("useInRepetition", String.valueOf(useInRepetition)))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
     @Test
     @SneakyThrows
-    void testUpdateRepetition_When_Then() {}
+    void testUpdateRepetition_WhenDictionaryDoesNotExistForUser_ThenReturnNotFound() {
+        long dictionaryId = 1L;
+        long wordId = 10L;
+
+        String errorResponseMessage = String.format(ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(),
+                Dictionary.class.getSimpleName(),
+                dictionaryId);
+
+        when(wordService.updateRepetition(dictionaryId, wordId, true))
+                .thenThrow(new ResourceNotFoundException(errorResponseMessage));
+
+        mockMvc.perform(put("/dictionaries/{dictionaryId}/words/{wordId}/repetition", dictionaryId, wordId)
+                        .param("useInRepetition", "true"))
+                .andDo(print())
+                .andExpectAll(
+                        status().isNotFound(),
+                        jsonPath("$.errors.responseMessage").value(errorResponseMessage));
+    }
+
+    @Test
+    @SneakyThrows
+    void testUpdateRepetition_WhenWordDoesNotExistForDictionary_ThenReturnForbiddenStatus() {
+        long dictionaryId = 1L;
+        long wordId = 10L;
+
+        String errorResponseMessage = String.format(ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(),
+                Word.class.getSimpleName(),
+                wordId);
+
+        when(wordService.updateRepetition(dictionaryId, wordId, true))
+                .thenThrow(new ResourceNotFoundException(errorResponseMessage));
+
+        mockMvc.perform(put("/dictionaries/{dictionaryId}/words/{wordId}/repetition", dictionaryId, wordId)
+                        .param("useInRepetition", "true"))
+                .andDo(print())
+                .andExpectAll(
+                        status().isNotFound(),
+                        jsonPath("$.errors.responseMessage").value(errorResponseMessage));
+    }
 
     @Test
     @SneakyThrows
@@ -376,5 +432,10 @@ public class WordControllerTest {
                 new WordSaveRequest(null, null, "hint"),
                 new WordSaveRequest("", List.of(), "hint"),
                 new WordSaveRequest("word123", List.of(new WordTranslationDto(null, "translation")), "hint"));
+    }
+
+    static Stream<Boolean> updateRepetitionParameters() {
+        return Stream.of(true, false);
+
     }
 }
