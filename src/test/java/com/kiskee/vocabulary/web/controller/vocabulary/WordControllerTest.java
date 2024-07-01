@@ -257,10 +257,11 @@ public class WordControllerTest {
         long dictionaryId = 1L;
         long wordId = 10L;
 
-        ResponseMessage responseMessage = new ResponseMessage(
-                VocabularyResponseMessageEnum.WORD_FOR_REPETITION_IS_SET.getResponseMessage());
+        ResponseMessage responseMessage =
+                new ResponseMessage(VocabularyResponseMessageEnum.WORD_FOR_REPETITION_IS_SET.getResponseMessage());
 
-        when(wordService.updateRepetition(dictionaryId, wordId, useInRepetition)).thenReturn(responseMessage);
+        when(wordService.updateRepetition(dictionaryId, wordId, useInRepetition))
+                .thenReturn(responseMessage);
 
         mockMvc.perform(put("/dictionaries/{dictionaryId}/words/{wordId}/repetition", dictionaryId, wordId)
                         .param("useInRepetition", String.valueOf(useInRepetition)))
@@ -274,9 +275,8 @@ public class WordControllerTest {
         long dictionaryId = 1L;
         long wordId = 10L;
 
-        String errorResponseMessage = String.format(ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(),
-                Dictionary.class.getSimpleName(),
-                dictionaryId);
+        String errorResponseMessage = String.format(
+                ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(), Dictionary.class.getSimpleName(), dictionaryId);
 
         when(wordService.updateRepetition(dictionaryId, wordId, true))
                 .thenThrow(new ResourceNotFoundException(errorResponseMessage));
@@ -295,9 +295,8 @@ public class WordControllerTest {
         long dictionaryId = 1L;
         long wordId = 10L;
 
-        String errorResponseMessage = String.format(ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(),
-                Word.class.getSimpleName(),
-                wordId);
+        String errorResponseMessage =
+                String.format(ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(), Word.class.getSimpleName(), wordId);
 
         when(wordService.updateRepetition(dictionaryId, wordId, true))
                 .thenThrow(new ResourceNotFoundException(errorResponseMessage));
@@ -436,6 +435,5 @@ public class WordControllerTest {
 
     static Stream<Boolean> updateRepetitionParameters() {
         return Stream.of(true, false);
-
     }
 }

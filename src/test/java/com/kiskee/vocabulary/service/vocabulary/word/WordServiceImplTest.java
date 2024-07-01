@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -273,7 +272,8 @@ public class WordServiceImplTest {
         long dictionaryId = 1L;
         long wordId = 2L;
 
-        when(wordRepository.updateUseInRepetitionByIdAndDictionaryId(wordId, dictionaryId, useInRepetition)).thenReturn(1);
+        when(wordRepository.updateUseInRepetitionByIdAndDictionaryId(wordId, dictionaryId, useInRepetition))
+                .thenReturn(1);
 
         wordService.updateRepetition(dictionaryId, wordId, useInRepetition);
 
