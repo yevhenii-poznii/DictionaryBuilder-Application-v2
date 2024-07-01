@@ -8,6 +8,7 @@ import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionarySaveRespo
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.page.DictionaryPageRequestDto;
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.page.DictionaryPageResponseDto;
 import java.util.List;
+import java.util.Set;
 
 public interface DictionaryService extends DictionaryCreationService {
 
@@ -19,6 +20,8 @@ public interface DictionaryService extends DictionaryCreationService {
     List<DictionaryDetailDto> getDetailedDictionaries();
 
     DictionarySaveResponse updateDictionary(Long dictionaryId, DictionarySaveRequest dictionarySaveRequest);
+
+    ResponseMessage deleteDictionaries(Set<Long> dictionaryIds);
 
     ResponseMessage deleteDictionary(Long dictionaryId);
 }

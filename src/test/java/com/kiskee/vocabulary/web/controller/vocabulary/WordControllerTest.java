@@ -252,6 +252,10 @@ public class WordControllerTest {
 
     @Test
     @SneakyThrows
+    void testUpdateRepetition_When_Then() {}
+
+    @Test
+    @SneakyThrows
     void testDelete_WhenDictionaryAndWordExistForUser_ThenDeleteWord() {
         long dictionaryId = 1L;
         long wordId = 10L;

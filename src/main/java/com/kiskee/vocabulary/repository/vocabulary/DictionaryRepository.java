@@ -6,14 +6,19 @@ import com.kiskee.vocabulary.model.entity.vocabulary.Dictionary;
 import com.kiskee.vocabulary.util.ThrowUtil;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 public interface DictionaryRepository extends JpaRepository<Dictionary, Long> {
 
     boolean existsByDictionaryNameEqualsIgnoreCaseAndUserProfileId(String dictionaryName, UUID userProfileId);
 
     boolean existsByIdAndUserProfileId(Long id, UUID userProfileId);
+
+    @Query("SELECT d.id FROM Dictionary d WHERE d.userProfileId = :userProfileId AND d.id IN :dictionaryIds")
+    List<Long> findIdsByUserProfileIdAndIdIn(UUID userProfileId, Set<Long> dictionaryIds);
 
     List<DictionaryDto> findAllByUserProfileId(UUID userProfileId);
 

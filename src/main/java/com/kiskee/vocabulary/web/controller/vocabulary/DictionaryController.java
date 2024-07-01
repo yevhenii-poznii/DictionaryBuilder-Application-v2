@@ -62,9 +62,7 @@ public class DictionaryController {
 
     @DeleteMapping
     public ResponseMessage deleteDictionaries(@RequestParam Set<Long> dictionaryIds) {
-        System.out.println(dictionaryIds);
-        // TODO implement
-        return new ResponseMessage(String.format("Deleted %d dictionaries: %s", dictionaryIds.size(), dictionaryIds));
+        return dictionaryService.deleteDictionaries(dictionaryIds);
     }
 
     @DeleteMapping("/{dictionaryId}")

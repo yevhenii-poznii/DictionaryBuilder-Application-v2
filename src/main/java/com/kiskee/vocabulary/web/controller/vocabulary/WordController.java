@@ -43,9 +43,7 @@ public class WordController {
     @PutMapping("/{wordId}/repetition")
     public ResponseMessage updateRepetition(
             @PathVariable Long dictionaryId, @PathVariable Long wordId, @RequestParam Boolean useInRepetition) {
-        // TODO implement
-        //        return wordService.updateRepetition(dictionaryId, wordId, useInRepetition);
-        return null;
+        return wordService.updateRepetition(dictionaryId, wordId, useInRepetition);
     }
 
     @DeleteMapping("/{wordId}")

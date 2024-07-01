@@ -19,6 +19,7 @@ import com.kiskee.vocabulary.service.vocabulary.AbstractDictionaryService;
 import com.kiskee.vocabulary.service.vocabulary.dictionary.page.DictionaryPageLoaderFactory;
 import com.kiskee.vocabulary.util.IdentityUtil;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -89,6 +90,24 @@ public class DictionaryServiceImpl extends AbstractDictionaryService
         Dictionary dictionary = repository.save(dictionaryToUpdate);
 
         return mapToResponse(dictionary, VocabularyResponseMessageEnum.DICTIONARY_UPDATED);
+    }
+
+    @Override
+    @Transactional
+    public ResponseMessage deleteDictionaries(Set<Long> dictionaryIds) {
+        UUID userId = IdentityUtil.getUserId();
+        List<Long> userDictionaryIds = repository.findIdsByUserProfileIdAndIdIn(userId, dictionaryIds);
+
+        if (userDictionaryIds.isEmpty()) {
+            log.info("No dictionaries found for user [{}]", userId);
+            throw new ResourceNotFoundException(String.format(
+                    ExceptionStatusesEnum.RESOURCES_NOT_FOUND.getStatus(), "Dictionaries", dictionaryIds));
+        }
+        repository.deleteAllById(userDictionaryIds);
+        log.info("Deleted {} dictionaries for user [{}]", userDictionaryIds, userId);
+
+        return new ResponseMessage(String.format(
+                VocabularyResponseMessageEnum.DICTIONARIES_DELETED.getResponseMessage(), userDictionaryIds.size()));
     }
 
     @Override

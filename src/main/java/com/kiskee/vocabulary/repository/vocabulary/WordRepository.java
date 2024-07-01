@@ -7,6 +7,8 @@ import java.util.Optional;
 import java.util.Set;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 
 public interface WordRepository extends JpaRepository<Word, Long> {
 
@@ -14,6 +16,10 @@ public interface WordRepository extends JpaRepository<Word, Long> {
     Optional<Word> findWordById(Long id);
 
     List<Word> findByIdIn(Set<Long> ids);
+
+    @Modifying
+    @Query("UPDATE Word w SET w.useInRepetition = :useInRepetition WHERE w.id = :id AND w.dictionaryId = :dictionaryId")
+    int updateUseInRepetitionByIdAndDictionaryId(Long id, Long dictionaryId, boolean useInRepetition);
 
     default Word getWord(Long id) {
         return findWordById(id)
