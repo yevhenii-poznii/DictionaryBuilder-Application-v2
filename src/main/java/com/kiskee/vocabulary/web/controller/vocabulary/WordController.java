@@ -40,6 +40,12 @@ public class WordController {
         return wordService.updateWord(dictionaryId, wordId, wordUpdateRequest);
     }
 
+    @PutMapping("/{wordId}/repetition")
+    public ResponseMessage updateRepetition(
+            @PathVariable Long dictionaryId, @PathVariable Long wordId, @RequestParam Boolean useInRepetition) {
+        return wordService.updateRepetition(dictionaryId, wordId, useInRepetition);
+    }
+
     @DeleteMapping("/{wordId}")
     public ResponseMessage delete(@PathVariable Long dictionaryId, @PathVariable Long wordId) {
         return wordService.deleteWord(dictionaryId, wordId);

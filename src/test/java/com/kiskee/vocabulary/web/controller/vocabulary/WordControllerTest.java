@@ -192,7 +192,6 @@ public class WordControllerTest {
         String word = "word";
         WordUpdateRequest updateRequest = new WordUpdateRequest(
                 word,
-                false,
                 List.of(new WordTranslationDto(1L, "перекладдд"), new WordTranslationDto(2L, "перекладд")),
                 "hinthint");
 
@@ -219,7 +218,6 @@ public class WordControllerTest {
         String word = "word";
         WordUpdateRequest updateRequest = new WordUpdateRequest(
                 word,
-                false,
                 List.of(new WordTranslationDto(1L, "перекладдд"), new WordTranslationDto(2L, "перекладд")),
                 "hinthint");
 
@@ -250,6 +248,66 @@ public class WordControllerTest {
                 .andDo(print())
                 .andExpectAll(status().isBadRequest(), jsonPath("$.status").value("Bad Request"))
                 .andReturn();
+    }
+
+    @SneakyThrows
+    @ParameterizedTest
+    @MethodSource("updateRepetitionParameters")
+    void testUpdateRepetition_WhenDictionaryAndWordExistForUser_ThenUpdateRepetition(boolean useInRepetition) {
+        long dictionaryId = 1L;
+        long wordId = 10L;
+
+        ResponseMessage responseMessage = new ResponseMessage(
+                VocabularyResponseMessageEnum.WORD_FOR_REPETITION_IS_SET.getResponseMessage());
+
+        when(wordService.updateRepetition(dictionaryId, wordId, useInRepetition)).thenReturn(responseMessage);
+
+        mockMvc.perform(put("/dictionaries/{dictionaryId}/words/{wordId}/repetition", dictionaryId, wordId)
+                        .param("useInRepetition", String.valueOf(useInRepetition)))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @SneakyThrows
+    void testUpdateRepetition_WhenDictionaryDoesNotExistForUser_ThenReturnNotFound() {
+        long dictionaryId = 1L;
+        long wordId = 10L;
+
+        String errorResponseMessage = String.format(ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(),
+                Dictionary.class.getSimpleName(),
+                dictionaryId);
+
+        when(wordService.updateRepetition(dictionaryId, wordId, true))
+                .thenThrow(new ResourceNotFoundException(errorResponseMessage));
+
+        mockMvc.perform(put("/dictionaries/{dictionaryId}/words/{wordId}/repetition", dictionaryId, wordId)
+                        .param("useInRepetition", "true"))
+                .andDo(print())
+                .andExpectAll(
+                        status().isNotFound(),
+                        jsonPath("$.errors.responseMessage").value(errorResponseMessage));
+    }
+
+    @Test
+    @SneakyThrows
+    void testUpdateRepetition_WhenWordDoesNotExistForDictionary_ThenReturnForbiddenStatus() {
+        long dictionaryId = 1L;
+        long wordId = 10L;
+
+        String errorResponseMessage = String.format(ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(),
+                Word.class.getSimpleName(),
+                wordId);
+
+        when(wordService.updateRepetition(dictionaryId, wordId, true))
+                .thenThrow(new ResourceNotFoundException(errorResponseMessage));
+
+        mockMvc.perform(put("/dictionaries/{dictionaryId}/words/{wordId}/repetition", dictionaryId, wordId)
+                        .param("useInRepetition", "true"))
+                .andDo(print())
+                .andExpectAll(
+                        status().isNotFound(),
+                        jsonPath("$.errors.responseMessage").value(errorResponseMessage));
     }
 
     @Test
@@ -364,9 +422,9 @@ public class WordControllerTest {
 
     static Stream<WordUpdateRequest> invalidWordUpdateRequest() {
         return Stream.of(
-                new WordUpdateRequest(null, null, null, "hint"),
-                new WordUpdateRequest("", true, List.of(), "hint"),
-                new WordUpdateRequest("word123", true, List.of(new WordTranslationDto(null, "translation")), "hint"));
+                new WordUpdateRequest(null, null, "hint"),
+                new WordUpdateRequest("", List.of(), "hint"),
+                new WordUpdateRequest("word123", List.of(new WordTranslationDto(null, "translation")), "hint"));
     }
 
     static Stream<WordSaveRequest> invalidWordSaveRequest() {
@@ -374,5 +432,10 @@ public class WordControllerTest {
                 new WordSaveRequest(null, null, "hint"),
                 new WordSaveRequest("", List.of(), "hint"),
                 new WordSaveRequest("word123", List.of(new WordTranslationDto(null, "translation")), "hint"));
+    }
+
+    static Stream<Boolean> updateRepetitionParameters() {
+        return Stream.of(true, false);
+
     }
 }

@@ -4,6 +4,7 @@ import com.kiskee.vocabulary.enums.ExceptionStatusesEnum;
 import com.kiskee.vocabulary.enums.LogMessageEnum;
 import com.kiskee.vocabulary.enums.vocabulary.VocabularyResponseMessageEnum;
 import com.kiskee.vocabulary.exception.ForbiddenAccessException;
+import com.kiskee.vocabulary.exception.ResourceNotFoundException;
 import com.kiskee.vocabulary.mapper.dictionary.WordMapper;
 import com.kiskee.vocabulary.model.dto.ResponseMessage;
 import com.kiskee.vocabulary.model.dto.vocabulary.word.WordDto;
@@ -58,17 +59,12 @@ public class WordServiceImpl implements WordService, WordCounterUpdateService {
     @Override
     @Transactional
     public WordSaveResponse updateWord(Long dictionaryId, Long wordId, WordUpdateRequest updateRequest) {
-        dictionaryAccessValidator.verifyUserHasDictionary(dictionaryId);
-
-        Word wordToUpdate = repository.getWord(wordId);
-
-        verifyWordBelongsToSpecifiedDictionary(wordToUpdate, dictionaryId);
+        Word wordToUpdate = getWord(wordId, dictionaryId);
 
         List<WordTranslation> wordTranslations = wordTranslationService.updateTranslations(
                 updateRequest.getWordTranslations(), wordToUpdate.getWordTranslations());
 
         wordToUpdate = mapper.toEntity(wordToUpdate, updateRequest, wordTranslations);
-
         Word updated = repository.save(wordToUpdate);
 
         return mapToResponse(updated, VocabularyResponseMessageEnum.WORD_UPDATED, LogMessageEnum.WORD_UPDATED);
@@ -76,15 +72,27 @@ public class WordServiceImpl implements WordService, WordCounterUpdateService {
 
     @Override
     @Transactional
-    public ResponseMessage deleteWord(Long dictionaryId, Long wordId) {
+    public ResponseMessage updateRepetition(Long dictionaryId, Long wordId, Boolean useInRepetition) {
         dictionaryAccessValidator.verifyUserHasDictionary(dictionaryId);
 
-        Word wordToDelete = repository.getWord(wordId);
+        int updatedRow = repository.updateUseInRepetitionByIdAndDictionaryId(wordId, dictionaryId, useInRepetition);
+        if (updatedRow > 0) {
+            String message = useInRepetition
+                    ? VocabularyResponseMessageEnum.WORD_FOR_REPETITION_IS_SET.getResponseMessage()
+                    : VocabularyResponseMessageEnum.WORD_NOT_FOR_REPETITION_IS_SET.getResponseMessage();
 
-        verifyWordBelongsToSpecifiedDictionary(wordToDelete, dictionaryId);
+            return new ResponseMessage(message);
+        }
+        throw new ResourceNotFoundException(String.format(
+                ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(), Word.class.getSimpleName(), wordId));
+    }
+
+    @Override
+    @Transactional
+    public ResponseMessage deleteWord(Long dictionaryId, Long wordId) {
+        Word wordToDelete = getWord(wordId, dictionaryId);
 
         repository.delete(wordToDelete);
-
         displayLog(LogMessageEnum.WORD_DELETED, wordToDelete);
 
         return new ResponseMessage(
@@ -102,7 +110,8 @@ public class WordServiceImpl implements WordService, WordCounterUpdateService {
 
         repository.deleteAll(wordsToDelete);
 
-        return new ResponseMessage(String.format("Words %s have been deleted", wordsToDelete));
+        return new ResponseMessage(
+                String.format(VocabularyResponseMessageEnum.WORDS_DELETE.getResponseMessage(), wordsToDelete));
     }
 
     // TODO
@@ -129,6 +138,13 @@ public class WordServiceImpl implements WordService, WordCounterUpdateService {
                 "Right answers counters have been updated for words: {} for user: {}",
                 wordIdsToUpdate.keySet(),
                 userId);
+    }
+
+    private Word getWord(Long wordId, Long dictionaryId) {
+        dictionaryAccessValidator.verifyUserHasDictionary(dictionaryId);
+        Word word = repository.getWord(wordId);
+        verifyWordBelongsToSpecifiedDictionary(word, dictionaryId);
+        return word;
     }
 
     private void verifyWordBelongsToSpecifiedDictionary(List<Word> words, Long dictionaryId) {

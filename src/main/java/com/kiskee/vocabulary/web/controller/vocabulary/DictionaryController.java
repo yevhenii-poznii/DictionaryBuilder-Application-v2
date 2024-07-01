@@ -1,6 +1,7 @@
 package com.kiskee.vocabulary.web.controller.vocabulary;
 
 import com.kiskee.vocabulary.model.dto.ResponseMessage;
+import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionaryDetailDto;
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionaryDto;
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionarySaveRequest;
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionarySaveResponse;
@@ -48,6 +49,11 @@ public class DictionaryController {
         return dictionaryService.getDictionaries();
     }
 
+    @GetMapping("/detailed")
+    public List<DictionaryDetailDto> getDetailedDictionaries() {
+        return dictionaryService.getDetailedDictionaries();
+    }
+
     @PutMapping("/{dictionaryId}")
     public DictionarySaveResponse updateDictionary(
             @PathVariable Long dictionaryId, @RequestBody @Valid DictionarySaveRequest dictionarySaveRequest) {
@@ -56,9 +62,7 @@ public class DictionaryController {
 
     @DeleteMapping
     public ResponseMessage deleteDictionaries(@RequestParam Set<Long> dictionaryIds) {
-        System.out.println(dictionaryIds);
-        // TODO implement
-        return new ResponseMessage(String.format("Deleted %d dictionaries: %s", dictionaryIds.size(), dictionaryIds));
+        return dictionaryService.deleteDictionaries(dictionaryIds);
     }
 
     @DeleteMapping("/{dictionaryId}")

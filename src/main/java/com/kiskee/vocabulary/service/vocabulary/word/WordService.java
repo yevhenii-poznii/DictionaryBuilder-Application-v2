@@ -12,6 +12,8 @@ public interface WordService {
 
     WordSaveResponse updateWord(Long dictionaryId, Long wordId, WordUpdateRequest updateRequest);
 
+    ResponseMessage updateRepetition(Long dictionaryId, Long wordId, Boolean useInRepetition);
+
     ResponseMessage deleteWord(Long dictionaryId, Long wordId);
 
     ResponseMessage deleteWords(Long dictionaryId, Set<Long> wordIds);

@@ -17,6 +17,7 @@ import com.kiskee.vocabulary.enums.vocabulary.VocabularyResponseMessageEnum;
 import com.kiskee.vocabulary.exception.DuplicateResourceException;
 import com.kiskee.vocabulary.exception.ResourceNotFoundException;
 import com.kiskee.vocabulary.model.dto.ResponseMessage;
+import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionaryDetailDto;
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionaryDto;
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionarySaveRequest;
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionarySaveResponse;
@@ -80,7 +81,7 @@ public class DictionaryControllerTest {
         String responseMessage = String.format(
                 VocabularyResponseMessageEnum.DICTIONARY_CREATED.getResponseMessage(), requestBody.getDictionaryName());
         DictionarySaveResponse expectedResponseBody =
-                new DictionarySaveResponse(responseMessage, new DictionaryDto(1L, "dictionaryName", 0));
+                new DictionarySaveResponse(responseMessage, new DictionaryDetailDto(1L, "dictionaryName", 0, 0, 0));
 
         when(dictionaryService.addDictionary(requestBody)).thenReturn(expectedResponseBody);
 
@@ -222,7 +223,7 @@ public class DictionaryControllerTest {
     @SneakyThrows
     void testGetDictionaries_WhenUserHasTwoDictionaries_ThenReturnTwoDictionariesDtoAndStatusOk() {
         List<DictionaryDto> dictionaries =
-                List.of(new DictionaryDto(1L, "Default Dictionary", 0), new DictionaryDto(2L, "Dictionary 1", 123));
+                List.of(new DictionaryDto(1L, "Default Dictionary"), new DictionaryDto(2L, "Dictionary 1"));
 
         when(dictionaryService.getDictionaries()).thenReturn(dictionaries);
 
@@ -239,6 +240,32 @@ public class DictionaryControllerTest {
         when(dictionaryService.getDictionaries()).thenReturn(dictionaries);
 
         mockMvc.perform(get("/dictionaries").contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpectAll(status().isOk(), jsonPath("$.length()").value(0));
+    }
+
+    @Test
+    @SneakyThrows
+    void testGetDetailedDictionaries_WhenUserHasTwoDictionaries_ThenReturnTwoDictionariesDtoAndStatusOk() {
+        List<DictionaryDetailDto> dictionaries = List.of(
+                new DictionaryDetailDto(1L, "Default Dictionary", 0, 0, 0),
+                new DictionaryDetailDto(2L, "Dictionary 1", 123, 23, 100));
+
+        when(dictionaryService.getDetailedDictionaries()).thenReturn(dictionaries);
+
+        mockMvc.perform(get("/dictionaries/detailed").contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpectAll(status().isOk(), jsonPath("$.length()").value(2));
+    }
+
+    @Test
+    @SneakyThrows
+    void testGetDetailedDictionaries_WhenUserHasNoDictionaries_ThenReturnEmptyListAndStatusOk() {
+        List<DictionaryDetailDto> dictionaries = List.of();
+
+        when(dictionaryService.getDetailedDictionaries()).thenReturn(dictionaries);
+
+        mockMvc.perform(get("/dictionaries/detailed").contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpectAll(status().isOk(), jsonPath("$.length()").value(0));
     }
@@ -269,8 +296,8 @@ public class DictionaryControllerTest {
 
         String responseMessage = String.format(
                 VocabularyResponseMessageEnum.DICTIONARY_UPDATED.getResponseMessage(), requestBody.getDictionaryName());
-        DictionarySaveResponse expectedResponseBody =
-                new DictionarySaveResponse(responseMessage, new DictionaryDto(dictionaryId, "dictionaryName", 0));
+        DictionarySaveResponse expectedResponseBody = new DictionarySaveResponse(
+                responseMessage, new DictionaryDetailDto(dictionaryId, "dictionaryName", 0, 0, 0));
 
         when(dictionaryService.updateDictionary(dictionaryId, requestBody)).thenReturn(expectedResponseBody);
 
@@ -335,6 +362,58 @@ public class DictionaryControllerTest {
                         jsonPath("$.errors.responseMessage").value("Dictionary [1] hasn't been found"));
 
         TimeZoneContextHolder.clear();
+    }
+
+    @Test
+    @SneakyThrows
+    void testDeleteDictionaries_WhenGivenDictionaryIdsExistForUser_ThenDeleteDictionariesAndReturnStatusOk() {
+        Set<Long> dictionaryIds = Set.of(1L, 2L);
+
+        when(dictionaryService.deleteDictionaries(dictionaryIds))
+                .thenReturn(new ResponseMessage(String.format(
+                        VocabularyResponseMessageEnum.DICTIONARIES_DELETED.getResponseMessage(),
+                        dictionaryIds.size())));
+
+        mockMvc.perform(delete("/dictionaries")
+                        .param("dictionaryIds", "1", "2")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpectAll(
+                        status().isOk(), jsonPath("$.responseMessage").value("Deleted 2 dictionaries successfully"));
+    }
+
+    @Test
+    @SneakyThrows
+    void testDeleteDictionaries_WhenGivenDictionaryIdsDoNotExistForUser_ThenReturnNotFound() {
+        TimeZoneContextHolder.setTimeZone("UTC");
+
+        Set<Long> dictionaryIds = Set.of(1L, 2L);
+
+        when(dictionaryService.deleteDictionaries(dictionaryIds))
+                .thenThrow(new ResourceNotFoundException(String.format(
+                        ExceptionStatusesEnum.RESOURCES_NOT_FOUND.getStatus(), "Dictionaries", dictionaryIds)));
+
+        mockMvc.perform(delete("/dictionaries")
+                        .param("dictionaryIds", "1", "2")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpectAll(
+                        status().isNotFound(),
+                        jsonPath("$.errors.responseMessage")
+                                .value(String.format(
+                                        ExceptionStatusesEnum.RESOURCES_NOT_FOUND.getStatus(),
+                                        "Dictionaries",
+                                        dictionaryIds)));
+
+        TimeZoneContextHolder.clear();
+    }
+
+    @Test
+    @SneakyThrows
+    void testDeleteDictionaries_WhenGivenNoDictionaryIds_ThenReturnBadRequest() {
+        mockMvc.perform(delete("/dictionaries").contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
     }
 
     @Test

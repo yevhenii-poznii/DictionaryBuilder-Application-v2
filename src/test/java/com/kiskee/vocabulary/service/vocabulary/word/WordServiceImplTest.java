@@ -31,8 +31,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Stream;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
@@ -142,7 +146,6 @@ public class WordServiceImplTest {
         long wordId = 2L;
         WordUpdateRequest updateRequest = new WordUpdateRequest(
                 "word",
-                false,
                 List.of(new WordTranslationDto(3L, "переклад"), new WordTranslationDto(null, "новий переклад")),
                 "hint");
 
@@ -169,7 +172,7 @@ public class WordServiceImplTest {
         Word updatedWord = new Word(
                 wordId,
                 updateRequest.getWord(),
-                updateRequest.getUseInRepetition(),
+                wordToUpdate.isUseInRepetition(),
                 0,
                 updateRequest.getWordHint(),
                 addedAt,
@@ -211,7 +214,6 @@ public class WordServiceImplTest {
         long wordId = 2L;
         WordUpdateRequest updateRequest = new WordUpdateRequest(
                 "word",
-                false,
                 List.of(new WordTranslationDto(3L, "переклад"), new WordTranslationDto(null, "новий переклад")),
                 "hint");
 
@@ -227,7 +229,6 @@ public class WordServiceImplTest {
         long wordId = 2L;
         WordUpdateRequest updateRequest = new WordUpdateRequest(
                 "word",
-                false,
                 List.of(new WordTranslationDto(3L, "переклад"), new WordTranslationDto(null, "новий переклад")),
                 "hint");
 
@@ -245,7 +246,6 @@ public class WordServiceImplTest {
         long wordId = 2L;
         WordUpdateRequest updateRequest = new WordUpdateRequest(
                 "word",
-                false,
                 List.of(new WordTranslationDto(3L, "переклад"), new WordTranslationDto(null, "новий переклад")),
                 "hint");
 
@@ -265,6 +265,42 @@ public class WordServiceImplTest {
                 .isThrownBy(() -> wordService.updateWord(dictionaryId, wordId, updateRequest))
                 .withMessage(String.format(
                         ExceptionStatusesEnum.FORBIDDEN_ACCESS.getStatus(), Word.class.getSimpleName(), wordId));
+    }
+
+    @ParameterizedTest
+    @MethodSource("updateRepetitionParameters")
+    void testUpdateRepetition_WhenDictionaryAndWordExistForUser_ThenUpdateRepetition(boolean useInRepetition) {
+        long dictionaryId = 1L;
+        long wordId = 2L;
+
+        when(wordRepository.updateUseInRepetitionByIdAndDictionaryId(wordId, dictionaryId, useInRepetition)).thenReturn(1);
+
+        wordService.updateRepetition(dictionaryId, wordId, useInRepetition);
+
+        verify(dictionaryAccessValidator).verifyUserHasDictionary(dictionaryId);
+    }
+
+    @Test
+    void testUpdateRepetition_WhenDictionaryDoesNotExistForUser_ThenThrowResourceNotFoundException() {
+        long dictionaryId = 1L;
+        long wordId = 2L;
+
+        doThrow(ResourceNotFoundException.class).when(dictionaryAccessValidator).verifyUserHasDictionary(dictionaryId);
+
+        assertThatExceptionOfType(ResourceNotFoundException.class)
+                .isThrownBy(() -> wordService.updateRepetition(dictionaryId, wordId, true));
+    }
+
+    @Test
+    void testUpdateRepetition_WhenWordDoesNotExist_ThenThrowResourceNotFoundException() {
+        long dictionaryId = 1L;
+        long wordId = 2L;
+
+        when(wordRepository.updateUseInRepetitionByIdAndDictionaryId(wordId, dictionaryId, false))
+                .thenReturn(0);
+
+        assertThatExceptionOfType(ResourceNotFoundException.class)
+                .isThrownBy(() -> wordService.updateRepetition(dictionaryId, wordId, false));
     }
 
     @Test
@@ -400,5 +436,9 @@ public class WordServiceImplTest {
                 new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
         when(securityContext.getAuthentication()).thenReturn(authentication);
         SecurityContextHolder.setContext(securityContext);
+    }
+
+    static Stream<Boolean> updateRepetitionParameters() {
+        return Stream.of(true, false);
     }
 }

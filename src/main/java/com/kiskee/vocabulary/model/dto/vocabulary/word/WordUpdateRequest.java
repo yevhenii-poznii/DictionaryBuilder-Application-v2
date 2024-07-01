@@ -19,9 +19,6 @@ public class WordUpdateRequest {
     @Pattern(regexp = "^[a-zA-Z\\-()\\s]+$", message = "Word must contain only letters, hyphens, brackets and spaces")
     private String word;
 
-    @NotNull
-    private Boolean useInRepetition;
-
     @Valid
     @NotNull
     @Size(min = 1, message = "At least one translation is required")

@@ -6,6 +6,7 @@ import com.kiskee.vocabulary.exception.DuplicateResourceException;
 import com.kiskee.vocabulary.exception.ResourceNotFoundException;
 import com.kiskee.vocabulary.mapper.dictionary.DictionaryMapper;
 import com.kiskee.vocabulary.model.dto.ResponseMessage;
+import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionaryDetailDto;
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionaryDto;
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionarySaveRequest;
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionarySaveResponse;
@@ -18,6 +19,7 @@ import com.kiskee.vocabulary.service.vocabulary.AbstractDictionaryService;
 import com.kiskee.vocabulary.service.vocabulary.dictionary.page.DictionaryPageLoaderFactory;
 import com.kiskee.vocabulary.util.IdentityUtil;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -60,11 +62,18 @@ public class DictionaryServiceImpl extends AbstractDictionaryService
     @Override
     public List<DictionaryDto> getDictionaries() {
         UUID userProfileId = IdentityUtil.getUserId();
-
         List<DictionaryDto> dictionaries = repository.findAllByUserProfileId(userProfileId);
 
         log.info("Retrieved [{}] dictionaries for user [{}]", dictionaries.size(), userProfileId);
+        return dictionaries;
+    }
 
+    @Override
+    public List<DictionaryDetailDto> getDetailedDictionaries() {
+        UUID userProfileId = IdentityUtil.getUserId();
+        List<DictionaryDetailDto> dictionaries = repository.findDetailedDictionariesByUserProfileId(userProfileId);
+
+        log.info("Retrieved [{}] detailed dictionaries for user [{}]", dictionaries.size(), userProfileId);
         return dictionaries;
     }
 
@@ -81,6 +90,24 @@ public class DictionaryServiceImpl extends AbstractDictionaryService
         Dictionary dictionary = repository.save(dictionaryToUpdate);
 
         return mapToResponse(dictionary, VocabularyResponseMessageEnum.DICTIONARY_UPDATED);
+    }
+
+    @Override
+    @Transactional
+    public ResponseMessage deleteDictionaries(Set<Long> dictionaryIds) {
+        UUID userId = IdentityUtil.getUserId();
+        List<Long> userDictionaryIds = repository.findIdsByUserProfileIdAndIdIn(userId, dictionaryIds);
+
+        if (userDictionaryIds.isEmpty()) {
+            log.info("No dictionaries found for user [{}]", userId);
+            throw new ResourceNotFoundException(String.format(
+                    ExceptionStatusesEnum.RESOURCES_NOT_FOUND.getStatus(), "Dictionaries", dictionaryIds));
+        }
+        repository.deleteAllById(userDictionaryIds);
+        log.info("Deleted {} dictionaries for user [{}]", userDictionaryIds, userId);
+
+        return new ResponseMessage(String.format(
+                VocabularyResponseMessageEnum.DICTIONARIES_DELETED.getResponseMessage(), userDictionaryIds.size()));
     }
 
     @Override

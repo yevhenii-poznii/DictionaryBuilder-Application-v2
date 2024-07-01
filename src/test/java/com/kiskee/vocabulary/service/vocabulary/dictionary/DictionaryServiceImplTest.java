@@ -18,6 +18,7 @@ import com.kiskee.vocabulary.enums.vocabulary.VocabularyResponseMessageEnum;
 import com.kiskee.vocabulary.exception.DuplicateResourceException;
 import com.kiskee.vocabulary.exception.ResourceNotFoundException;
 import com.kiskee.vocabulary.mapper.dictionary.DictionaryMapper;
+import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionaryDetailDto;
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionaryDto;
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionarySaveRequest;
 import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionarySaveResponse;
@@ -117,8 +118,8 @@ public class DictionaryServiceImplTest {
                 .build();
         when(dictionaryRepository.save(dictionaryArgumentCaptor.capture())).thenReturn(savedDictionary);
 
-        DictionaryDto dictionaryDto = new DictionaryDto(1L, saveRequest.getDictionaryName(), 0);
-        when(dictionaryMapper.toDto(savedDictionary)).thenReturn(dictionaryDto);
+        DictionaryDetailDto dictionaryDetailDto = new DictionaryDetailDto(1L, saveRequest.getDictionaryName(), 0, 0, 0);
+        when(dictionaryMapper.toDto(savedDictionary)).thenReturn(dictionaryDetailDto);
 
         DictionarySaveResponse result = dictionaryService.addDictionary(saveRequest);
 
@@ -261,7 +262,50 @@ public class DictionaryServiceImplTest {
     }
 
     @Test
-    void testGetDictionaries_WhenUserHasTwoDictionaries_Then() {
+    void testGetDetailedDictionaries_WhenUserHasTwoDictionaries_ThenReturnDetailedDictionaries() {
+        UserVocabularyApplication user = new UserVocabularyApplication(
+                USER_ID, "email", "username", "noPassword", true, UserRole.ROLE_USER, null, null);
+        Authentication authentication =
+                new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
+        List<DictionaryDetailDto> dictionaries = List.of(
+                new DictionaryDetailDto(1L, "Default Dictionary", 0, 0, 0),
+                new DictionaryDetailDto(2L, "Dictionary 1", 123, 23, 100));
+
+        when(dictionaryRepository.findDetailedDictionariesByUserProfileId(USER_ID))
+                .thenReturn(dictionaries);
+
+        List<DictionaryDetailDto> result = dictionaryService.getDetailedDictionaries();
+
+        assertThat(result.size()).isEqualTo(2);
+        assertThat(result).extracting(DictionaryDetailDto::getId).containsExactly(1L, 2L);
+        assertThat(result)
+                .extracting(DictionaryDetailDto::getDictionaryName)
+                .containsExactly("Default Dictionary", "Dictionary 1");
+        assertThat(result).extracting(DictionaryDetailDto::getWordCount).containsExactly(0, 123);
+    }
+
+    @Test
+    void testGetDetailedDictionaries_WhenUserHasNoDictionaries_ThenReturnEmptyList() {
+        UserVocabularyApplication user = new UserVocabularyApplication(
+                USER_ID, "email", "username", "noPassword", true, UserRole.ROLE_USER, null, null);
+        Authentication authentication =
+                new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
+        when(dictionaryRepository.findDetailedDictionariesByUserProfileId(USER_ID))
+                .thenReturn(Collections.emptyList());
+
+        List<DictionaryDetailDto> result = dictionaryService.getDetailedDictionaries();
+
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    void testGetDictionaries_WhenUserHasTwoDictionaries_ThenReturnDetailedDictionaries() {
         UserVocabularyApplication user = new UserVocabularyApplication(
                 USER_ID, "email", "username", "noPassword", true, UserRole.ROLE_USER, null, null);
         Authentication authentication =
@@ -270,7 +314,7 @@ public class DictionaryServiceImplTest {
         SecurityContextHolder.setContext(securityContext);
 
         List<DictionaryDto> dictionaries =
-                List.of(new DictionaryDto(1L, "Default Dictionary", 0), new DictionaryDto(2L, "Dictionary 1", 123));
+                List.of(new DictionaryDto(1L, "Default Dictionary"), new DictionaryDto(2L, "Dictionary 1"));
 
         when(dictionaryRepository.findAllByUserProfileId(USER_ID)).thenReturn(dictionaries);
 
@@ -281,7 +325,6 @@ public class DictionaryServiceImplTest {
         assertThat(result)
                 .extracting(DictionaryDto::getDictionaryName)
                 .containsExactly("Default Dictionary", "Dictionary 1");
-        assertThat(result).extracting(DictionaryDto::getWordCount).containsExactly(0, 123);
     }
 
     @Test
@@ -386,7 +429,7 @@ public class DictionaryServiceImplTest {
 
         when(dictionaryRepository.save(dictionaryArgumentCaptor.capture())).thenReturn(dictionaryToUpdate);
         when(dictionaryMapper.toDto(dictionaryToUpdate))
-                .thenReturn(new DictionaryDto(dictionaryId, "dictionaryName", 0));
+                .thenReturn(new DictionaryDetailDto(dictionaryId, "dictionaryName", 0, 0, 0));
 
         dictionaryService.updateDictionary(dictionaryId, dictionarySaveRequest);
 
@@ -394,6 +437,48 @@ public class DictionaryServiceImplTest {
         assertThat(actual.getDictionaryName()).isEqualTo(dictionarySaveRequest.getDictionaryName());
         assertThat(actual.getWordCount()).isEqualTo(0);
         assertThat(actual.getId()).isEqualTo(1L);
+    }
+
+    @Test
+    void testDeleteDictionaries_WhenGivenDictionaryIdsExistsForUser_ThenDeleteDictionaries() {
+        UserVocabularyApplication user = new UserVocabularyApplication(
+                USER_ID, "email", "username", "noPassword", true, UserRole.ROLE_USER, null, null);
+        Authentication authentication =
+                new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
+        Set<Long> dictionaryIds = Set.of(1L, 2L);
+
+        List<Long> existingIdsForUser = List.of(1L, 2L);
+        when(dictionaryRepository.findIdsByUserProfileIdAndIdIn(USER_ID, dictionaryIds))
+                .thenReturn(existingIdsForUser);
+
+        doNothing().when(dictionaryRepository).deleteAllById(existingIdsForUser);
+
+        dictionaryService.deleteDictionaries(dictionaryIds);
+    }
+
+    @Test
+    void testDeleteDictionaries_WhenGivenDictionaryIdsDoNoExistForUser_ThenThrowResourceNotFoundException() {
+        UserVocabularyApplication user = new UserVocabularyApplication(
+                USER_ID, "email", "username", "noPassword", true, UserRole.ROLE_USER, null, null);
+        Authentication authentication =
+                new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
+        Set<Long> dictionaryIds = Set.of(1L, 2L);
+
+        when(dictionaryRepository.findIdsByUserProfileIdAndIdIn(USER_ID, dictionaryIds))
+                .thenReturn(List.of());
+
+        assertThatExceptionOfType(ResourceNotFoundException.class)
+                .isThrownBy(() -> dictionaryService.deleteDictionaries(dictionaryIds))
+                .withMessage(String.format(
+                        ExceptionStatusesEnum.RESOURCES_NOT_FOUND.getStatus(), "Dictionaries", dictionaryIds));
+
+        verifyNoMoreInteractions(dictionaryRepository);
     }
 
     @Test
@@ -448,6 +533,47 @@ public class DictionaryServiceImplTest {
                         dictionaryId));
 
         verifyNoMoreInteractions(dictionaryRepository);
+    }
+
+    @Test
+    void testVerifyUserHasDictionary_WhenUserHasDictionary_ThenDoNothing() {
+        UserVocabularyApplication user = new UserVocabularyApplication(
+                USER_ID, "email", "username", "noPassword", true, UserRole.ROLE_USER, null, null);
+        Authentication authentication =
+                new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
+        Long dictionaryId = 1L;
+
+        when(dictionaryRepository.existsByIdAndUserProfileId(dictionaryId, USER_ID))
+                .thenReturn(true);
+
+        dictionaryService.verifyUserHasDictionary(dictionaryId);
+
+        verify(dictionaryRepository).existsByIdAndUserProfileId(dictionaryId, USER_ID);
+    }
+
+    @Test
+    void testVerifyUserHasDictionary_WhenUserDoesNotHaveDictionary_ThenThrowResourceNotFoundException() {
+        UserVocabularyApplication user = new UserVocabularyApplication(
+                USER_ID, "email", "username", "noPassword", true, UserRole.ROLE_USER, null, null);
+        Authentication authentication =
+                new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
+        Long dictionaryId = 1L;
+
+        when(dictionaryRepository.existsByIdAndUserProfileId(dictionaryId, USER_ID))
+                .thenReturn(false);
+
+        assertThatExceptionOfType(ResourceNotFoundException.class)
+                .isThrownBy(() -> dictionaryService.verifyUserHasDictionary(dictionaryId))
+                .withMessage(String.format(
+                        ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(),
+                        Dictionary.class.getSimpleName(),
+                        dictionaryId));
     }
 
     private static DictionaryPageResponseDto returnDictionaryPageResponseDto() {
