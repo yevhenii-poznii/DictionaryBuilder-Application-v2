@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
@@ -19,6 +20,8 @@ import com.kiskee.vocabulary.model.dto.redis.RepetitionData;
 import com.kiskee.vocabulary.model.dto.repetition.RepetitionRunningStatus;
 import com.kiskee.vocabulary.model.dto.repetition.RepetitionStartFilterRequest;
 import com.kiskee.vocabulary.model.dto.repetition.filter.DefaultCriteriaFilter;
+import com.kiskee.vocabulary.model.dto.repetition.message.WSRequest;
+import com.kiskee.vocabulary.model.dto.repetition.message.WSResponse;
 import com.kiskee.vocabulary.model.dto.vocabulary.word.WordDto;
 import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
 import com.kiskee.vocabulary.model.entity.vocabulary.Dictionary;
@@ -27,10 +30,14 @@ import com.kiskee.vocabulary.service.vocabulary.dictionary.DictionaryAccessValid
 import com.kiskee.vocabulary.service.vocabulary.repetition.loader.RepetitionWordLoaderFactory;
 import com.kiskee.vocabulary.service.vocabulary.repetition.loader.criteria.RepetitionWordCriteriaLoader;
 import com.kiskee.vocabulary.service.vocabulary.word.WordCounterUpdateService;
+
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -75,7 +82,7 @@ public class InputRepetitionServiceTest {
 
     @Test
     void
-            testIsRepetitionRunning_WhenRepetitionDataExistsForUserAndNotPaused_ThenReturnIsRunningTrueAndPausedFalseRepetitionRunningStatus() {
+    testIsRepetitionRunning_WhenRepetitionDataExistsForUserAndNotPaused_ThenReturnIsRunningTrueAndPausedFalseRepetitionRunningStatus() {
         setAuth();
 
         RepetitionData repetitionData = mock(RepetitionData.class);
@@ -91,7 +98,7 @@ public class InputRepetitionServiceTest {
 
     @Test
     void
-            testIsRepetitionRunning_WhenRepetitionDataExistsForUserAndPaused_ThenReturnIsRunningTrueAndPausedTrueRepetitionRunningStatus() {
+    testIsRepetitionRunning_WhenRepetitionDataExistsForUserAndPaused_ThenReturnIsRunningTrueAndPausedTrueRepetitionRunningStatus() {
         setAuth();
 
         RepetitionData repetitionData = mock(RepetitionData.class);
@@ -121,7 +128,7 @@ public class InputRepetitionServiceTest {
 
     @Test
     void
-            testIsRepetitionRunning_WhenDataDoesNotExistForUser_ThenReturnIsRunningFalseAndPausedFalseRepetitionRunningStatus() {
+    testIsRepetitionRunning_WhenDataDoesNotExistForUser_ThenReturnIsRunningFalseAndPausedFalseRepetitionRunningStatus() {
         setAuth();
 
         when(repository.existsByUserId(USER_ID)).thenReturn(false);
@@ -136,7 +143,7 @@ public class InputRepetitionServiceTest {
 
     @Test
     void
-            testStart_WhenRepetitionIsNotRunning_ThenPrepareRepetitionDataAndReturnIsRunningTrueAndPausedFalseRepetitionRunningStatus() {
+    testStart_WhenRepetitionIsNotRunning_ThenPrepareRepetitionDataAndReturnIsRunningTrueAndPausedFalseRepetitionRunningStatus() {
         setAuth();
 
         long dictionaryId = 1L;
@@ -149,7 +156,7 @@ public class InputRepetitionServiceTest {
 
         RepetitionWordCriteriaLoader repetitionWordCriteriaLoader = mock(RepetitionWordCriteriaLoader.class);
         when(repetitionWordLoaderFactory.getLoader(
-                        startFilterRequest.getCriteriaFilter().getFilterType()))
+                startFilterRequest.getCriteriaFilter().getFilterType()))
                 .thenReturn(repetitionWordCriteriaLoader);
 
         List<WordDto> loadedWords = prepareLoadedWords();
@@ -199,9 +206,9 @@ public class InputRepetitionServiceTest {
 
         when(repository.existsByUserId(USER_ID)).thenReturn(false);
         doThrow(new ResourceNotFoundException(String.format(
-                        ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(),
-                        Dictionary.class.getSimpleName(),
-                        dictionaryId)))
+                ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(),
+                Dictionary.class.getSimpleName(),
+                dictionaryId)))
                 .when(dictionaryAccessValidator)
                 .verifyUserHasDictionary(dictionaryId);
 
@@ -227,7 +234,7 @@ public class InputRepetitionServiceTest {
 
         RepetitionWordCriteriaLoader repetitionWordCriteriaLoader = mock(RepetitionWordCriteriaLoader.class);
         when(repetitionWordLoaderFactory.getLoader(
-                        startFilterRequest.getCriteriaFilter().getFilterType()))
+                startFilterRequest.getCriteriaFilter().getFilterType()))
                 .thenReturn(repetitionWordCriteriaLoader);
 
         when(repetitionWordCriteriaLoader.loadRepetitionWordPage(dictionaryId, startFilterRequest))
@@ -334,7 +341,7 @@ public class InputRepetitionServiceTest {
 
     @Test
     void
-            testStop_WhenRepetitionIsRunningAndPassedWordsAreEmpty_ThenClearRepetitionDataAndReturnIsRunningFalseRepetitionRunningStatus() {
+    testStop_WhenRepetitionIsRunningAndPassedWordsAreEmpty_ThenClearRepetitionDataAndReturnIsRunningFalseRepetitionRunningStatus() {
         setAuth();
 
         when(repository.existsByUserId(USER_ID)).thenReturn(true);
@@ -343,20 +350,110 @@ public class InputRepetitionServiceTest {
                 RepetitionData.builder().passedWords(new ArrayList<>()).build();
         when(repository.getByUserId(USER_ID)).thenReturn(repetitionData);
 
-        doNothing().when(repository).clearByUserId(USER_ID);
-
         RepetitionRunningStatus runningStatus = inputRepetitionService.stop();
+
+        verify(repository).clearByUserId(USER_ID);
+
         assertThat(runningStatus.isRunning()).isFalse();
         assertThat(runningStatus.isPaused()).isFalse();
     }
 
+    @Test
+    void testStop_WhenRepetitionIsRunningAndPassedWordsAreNotEmpty_ThenUpdateWordCountersAndClearRepetitionData() {
+        setAuth();
+
+        when(repository.existsByUserId(USER_ID)).thenReturn(true);
+
+        List<WordDto> passedWords = List.of(
+                new WordDto(1L, "word1", true, Set.of(), 1, null),
+                new WordDto(2L, "word2", true, Set.of(), 1, null));
+        RepetitionData repetitionData = RepetitionData.builder()
+                .passedWords(passedWords)
+                .build();
+        when(repository.getByUserId(USER_ID)).thenReturn(repetitionData);
+
+        RepetitionRunningStatus runningStatus = inputRepetitionService.stop();
+
+        verify(wordCounterUpdateService).updateRightAnswersCounters(USER_ID, passedWords);
+        verify(repository).clearByUserId(USER_ID);
+
+        assertThat(runningStatus.isRunning()).isFalse();
+        assertThat(runningStatus.isPaused()).isFalse();
+    }
+
+    @Test
+    void testStop_WhenRepetitionIsNotRunning_ThenThrowRepetitionException() {
+        setAuth();
+
+        when(repository.existsByUserId(USER_ID)).thenReturn(false);
+
+        assertThatExceptionOfType(RepetitionException.class)
+                .isThrownBy(() -> inputRepetitionService.stop())
+                .withMessage("Repetition is not running");
+    }
+
+    @Test
+    void testHandleRepetitionMessage_WhenRequestIsStartOperationAndThereIsNextWord_ThenHandleStartOperationAndReturnWSResponse() {
+        Authentication authentication = getAuth();
+
+        WSRequest wsRequest = new WSRequest(null, WSRequest.Operation.START);
+
+        WordDto currentWord = prepareRepetitionWords().pop();
+        RepetitionData repetitionData = RepetitionData.builder()
+                .currentWord(currentWord)
+                .build();
+        when(repository.getByUserId(USER_ID)).thenReturn(repetitionData);
+
+        WSResponse response = mock(WSResponse.class);
+        when(response.getWord()).thenReturn(currentWord.getWord());
+        when(mapper.toWSResponse(repetitionData)).thenReturn(response);
+
+        WSResponse currentWSResponse = inputRepetitionService.handleRepetitionMessage(authentication, wsRequest);
+
+        assertThat(currentWSResponse.getWord()).isEqualTo(currentWord.getWord());
+    }
+
+    @Test
+    void testHandleRepetitionMessage_WhenRequestIsStartOperationAndThereIsNoNextWord_ThenHandleStartOperationAndThrowRepetitionException() {
+        Authentication authentication = getAuth();
+
+        WSRequest wsRequest = new WSRequest(null, WSRequest.Operation.START);
+
+        RepetitionData repetitionData = RepetitionData.builder()
+                .currentWord(null)
+                .build();
+        when(repository.getByUserId(USER_ID)).thenReturn(repetitionData);
+
+        assertThatExceptionOfType(RepetitionException.class)
+                .isThrownBy(() -> inputRepetitionService.handleRepetitionMessage(authentication, wsRequest))
+                .withMessage("No more words to repeat");
+    }
+
+    @Test
+    void testHandleRepetitionMessage_WhenRequestIsSkipOperationAndThereIsNextWord_ThenHandleSkipOperationAndReturnWSResponse() {
+        Authentication authentication = getAuth();
+
+        WSRequest wsRequest = new WSRequest(null, WSRequest.Operation.SKIP);
+
+        Deque<WordDto> repetitionWords = prepareRepetitionWords();
+        WordDto currentWord = repetitionWords.pop();
+        RepetitionData repetitionData = RepetitionData.builder()
+                .repetitionWords(repetitionWords)
+                .currentWord(currentWord)
+                .build();
+        when(repository.getByUserId(USER_ID)).thenReturn(repetitionData);
+    }
+
     private void setAuth() {
-        UserVocabularyApplication user = new UserVocabularyApplication(
-                USER_ID, "email", "username", "noPassword", true, UserRole.ROLE_USER, null, null);
-        Authentication authentication =
-                new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
+        Authentication authentication = getAuth();
         when(securityContext.getAuthentication()).thenReturn(authentication);
         SecurityContextHolder.setContext(securityContext);
+    }
+
+    private Authentication getAuth() {
+        UserVocabularyApplication user = new UserVocabularyApplication(
+                USER_ID, "email", "username", "noPassword", true, UserRole.ROLE_USER, null, null);
+        return new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
     }
 
     private List<WordDto> prepareLoadedWords() {
@@ -364,5 +461,9 @@ public class InputRepetitionServiceTest {
                 new WordDto(1L, "word1", true, Set.of(), 0, null),
                 new WordDto(2L, "word2", true, Set.of(), 0, null),
                 new WordDto(3L, "word3", true, Set.of(), 0, null)));
+    }
+
+    private Deque<WordDto> prepareRepetitionWords() {
+        return new ArrayDeque<>(prepareLoadedWords());
     }
 }
