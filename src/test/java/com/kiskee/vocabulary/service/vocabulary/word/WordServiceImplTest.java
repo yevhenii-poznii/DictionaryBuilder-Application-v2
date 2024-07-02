@@ -15,6 +15,7 @@ import com.kiskee.vocabulary.exception.ForbiddenAccessException;
 import com.kiskee.vocabulary.exception.ResourceNotFoundException;
 import com.kiskee.vocabulary.mapper.dictionary.WordMapper;
 import com.kiskee.vocabulary.model.dto.ResponseMessage;
+import com.kiskee.vocabulary.model.dto.user.WordPreference;
 import com.kiskee.vocabulary.model.dto.vocabulary.word.WordDto;
 import com.kiskee.vocabulary.model.dto.vocabulary.word.WordSaveRequest;
 import com.kiskee.vocabulary.model.dto.vocabulary.word.WordSaveResponse;
@@ -24,14 +25,18 @@ import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
 import com.kiskee.vocabulary.model.entity.vocabulary.Word;
 import com.kiskee.vocabulary.model.entity.vocabulary.WordTranslation;
 import com.kiskee.vocabulary.repository.vocabulary.WordRepository;
+import com.kiskee.vocabulary.service.user.preference.WordPreferenceService;
 import com.kiskee.vocabulary.service.vocabulary.dictionary.DictionaryAccessValidator;
 import com.kiskee.vocabulary.service.vocabulary.word.translation.WordTranslationService;
+
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -66,6 +71,9 @@ public class WordServiceImplTest {
 
     @Mock
     private WordTranslationService wordTranslationService;
+
+    @Mock
+    private WordPreferenceService wordPreferenceService;
 
     @Mock
     private SecurityContext securityContext;
@@ -165,7 +173,7 @@ public class WordServiceImplTest {
         List<WordTranslation> updatedTranslations =
                 List.of(new WordTranslation(3L, "переклад"), new WordTranslation(null, "новий переклад"));
         when(wordTranslationService.updateTranslations(
-                        updateRequest.getWordTranslations(), wordToUpdate.getWordTranslations()))
+                updateRequest.getWordTranslations(), wordToUpdate.getWordTranslations()))
                 .thenReturn(updatedTranslations);
 
         Word updatedWord = new Word(
@@ -429,6 +437,23 @@ public class WordServiceImplTest {
                         List.of(wordId2.getId())));
     }
 
+    @Test
+    void testUpdateRightAnswersCounters_WhenGivenWordIds_ThenUpdateRightAnswersCounters() {
+        long dictionaryId = 1L;
+        List<WordDto> wordsToUpdate = prepareWordsToUpdate();
+        Set<Long> wordIds = wordsToUpdate.stream().map(WordDto::getId).collect(Collectors.toSet());
+
+        List<Word> existingWords = prepareExistingWordsToUpdateCounters();
+        when(wordRepository.findByIdIn(wordIds)).thenReturn(existingWords);
+
+        WordPreference wordPreference = new WordPreference(10);
+        when(wordPreferenceService.getWordPreference(USER_ID)).thenReturn(wordPreference);
+
+        wordService.updateRightAnswersCounters(USER_ID, wordsToUpdate);
+
+        verify(dictionaryAccessValidator).verifyUserHasDictionary(dictionaryId);
+    }
+
     private void setAuth() {
         UserVocabularyApplication user = new UserVocabularyApplication(
                 USER_ID, "email", "username", "noPassword", true, UserRole.ROLE_USER, null, null);
@@ -436,6 +461,37 @@ public class WordServiceImplTest {
                 new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
         when(securityContext.getAuthentication()).thenReturn(authentication);
         SecurityContextHolder.setContext(securityContext);
+    }
+
+    private List<WordDto> prepareWordsToUpdate() {
+        WordDto wordDtoWithId2 = mock(WordDto.class);
+        when(wordDtoWithId2.getId()).thenReturn(2L);
+        WordDto wordDtoWithId15 = mock(WordDto.class);
+        when(wordDtoWithId2.getId()).thenReturn(15L);
+        WordDto wordDtoWithId33 = mock(WordDto.class);
+        when(wordDtoWithId2.getId()).thenReturn(33L);
+        List<WordDto> wordsToUpdate = List.of(wordDtoWithId2, wordDtoWithId15, wordDtoWithId33);
+
+        wordsToUpdate.forEach(wordDto -> when(wordDto.getCounterRightAnswers()).thenReturn(1));
+
+        return wordsToUpdate;
+    }
+
+    private List<Word> prepareExistingWordsToUpdateCounters() {
+        Word wordWithId2 = mock(Word.class);
+        when(wordWithId2.getId()).thenReturn(2L);
+        Word wordWithId15 = mock(Word.class);
+        when(wordWithId15.getId()).thenReturn(15L);
+        Word wordWithId33 = mock(Word.class);
+        when(wordWithId33.getId()).thenReturn(33L);
+        List<Word> existingWords = List.of(wordWithId2, wordWithId15, wordWithId33);
+
+        existingWords.forEach(word -> {
+            when(word.getCounterRightAnswers()).thenReturn(0);
+            when(word.isUseInRepetition()).thenReturn(false);
+        });
+
+        return existingWords;
     }
 
     static Stream<Boolean> updateRepetitionParameters() {
