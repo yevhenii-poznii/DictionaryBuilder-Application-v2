@@ -28,7 +28,6 @@ import com.kiskee.vocabulary.repository.vocabulary.WordRepository;
 import com.kiskee.vocabulary.service.user.preference.WordPreferenceService;
 import com.kiskee.vocabulary.service.vocabulary.dictionary.DictionaryAccessValidator;
 import com.kiskee.vocabulary.service.vocabulary.word.translation.WordTranslationService;
-
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
@@ -36,7 +35,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -173,7 +171,7 @@ public class WordServiceImplTest {
         List<WordTranslation> updatedTranslations =
                 List.of(new WordTranslation(3L, "переклад"), new WordTranslation(null, "новий переклад"));
         when(wordTranslationService.updateTranslations(
-                updateRequest.getWordTranslations(), wordToUpdate.getWordTranslations()))
+                        updateRequest.getWordTranslations(), wordToUpdate.getWordTranslations()))
                 .thenReturn(updatedTranslations);
 
         Word updatedWord = new Word(
@@ -438,12 +436,11 @@ public class WordServiceImplTest {
     }
 
     @Test
-    void testUpdateRightAnswersCounters_WhenGivenWordIds_ThenUpdateRightAnswersCounters() {
-        long dictionaryId = 1L;
-        List<WordDto> wordsToUpdate = prepareWordsToUpdate();
+    void testUpdateRightAnswersCounters_WhenGivenWords_ThenUpdateRightAnswersCounters() {
+        List<WordDto> wordsToUpdate = prepareWordsToUpdate(1);
         Set<Long> wordIds = wordsToUpdate.stream().map(WordDto::getId).collect(Collectors.toSet());
 
-        List<Word> existingWords = prepareExistingWordsToUpdateCounters();
+        List<Word> existingWords = prepareExistingWordsToUpdateCounters(true, 0);
         when(wordRepository.findByIdIn(wordIds)).thenReturn(existingWords);
 
         WordPreference wordPreference = new WordPreference(10);
@@ -451,7 +448,35 @@ public class WordServiceImplTest {
 
         wordService.updateRightAnswersCounters(USER_ID, wordsToUpdate);
 
-        verify(dictionaryAccessValidator).verifyUserHasDictionary(dictionaryId);
+        verify(wordRepository).saveAll(wordsCaptor.capture());
+        List<Word> updatedWords = wordsCaptor.getValue();
+        assertThat(updatedWords).extracting(Word::getCounterRightAnswers).containsExactlyInAnyOrder(1, 1, 1);
+        assertThat(updatedWords).extracting(Word::isUseInRepetition).containsExactlyInAnyOrder(true, true, true);
+    }
+
+    @Test
+    void
+            testUpdateRightAnswersCounters_WhenGivenWordsWithCountersToDisableInRepetition_ThenUpdateRightAnswersCountersAndDisableInRepetition() {
+        List<WordDto> wordsToUpdate = prepareWordsToUpdate(10);
+        Set<Long> wordIds = wordsToUpdate.stream().map(WordDto::getId).collect(Collectors.toSet());
+
+        List<Word> existingWords = prepareExistingWordsToUpdateCounters(true, 9);
+        when(wordRepository.findByIdIn(wordIds)).thenReturn(existingWords);
+
+        WordPreference wordPreference = new WordPreference(10);
+        when(wordPreferenceService.getWordPreference(USER_ID)).thenReturn(wordPreference);
+
+        wordService.updateRightAnswersCounters(USER_ID, wordsToUpdate);
+
+        verify(wordRepository).saveAll(wordsCaptor.capture());
+        List<Word> updatedWords = wordsCaptor.getValue();
+        assertThat(updatedWords).extracting(Word::getCounterRightAnswers).containsExactlyInAnyOrder(10, 10, 10);
+        assertThat(updatedWords).extracting(Word::isUseInRepetition).containsExactlyInAnyOrder(false, false, false);
+    }
+
+    @Test
+    void testUpdateRightAnswersCounters_WhenGivenEmptyList_ThenDoNothing() {
+        wordService.updateRightAnswersCounters(USER_ID, List.of());
     }
 
     private void setAuth() {
@@ -463,35 +488,25 @@ public class WordServiceImplTest {
         SecurityContextHolder.setContext(securityContext);
     }
 
-    private List<WordDto> prepareWordsToUpdate() {
+    private List<WordDto> prepareWordsToUpdate(int counterRightAnswers) {
         WordDto wordDtoWithId2 = mock(WordDto.class);
         when(wordDtoWithId2.getId()).thenReturn(2L);
         WordDto wordDtoWithId15 = mock(WordDto.class);
-        when(wordDtoWithId2.getId()).thenReturn(15L);
+        when(wordDtoWithId15.getId()).thenReturn(15L);
         WordDto wordDtoWithId33 = mock(WordDto.class);
-        when(wordDtoWithId2.getId()).thenReturn(33L);
+        when(wordDtoWithId33.getId()).thenReturn(33L);
         List<WordDto> wordsToUpdate = List.of(wordDtoWithId2, wordDtoWithId15, wordDtoWithId33);
 
-        wordsToUpdate.forEach(wordDto -> when(wordDto.getCounterRightAnswers()).thenReturn(1));
+        wordsToUpdate.forEach(wordDto -> when(wordDto.getCounterRightAnswers()).thenReturn(counterRightAnswers));
 
         return wordsToUpdate;
     }
 
-    private List<Word> prepareExistingWordsToUpdateCounters() {
-        Word wordWithId2 = mock(Word.class);
-        when(wordWithId2.getId()).thenReturn(2L);
-        Word wordWithId15 = mock(Word.class);
-        when(wordWithId15.getId()).thenReturn(15L);
-        Word wordWithId33 = mock(Word.class);
-        when(wordWithId33.getId()).thenReturn(33L);
-        List<Word> existingWords = List.of(wordWithId2, wordWithId15, wordWithId33);
-
-        existingWords.forEach(word -> {
-            when(word.getCounterRightAnswers()).thenReturn(0);
-            when(word.isUseInRepetition()).thenReturn(false);
-        });
-
-        return existingWords;
+    private List<Word> prepareExistingWordsToUpdateCounters(boolean useInRepetition, int counterRightAnswers) {
+        return List.of(
+                new Word(2L, "word2", useInRepetition, counterRightAnswers, null, null, null, 1L, List.of()),
+                new Word(15L, "word15", useInRepetition, counterRightAnswers, null, null, null, 1L, List.of()),
+                new Word(33L, "word33", useInRepetition, counterRightAnswers, null, null, null, 1L, List.of()));
     }
 
     static Stream<Boolean> updateRepetitionParameters() {

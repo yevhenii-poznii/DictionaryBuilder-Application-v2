@@ -165,6 +165,7 @@ public class DictionaryServiceImpl extends AbstractDictionaryService
         UUID userProfileId = IdentityUtil.getUserId();
 
         if (!repository.existsByIdAndUserProfileId(dictionaryId, userProfileId)) {
+            log.info("Dictionary with id [{}] not found for user [{}]", dictionaryId, userProfileId);
             throw new ResourceNotFoundException(String.format(
                     ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(),
                     Dictionary.class.getSimpleName(),

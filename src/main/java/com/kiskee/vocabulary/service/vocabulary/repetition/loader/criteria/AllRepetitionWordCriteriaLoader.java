@@ -5,7 +5,6 @@ import com.kiskee.vocabulary.model.dto.repetition.RepetitionStartFilterRequest;
 import com.kiskee.vocabulary.model.dto.repetition.filter.DefaultCriteriaFilter;
 import com.kiskee.vocabulary.model.entity.vocabulary.Word;
 import com.kiskee.vocabulary.repository.repetition.RepetitionWordRepository;
-import com.kiskee.vocabulary.service.vocabulary.word.page.AbstractRepetitionWordCriteriaLoader;
 import java.util.List;
 import org.springframework.stereotype.Service;
 

@@ -53,8 +53,10 @@ public class InputRepetitionService implements RepetitionService {
 
         if (repository.existsByUserId(userId)) {
             RepetitionData repetitionData = repository.getByUserId(userId);
+            log.info("Repetition is running for user [{}]", userId);
             return new RepetitionRunningStatus(true, repetitionData.isPaused());
         }
+        log.info("Repetition is not running for user [{}]", userId);
         return new RepetitionRunningStatus(false, false);
     }
 
@@ -63,6 +65,7 @@ public class InputRepetitionService implements RepetitionService {
         UUID userId = IdentityUtil.getUserId();
 
         if (repository.existsByUserId(userId)) {
+            log.info("Repetition is already running for user [{}]", userId);
             throw new RepetitionException("Repetition is already running");
         }
         dictionaryAccessValidator.verifyUserHasDictionary(dictionaryId);
@@ -71,6 +74,7 @@ public class InputRepetitionService implements RepetitionService {
                 .loadRepetitionWordPage(dictionaryId, request);
 
         if (words.isEmpty()) {
+            log.info("No words to repeat for user [{}]", userId);
             throw new RepetitionException("No words to repeat");
         }
         Collections.shuffle(words);
