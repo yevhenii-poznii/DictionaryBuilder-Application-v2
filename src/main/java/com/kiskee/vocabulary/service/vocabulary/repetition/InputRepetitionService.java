@@ -88,6 +88,7 @@ public class InputRepetitionService implements RepetitionService {
                 .pauses(new ArrayList<>())
                 .startTime(Instant.now())
                 .totalElements(words.size())
+                .dictionaryId(dictionaryId)
                 .userId(userId)
                 .build();
 
