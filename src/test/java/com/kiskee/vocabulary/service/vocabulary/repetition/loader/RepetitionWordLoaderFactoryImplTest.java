@@ -1,10 +1,18 @@
 package com.kiskee.vocabulary.service.vocabulary.repetition.loader;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import com.kiskee.vocabulary.model.dto.repetition.filter.DefaultCriteriaFilter;
 import com.kiskee.vocabulary.service.vocabulary.repetition.loader.criteria.AllRepetitionWordCriteriaLoader;
 import com.kiskee.vocabulary.service.vocabulary.repetition.loader.criteria.CountRepetitionWordCriteriaLoader;
 import com.kiskee.vocabulary.service.vocabulary.repetition.loader.criteria.DateRepetitionWordCriteriaLoader;
 import com.kiskee.vocabulary.service.vocabulary.repetition.loader.criteria.RepetitionWordCriteriaLoader;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,15 +20,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class RepetitionWordLoaderFactoryImplTest {
@@ -40,19 +39,18 @@ public class RepetitionWordLoaderFactoryImplTest {
         when(allRepetitionWordCriteriaLoader.getCriteriaFilter())
                 .thenReturn(DefaultCriteriaFilter.CriteriaFilterType.ALL);
 
-        CountRepetitionWordCriteriaLoader countRepetitionWordCriteriaLoader = mock(CountRepetitionWordCriteriaLoader.class);
+        CountRepetitionWordCriteriaLoader countRepetitionWordCriteriaLoader =
+                mock(CountRepetitionWordCriteriaLoader.class);
         when(countRepetitionWordCriteriaLoader.getCriteriaFilter())
                 .thenReturn(DefaultCriteriaFilter.CriteriaFilterType.BY_COUNT);
 
-        DateRepetitionWordCriteriaLoader dateRepetitionWordCriteriaLoader = mock(DateRepetitionWordCriteriaLoader.class);
+        DateRepetitionWordCriteriaLoader dateRepetitionWordCriteriaLoader =
+                mock(DateRepetitionWordCriteriaLoader.class);
         when(dateRepetitionWordCriteriaLoader.getCriteriaFilter())
                 .thenReturn(DefaultCriteriaFilter.CriteriaFilterType.BY_DATE);
 
         this.repetitionWordCriteriaLoaders = Arrays.asList(
-                allRepetitionWordCriteriaLoader,
-                countRepetitionWordCriteriaLoader,
-                dateRepetitionWordCriteriaLoader
-        );
+                allRepetitionWordCriteriaLoader, countRepetitionWordCriteriaLoader, dateRepetitionWordCriteriaLoader);
 
         this.loaders = repetitionWordCriteriaLoaders.stream()
                 .collect(Collectors.toMap(loader -> loader.getCriteriaFilter().name(), loader -> loader));
