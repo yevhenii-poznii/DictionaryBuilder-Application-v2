@@ -1,6 +1,7 @@
 package com.kiskee.vocabulary.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kiskee.vocabulary.config.properties.email.MailSenderProperties;
 import com.kiskee.vocabulary.config.properties.jwt.JwtProperties;
 import com.kiskee.vocabulary.service.authentication.AuthenticationService;
 import com.kiskee.vocabulary.service.authentication.AuthenticationServiceImpl;
@@ -35,6 +36,8 @@ import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
@@ -60,6 +63,7 @@ public class WebSecurityConfig {
     private final TimeZoneRequestFilter timeZoneRequestFilter;
     private final DefaultJweTokenFactory defaultJweTokenFactory;
     private final JwtProperties jwtProperties;
+    private final MailSenderProperties mailSenderProperties;
     private final ObjectMapper objectMapper;
     private final CookieTokenService cookieTokenService;
     private final List<UserInitializingService> userInitializingServices;
@@ -175,5 +179,16 @@ public class WebSecurityConfig {
     @Bean
     public AuthenticationManager authenticationManager() throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
+    }
+
+    @Bean
+    public JavaMailSender javaMailSender() {
+        JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
+        javaMailSender.setHost(mailSenderProperties.getHost());
+        javaMailSender.setPort(mailSenderProperties.getPort());
+        javaMailSender.setUsername(mailSenderProperties.getUsername());
+        javaMailSender.setPassword(mailSenderProperties.getPassword());
+        javaMailSender.setJavaMailProperties(mailSenderProperties.getProperties());
+        return javaMailSender;
     }
 }
