@@ -31,6 +31,7 @@ public class RepetitionData {
     private int skippedWordsCount;
     private int totalElements;
     private int totalElementsPassed;
+    private long dictionaryId;
     private UUID userId;
 
     public RepetitionData updateData(boolean isCorrect) {

@@ -21,7 +21,7 @@ import org.thymeleaf.context.Context;
 @AllArgsConstructor
 public class EmailSenderServiceImpl implements EmailSenderService {
 
-    private final JavaMailSender mailSender;
+    private final JavaMailSender javaMailSender;
     private final TemplateEngine templateEngine;
     private final EmailContextProperties emailContext;
 
@@ -50,11 +50,11 @@ public class EmailSenderServiceImpl implements EmailSenderService {
 
         MimeMessage mimeMessage = prepareMessage(userInfo.getEmail(), htmlContent);
 
-        mailSender.send(mimeMessage);
+        javaMailSender.send(mimeMessage);
     }
 
     private MimeMessage prepareMessage(String userEmail, String htmlContent) throws MessagingException {
-        MimeMessage mimeMessage = mailSender.createMimeMessage();
+        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
 
         MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(
                 mimeMessage, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, StandardCharsets.UTF_8.name());

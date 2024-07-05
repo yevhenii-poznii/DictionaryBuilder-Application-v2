@@ -1,4 +1,4 @@
-package com.kiskee.vocabulary.service.vocabulary.word.page;
+package com.kiskee.vocabulary.service.vocabulary.repetition.loader.criteria;
 
 import com.kiskee.vocabulary.mapper.repetition.RepetitionWordMapper;
 import com.kiskee.vocabulary.model.dto.repetition.RepetitionStartFilterRequest;

@@ -15,6 +15,7 @@ import com.kiskee.vocabulary.exception.ForbiddenAccessException;
 import com.kiskee.vocabulary.exception.ResourceNotFoundException;
 import com.kiskee.vocabulary.mapper.dictionary.WordMapper;
 import com.kiskee.vocabulary.model.dto.ResponseMessage;
+import com.kiskee.vocabulary.model.dto.user.WordPreference;
 import com.kiskee.vocabulary.model.dto.vocabulary.word.WordDto;
 import com.kiskee.vocabulary.model.dto.vocabulary.word.WordSaveRequest;
 import com.kiskee.vocabulary.model.dto.vocabulary.word.WordSaveResponse;
@@ -24,6 +25,7 @@ import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
 import com.kiskee.vocabulary.model.entity.vocabulary.Word;
 import com.kiskee.vocabulary.model.entity.vocabulary.WordTranslation;
 import com.kiskee.vocabulary.repository.vocabulary.WordRepository;
+import com.kiskee.vocabulary.service.user.preference.WordPreferenceService;
 import com.kiskee.vocabulary.service.vocabulary.dictionary.DictionaryAccessValidator;
 import com.kiskee.vocabulary.service.vocabulary.word.translation.WordTranslationService;
 import java.time.Instant;
@@ -31,6 +33,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -66,6 +69,9 @@ public class WordServiceImplTest {
 
     @Mock
     private WordTranslationService wordTranslationService;
+
+    @Mock
+    private WordPreferenceService wordPreferenceService;
 
     @Mock
     private SecurityContext securityContext;
@@ -429,6 +435,50 @@ public class WordServiceImplTest {
                         List.of(wordId2.getId())));
     }
 
+    @Test
+    void testUpdateRightAnswersCounters_WhenGivenWords_ThenUpdateRightAnswersCounters() {
+        List<WordDto> wordsToUpdate = prepareWordsToUpdate(1);
+        Set<Long> wordIds = wordsToUpdate.stream().map(WordDto::getId).collect(Collectors.toSet());
+
+        List<Word> existingWords = prepareExistingWordsToUpdateCounters(true, 0);
+        when(wordRepository.findByIdIn(wordIds)).thenReturn(existingWords);
+
+        WordPreference wordPreference = new WordPreference(10);
+        when(wordPreferenceService.getWordPreference(USER_ID)).thenReturn(wordPreference);
+
+        wordService.updateRightAnswersCounters(USER_ID, wordsToUpdate);
+
+        verify(wordRepository).saveAll(wordsCaptor.capture());
+        List<Word> updatedWords = wordsCaptor.getValue();
+        assertThat(updatedWords).extracting(Word::getCounterRightAnswers).containsExactlyInAnyOrder(1, 1, 1);
+        assertThat(updatedWords).extracting(Word::isUseInRepetition).containsExactlyInAnyOrder(true, true, true);
+    }
+
+    @Test
+    void
+            testUpdateRightAnswersCounters_WhenGivenWordsWithCountersToDisableInRepetition_ThenUpdateRightAnswersCountersAndDisableInRepetition() {
+        List<WordDto> wordsToUpdate = prepareWordsToUpdate(10);
+        Set<Long> wordIds = wordsToUpdate.stream().map(WordDto::getId).collect(Collectors.toSet());
+
+        List<Word> existingWords = prepareExistingWordsToUpdateCounters(true, 9);
+        when(wordRepository.findByIdIn(wordIds)).thenReturn(existingWords);
+
+        WordPreference wordPreference = new WordPreference(10);
+        when(wordPreferenceService.getWordPreference(USER_ID)).thenReturn(wordPreference);
+
+        wordService.updateRightAnswersCounters(USER_ID, wordsToUpdate);
+
+        verify(wordRepository).saveAll(wordsCaptor.capture());
+        List<Word> updatedWords = wordsCaptor.getValue();
+        assertThat(updatedWords).extracting(Word::getCounterRightAnswers).containsExactlyInAnyOrder(10, 10, 10);
+        assertThat(updatedWords).extracting(Word::isUseInRepetition).containsExactlyInAnyOrder(false, false, false);
+    }
+
+    @Test
+    void testUpdateRightAnswersCounters_WhenGivenEmptyList_ThenDoNothing() {
+        wordService.updateRightAnswersCounters(USER_ID, List.of());
+    }
+
     private void setAuth() {
         UserVocabularyApplication user = new UserVocabularyApplication(
                 USER_ID, "email", "username", "noPassword", true, UserRole.ROLE_USER, null, null);
@@ -436,6 +486,27 @@ public class WordServiceImplTest {
                 new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
         when(securityContext.getAuthentication()).thenReturn(authentication);
         SecurityContextHolder.setContext(securityContext);
+    }
+
+    private List<WordDto> prepareWordsToUpdate(int counterRightAnswers) {
+        WordDto wordDtoWithId2 = mock(WordDto.class);
+        when(wordDtoWithId2.getId()).thenReturn(2L);
+        WordDto wordDtoWithId15 = mock(WordDto.class);
+        when(wordDtoWithId15.getId()).thenReturn(15L);
+        WordDto wordDtoWithId33 = mock(WordDto.class);
+        when(wordDtoWithId33.getId()).thenReturn(33L);
+        List<WordDto> wordsToUpdate = List.of(wordDtoWithId2, wordDtoWithId15, wordDtoWithId33);
+
+        wordsToUpdate.forEach(wordDto -> when(wordDto.getCounterRightAnswers()).thenReturn(counterRightAnswers));
+
+        return wordsToUpdate;
+    }
+
+    private List<Word> prepareExistingWordsToUpdateCounters(boolean useInRepetition, int counterRightAnswers) {
+        return List.of(
+                new Word(2L, "word2", useInRepetition, counterRightAnswers, null, null, null, 1L, List.of()),
+                new Word(15L, "word15", useInRepetition, counterRightAnswers, null, null, null, 1L, List.of()),
+                new Word(33L, "word33", useInRepetition, counterRightAnswers, null, null, null, 1L, List.of()));
     }
 
     static Stream<Boolean> updateRepetitionParameters() {

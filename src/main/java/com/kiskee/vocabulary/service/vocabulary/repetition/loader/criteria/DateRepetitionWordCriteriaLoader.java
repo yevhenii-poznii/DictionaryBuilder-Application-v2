@@ -6,7 +6,6 @@ import com.kiskee.vocabulary.model.dto.repetition.filter.DefaultCriteriaFilter;
 import com.kiskee.vocabulary.model.dto.repetition.filter.criteria.DateCriteriaFilter;
 import com.kiskee.vocabulary.model.entity.vocabulary.Word;
 import com.kiskee.vocabulary.repository.repetition.RepetitionWordRepository;
-import com.kiskee.vocabulary.service.vocabulary.word.page.AbstractRepetitionWordCriteriaLoader;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.List;
