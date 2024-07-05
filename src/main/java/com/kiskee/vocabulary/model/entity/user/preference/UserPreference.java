@@ -13,6 +13,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
+import java.time.Duration;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -30,13 +31,12 @@ public class UserPreference implements UserProfilePreferenceType {
     @Id
     private UUID userId;
 
+    // profile preference
     @Column(nullable = false)
     @Enumerated(value = EnumType.STRING)
     private ProfileVisibility profileVisibility;
 
-    @Column(nullable = false)
-    private int rightAnswersToDisableInRepetition;
-
+    // dictionary preference
     @Column(nullable = false)
     private int wordsPerPage;
 
@@ -46,6 +46,17 @@ public class UserPreference implements UserProfilePreferenceType {
     @Column(nullable = false)
     @Enumerated(value = EnumType.STRING)
     private PageFilter pageFilter;
+
+    // word preference
+    @Column(nullable = false)
+    private int rightAnswersToDisableInRepetition;
+
+    @Column(nullable = false)
+    private int newWordsPerDayGoal;
+
+    // repetition preference
+    @Column(nullable = false)
+    private Duration dailyRepetitionTimeGoal;
 
     @MapsId
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
