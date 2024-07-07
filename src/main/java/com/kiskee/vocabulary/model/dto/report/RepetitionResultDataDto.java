@@ -1,7 +1,6 @@
 package com.kiskee.vocabulary.model.dto.report;
 
 import com.kiskee.vocabulary.model.dto.redis.Pause;
-import com.kiskee.vocabulary.model.dto.redis.RepetitionData;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -27,19 +26,6 @@ public class RepetitionResultDataDto implements RepetitionResultData {
     private int skippedWordsCount;
     private int totalElements;
     private int totalElementsPassed;
-
-    public RepetitionResultDataDto(RepetitionData repetitionData) {
-        this.userId = repetitionData.getUserId();
-        this.dictionaryId = repetitionData.getDictionaryId();
-        this.startTime = repetitionData.getStartTime();
-        this.endTime = repetitionData.getEndTime();
-        this.pauses = repetitionData.getPauses();
-        this.rightAnswersCount = repetitionData.getRightAnswersCount();
-        this.wrongAnswersCount = repetitionData.getWrongAnswersCount();
-        this.skippedWordsCount = repetitionData.getSkippedWordsCount();
-        this.totalElements = repetitionData.getTotalElements();
-        this.totalElementsPassed = repetitionData.getTotalElementsPassed();
-    }
 
     protected void incrementRightAnswersCount() {
         this.rightAnswersCount++;

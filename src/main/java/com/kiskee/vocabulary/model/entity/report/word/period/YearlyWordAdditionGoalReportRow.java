@@ -1,6 +1,7 @@
 package com.kiskee.vocabulary.model.entity.report.word.period;
 
 import com.kiskee.vocabulary.model.entity.report.word.WordAdditionGoalReport;
+import com.kiskee.vocabulary.model.entity.report.word.WordAdditionGoalReportRow;
 import com.kiskee.vocabulary.util.report.ReportPeriodConstant;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
@@ -9,5 +10,5 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@DiscriminatorValue(value = ReportPeriodConstant.TOTAL)
-public class TotalWordAdditionGoalReport extends WordAdditionGoalReport {}
+@DiscriminatorValue(value = ReportPeriodConstant.YEAR)
+public class YearlyWordAdditionGoalReportRow extends WordAdditionGoalReportRow {}

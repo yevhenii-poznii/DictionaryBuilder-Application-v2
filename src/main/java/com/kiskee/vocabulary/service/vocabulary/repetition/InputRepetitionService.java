@@ -14,12 +14,9 @@ import com.kiskee.vocabulary.service.vocabulary.dictionary.DictionaryAccessValid
 import com.kiskee.vocabulary.service.vocabulary.repetition.loader.RepetitionWordLoaderFactory;
 import com.kiskee.vocabulary.service.vocabulary.word.WordCounterUpdateService;
 import com.kiskee.vocabulary.util.IdentityUtil;
-import java.time.Instant;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Deque;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -79,19 +76,7 @@ public class InputRepetitionService implements RepetitionService {
         }
         Collections.shuffle(words);
 
-        Deque<WordDto> repetitionWords = new ArrayDeque<>(words);
-        WordDto next = repetitionWords.pop();
-        RepetitionData repetitionData = RepetitionData.builder()
-                .repetitionWords(repetitionWords)
-                .passedWords(new ArrayList<>())
-                .currentWord(next)
-                .pauses(new ArrayList<>())
-                .startTime(Instant.now())
-                .totalElements(words.size())
-                .dictionaryId(dictionaryId)
-                .userId(userId)
-                .build();
-
+        RepetitionData repetitionData = new RepetitionData(words, dictionaryId, userId);
         repository.save(userId, repetitionData);
         log.info("Repetition has been started for user [{}]", userId);
         return new RepetitionRunningStatus(true, repetitionData.isPaused());

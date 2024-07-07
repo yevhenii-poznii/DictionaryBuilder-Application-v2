@@ -9,8 +9,12 @@ import com.kiskee.vocabulary.repository.user.profile.UserProfileRepository;
 import com.kiskee.vocabulary.service.user.AbstractUserProfilePreferenceInitializationService;
 import com.kiskee.vocabulary.service.user.UserInitializingService;
 import com.kiskee.vocabulary.service.vocabulary.dictionary.DictionaryCreationService;
+
+import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.core.annotation.Order;
@@ -20,7 +24,7 @@ import org.springframework.stereotype.Service;
 @Order(2)
 @AllArgsConstructor
 public class UserProfileService extends AbstractUserProfilePreferenceInitializationService<UserProfile>
-        implements UserInitializingService {
+        implements UserInitializingService, UserProfileInfoProvider {
 
     @Getter
     private final UserProfileRepository repository;
@@ -33,6 +37,11 @@ public class UserProfileService extends AbstractUserProfilePreferenceInitializat
     @Override
     public <R extends RegistrationRequest> void initUser(R registrationRequest) {
         initEntityAndSave(registrationRequest);
+    }
+
+    @Override
+    public Instant getCreatedAtField(UUID userId) {
+        return repository.findCreatedAtByUserId(userId).createdAt();
     }
 
     @Override

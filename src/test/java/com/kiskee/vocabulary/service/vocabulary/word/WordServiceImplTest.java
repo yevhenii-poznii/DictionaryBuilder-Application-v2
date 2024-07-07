@@ -15,7 +15,7 @@ import com.kiskee.vocabulary.exception.ForbiddenAccessException;
 import com.kiskee.vocabulary.exception.ResourceNotFoundException;
 import com.kiskee.vocabulary.mapper.dictionary.WordMapper;
 import com.kiskee.vocabulary.model.dto.ResponseMessage;
-import com.kiskee.vocabulary.model.dto.user.WordPreference;
+import com.kiskee.vocabulary.model.dto.user.preference.WordPreference;
 import com.kiskee.vocabulary.model.dto.vocabulary.word.WordDto;
 import com.kiskee.vocabulary.model.dto.vocabulary.word.WordSaveRequest;
 import com.kiskee.vocabulary.model.dto.vocabulary.word.WordSaveResponse;

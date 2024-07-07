@@ -41,7 +41,18 @@ public class RepetitionData extends RepetitionResultDataDto {
     }
 
     public RepetitionResultDataDto toResult() {
-        return new RepetitionResultDataDto(this);
+        return RepetitionResultDataDto.builder()
+                .userId(this.getUserId())
+                .dictionaryId(this.getDictionaryId())
+                .startTime(this.getStartTime())
+                .endTime(Instant.now())
+                .pauses(this.getPauses())
+                .rightAnswersCount(this.getRightAnswersCount())
+                .wrongAnswersCount(this.getWrongAnswersCount())
+                .skippedWordsCount(this.getSkippedWordsCount())
+                .totalElements(this.getTotalElements())
+                .totalElementsPassed(this.getTotalElementsPassed())
+                .build();
     }
 
     public RepetitionData updateData(boolean isCorrect) {

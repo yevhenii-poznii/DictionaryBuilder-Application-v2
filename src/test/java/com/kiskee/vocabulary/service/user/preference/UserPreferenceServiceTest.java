@@ -10,7 +10,7 @@ import com.kiskee.vocabulary.enums.user.ProfileVisibility;
 import com.kiskee.vocabulary.enums.vocabulary.PageFilter;
 import com.kiskee.vocabulary.mapper.user.preference.UserPreferenceMapper;
 import com.kiskee.vocabulary.model.dto.registration.InternalRegistrationRequest;
-import com.kiskee.vocabulary.model.dto.user.WordPreference;
+import com.kiskee.vocabulary.model.dto.user.preference.WordPreference;
 import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
 import com.kiskee.vocabulary.model.entity.user.preference.UserPreference;
 import com.kiskee.vocabulary.repository.user.preference.UserPreferenceRepository;
