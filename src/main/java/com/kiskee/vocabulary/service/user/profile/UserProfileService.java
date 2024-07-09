@@ -9,12 +9,10 @@ import com.kiskee.vocabulary.repository.user.profile.UserProfileRepository;
 import com.kiskee.vocabulary.service.user.AbstractUserProfilePreferenceInitializationService;
 import com.kiskee.vocabulary.service.user.UserInitializingService;
 import com.kiskee.vocabulary.service.vocabulary.dictionary.DictionaryCreationService;
-
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.core.annotation.Order;

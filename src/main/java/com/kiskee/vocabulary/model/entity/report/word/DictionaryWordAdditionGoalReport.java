@@ -21,9 +21,10 @@ public class DictionaryWordAdditionGoalReport {
     private Long id;
 
     @Column(nullable = false)
-    private Double goalCompletionPercentage;
+    private Long dictionaryId;
 
-    private Double averageGoalCompletionPercentage;
+    @Column(nullable = false)
+    private Double goalCompletionPercentage;
 
     @Column(nullable = false)
     private int newWordsGoal;
@@ -31,9 +32,16 @@ public class DictionaryWordAdditionGoalReport {
     @Column(nullable = false)
     private int newWordsActual;
 
-    public DictionaryWordAdditionGoalReport(Double goalCompletionPercentage, int newWordsGoal, int newWordsActual) {
+    public DictionaryWordAdditionGoalReport(
+            Long dictionaryId, Double goalCompletionPercentage, int newWordsGoal, int newWordsActual) {
+        this.dictionaryId = dictionaryId;
         this.goalCompletionPercentage = goalCompletionPercentage;
         this.newWordsGoal = newWordsGoal;
         this.newWordsActual = newWordsActual;
+    }
+
+    public DictionaryWordAdditionGoalReport buildFrom(Double goalCompletionPercentage, int newWordsGoalForPeriod) {
+        return new DictionaryWordAdditionGoalReport(
+                this.id, this.dictionaryId, goalCompletionPercentage, newWordsGoalForPeriod, this.newWordsActual++);
     }
 }

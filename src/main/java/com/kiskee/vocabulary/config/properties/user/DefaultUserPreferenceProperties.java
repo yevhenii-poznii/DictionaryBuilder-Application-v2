@@ -1,5 +1,6 @@
 package com.kiskee.vocabulary.config.properties.user;
 
+import java.time.Duration;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -16,4 +17,8 @@ public class DefaultUserPreferenceProperties {
     private int wordsPerPage;
 
     private boolean blurTranslation;
+
+    private int newWordsPerDayGoal;
+
+    private Duration dailyRepetitionDurationGoal;
 }

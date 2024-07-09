@@ -5,7 +5,6 @@ import lombok.experimental.UtilityClass;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.time.temporal.TemporalAdjusters;
 
 @UtilityClass
@@ -17,41 +16,24 @@ public class ReportPeriodUtil {
     public final String YEAR = "year";
     public final String TOTAL = "total";
 
-    public PeriodRange getCurrentPeriodRange(String reportPeriod) {
-        LocalDate currentDate = LocalDate.now(ZoneId.of("UTC"));
-        return getCurrentPeriodRange(currentDate, reportPeriod);
+    public LocalDate getLastDayOfPeriod(LocalDate currentDate, String reportPeriod) {
+        return switch (reportPeriod) {
+            case DAY, TOTAL -> currentDate;
+            case WEEK -> currentDate.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
+            case MONTH -> currentDate.with(TemporalAdjusters.lastDayOfMonth());
+            case YEAR -> currentDate.with(TemporalAdjusters.lastDayOfYear());
+            default -> throw new IllegalStateException("Unsupported report period: " + reportPeriod);
+        };
     }
 
     public PeriodRange getCurrentPeriodRange(LocalDate currentDate, String reportPeriod) {
-        LocalDate utc = currentDate.atStartOfDay(ZoneId.of("UTC")).toLocalDate();
-        LocalDate fromDate;
-        LocalDate toDate;
-
-        switch (reportPeriod) {
-            case DAY -> {
-                fromDate = currentDate;
-                toDate = fromDate;
-            }
-            case WEEK -> {
-                fromDate = currentDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
-                toDate = fromDate.plusWeeks(1).minusDays(1);
-            }
-            case MONTH -> {
-                fromDate = currentDate.withDayOfMonth(1);
-                toDate = fromDate.plusMonths(1).minusDays(1);
-            }
-            case YEAR -> {
-                fromDate = currentDate.withDayOfYear(1);
-                toDate = fromDate.plusYears(1).minusDays(1);
-            }
-            case TOTAL -> {
-                fromDate = null;
-                toDate = currentDate;
-            }
-            default -> throw new IllegalArgumentException(
-                    String.format("Unsupported report period: [%s]", reportPeriod));
-        }
-
-        return new PeriodRange(fromDate, toDate);
+        return switch (reportPeriod) {
+            case DAY, TOTAL -> new PeriodRange(currentDate, currentDate);
+            case WEEK ->
+                    new PeriodRange(currentDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)), currentDate);
+            case MONTH -> new PeriodRange(currentDate.with(TemporalAdjusters.firstDayOfMonth()), currentDate);
+            case YEAR -> new PeriodRange(currentDate.with(TemporalAdjusters.firstDayOfYear()), currentDate);
+            default -> throw new IllegalArgumentException("Unsupported report period: " + reportPeriod);
+        };
     }
 }

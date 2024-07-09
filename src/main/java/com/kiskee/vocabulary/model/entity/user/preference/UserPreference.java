@@ -2,10 +2,12 @@ package com.kiskee.vocabulary.model.entity.user.preference;
 
 import com.kiskee.vocabulary.enums.user.ProfileVisibility;
 import com.kiskee.vocabulary.enums.vocabulary.PageFilter;
+import com.kiskee.vocabulary.model.converter.DurationStringConverter;
 import com.kiskee.vocabulary.model.entity.user.UserProfilePreferenceType;
 import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -56,7 +58,8 @@ public class UserPreference implements UserProfilePreferenceType {
 
     // repetition preference
     @Column(nullable = false)
-    private Duration dailyRepetitionTimeGoal;
+    @Convert(converter = DurationStringConverter.class)
+    private Duration dailyRepetitionDurationGoal;
 
     @MapsId
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)

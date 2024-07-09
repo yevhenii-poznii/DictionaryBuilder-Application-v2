@@ -9,13 +9,12 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
+import java.util.Set;
+import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.Set;
-import java.util.UUID;
 
 @Data
 @Entity
@@ -37,5 +36,9 @@ public class WordAdditionGoalReport {
     public WordAdditionGoalReport(UUID userId, Set<WordAdditionGoalReportRow> reportRows) {
         this.userId = userId;
         this.reportRows = reportRows;
+    }
+
+    public WordAdditionGoalReport buildFrom(Set<WordAdditionGoalReportRow> updatedReportRows) {
+        return new WordAdditionGoalReport(this.id, this.userId, updatedReportRows);
     }
 }

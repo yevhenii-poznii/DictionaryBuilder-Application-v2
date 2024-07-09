@@ -6,4 +6,8 @@ import com.kiskee.vocabulary.model.entity.report.word.WordAdditionGoalReportRow;
 public interface WordAdditionGoalReportRowService {
 
     WordAdditionGoalReportRow buildRowFromScratch(WordAdditionData wordAdditionData);
+
+    WordAdditionGoalReportRow updateRow(WordAdditionGoalReportRow row, WordAdditionData wordAdditionData);
+
+    String getRowPeriod();
 }
