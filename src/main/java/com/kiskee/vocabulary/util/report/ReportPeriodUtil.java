@@ -1,11 +1,10 @@
 package com.kiskee.vocabulary.util.report;
 
 import com.kiskee.vocabulary.model.dto.report.PeriodRange;
-import lombok.experimental.UtilityClass;
-
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
+import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class ReportPeriodUtil {
@@ -29,8 +28,8 @@ public class ReportPeriodUtil {
     public PeriodRange getCurrentPeriodRange(LocalDate currentDate, String reportPeriod) {
         return switch (reportPeriod) {
             case DAY, TOTAL -> new PeriodRange(currentDate, currentDate);
-            case WEEK ->
-                    new PeriodRange(currentDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)), currentDate);
+            case WEEK -> new PeriodRange(
+                    currentDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)), currentDate);
             case MONTH -> new PeriodRange(currentDate.with(TemporalAdjusters.firstDayOfMonth()), currentDate);
             case YEAR -> new PeriodRange(currentDate.with(TemporalAdjusters.firstDayOfYear()), currentDate);
             default -> throw new IllegalArgumentException("Unsupported report period: " + reportPeriod);

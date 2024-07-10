@@ -7,7 +7,7 @@ import com.kiskee.vocabulary.repository.report.WordAdditionGoalReportRepository;
 import com.kiskee.vocabulary.service.report.UpdateGoalReportService;
 import com.kiskee.vocabulary.service.report.goal.word.row.WordAdditionGoalReportRowService;
 import com.kiskee.vocabulary.service.user.profile.UserProfileInfoProvider;
-
+import com.kiskee.vocabulary.util.TimeZoneContextHolder;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
@@ -17,8 +17,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import com.kiskee.vocabulary.util.TimeZoneContextHolder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -38,8 +36,10 @@ public class WordAdditionGoalReportService implements UpdateGoalReportService {
         Optional<WordAdditionGoalReport> report = repository.findByUserId(userId);
 
         ZoneId userTimeZone = TimeZoneContextHolder.getTimeZone();
-        LocalDate userCreatedAt = userProfileInfoProvider.getCreatedAtField(userId)
-                .atZone(userTimeZone).toLocalDate();
+        LocalDate userCreatedAt = userProfileInfoProvider
+                .getCreatedAtField(userId)
+                .atZone(userTimeZone)
+                .toLocalDate();
         LocalDate currentDateAtUserTimeZone = LocalDate.now(userTimeZone);
 
         WordAdditionData wordAdditionData = new WordAdditionData(

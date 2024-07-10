@@ -42,8 +42,8 @@ public class WordAdditionGoalReportRow {
     private LocalDate endPeriod;
 
     // TODO Is there need in this field?
-//    @Column(nullable = false)
-//    private int workingDays;
+    //    @Column(nullable = false)
+    //    private int workingDays;
 
     @JoinColumn(name = "reportRowId")
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)

@@ -10,6 +10,7 @@ import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -23,21 +24,41 @@ public abstract class AbstractWordAdditionGoalReportRowService {
             PeriodRange currentPeriodRange, Set<DictionaryWordAdditionGoalReport> dictionaryReports);
 
     public WordAdditionGoalReportRow buildRowFromScratch(WordAdditionData wordAdditionData) {
-        PeriodRange currentPeriodRange = buildPeriodRange(
-                wordAdditionData.currentDate(), wordAdditionData.userCreatedAt());
+        PeriodRange currentPeriodRange =
+                buildPeriodRange(wordAdditionData.currentDate(), wordAdditionData.userCreatedAt());
+//
+//        int workingDaysForPeriod = calculateWorkingDaysForPeriod(currentPeriodRange);
+//
+//        int newWordsGoalForPeriod = wordAdditionData.newWordsPerDayGoal() * workingDaysForPeriod;
+//
+//        Double goalCompletionPercentage = calculateGoalCompletionPercentage(1, newWordsGoalForPeriod);
+//
+//        goalCompletionPercentage = roundToThreeDigitAfterComma(goalCompletionPercentage);
 
+        CalculationResultData calculationResultData = calculate(
+                currentPeriodRange,
+                wordAdditionData,
+                () -> calculateGoalCompletionPercentage(1, wordAdditionData.newWordsPerDayGoal())
+        );
+
+        DictionaryWordAdditionGoalReport reportByDictionary = buildReportByDictionary(
+                wordAdditionData.dictionaryId(), calculationResultData.goalCompletionPercentage(),
+                calculationResultData.newWordsGoalForPeriod());
+
+        return buildPeriodRow(calculationResultData.currentPeriodRange(), Set.of(reportByDictionary));
+    }
+
+    private CalculationResultData calculate(PeriodRange currentPeriodRange, WordAdditionData wordAdditionData,
+                                            Supplier<Double> goalCompletionPercentageSupplier) {
         int workingDaysForPeriod = calculateWorkingDaysForPeriod(currentPeriodRange);
 
         int newWordsGoalForPeriod = wordAdditionData.newWordsPerDayGoal() * workingDaysForPeriod;
 
-        Double goalCompletionPercentage = calculateGoalCompletionPercentage(newWordsGoalForPeriod);
+        Double goalCompletionPercentage = goalCompletionPercentageSupplier.get();
 
         goalCompletionPercentage = roundToThreeDigitAfterComma(goalCompletionPercentage);
 
-        DictionaryWordAdditionGoalReport reportByDictionary = buildReportByDictionary(
-                wordAdditionData.dictionaryId(), goalCompletionPercentage, newWordsGoalForPeriod);
-
-        return buildPeriodRow(currentPeriodRange, Set.of(reportByDictionary));
+        return new CalculationResultData(currentPeriodRange, goalCompletionPercentage, newWordsGoalForPeriod);
     }
 
     public WordAdditionGoalReportRow updateRow(WordAdditionGoalReportRow row, WordAdditionData wordAdditionData) {
@@ -47,36 +68,42 @@ public abstract class AbstractWordAdditionGoalReportRowService {
             return buildRowFromScratch(wordAdditionData);
         }
 
+        PeriodRange currentPeriodRange =
+                buildPeriodRange(wordAdditionData.currentDate(), wordAdditionData.userCreatedAt());
+
         Set<DictionaryWordAdditionGoalReport> recalculatedDictionaryReports = row.getDictionaryReports().stream()
-                .map(dictionaryReport -> recalculateDictionaryReport(
-                        row.getEndPeriod(), dictionaryReport, wordAdditionData))
+                .map(dictionaryReport -> recalculateDictionaryReport(currentPeriodRange, dictionaryReport, wordAdditionData))
                 .collect(Collectors.toSet());
 
-        PeriodRange currentPeriodRange =
-                ReportPeriodUtil.getCurrentPeriodRange(wordAdditionData.currentDate(), rowPeriod);
         return buildPeriodRow(currentPeriodRange, recalculatedDictionaryReports);
     }
 
-    private DictionaryWordAdditionGoalReport recalculateDictionaryReport(LocalDate previousEndPeriod,
-            DictionaryWordAdditionGoalReport dictionaryReport, WordAdditionData wordAdditionData) {
+    private DictionaryWordAdditionGoalReport recalculateDictionaryReport(PeriodRange currentPeriodRange,
+                                                                         DictionaryWordAdditionGoalReport dictionaryReport, WordAdditionData wordAdditionData) {
         if (!dictionaryReport.getDictionaryId().equals(wordAdditionData.dictionaryId())) {
             return dictionaryReport;
         }
 
 //        PeriodRange currentPeriodRange =
 //                buildPeriodRange(wordAdditionData.currentDate(), wordAdditionData.userCreatedAt());
-        PeriodRange currentPeriodRange = new PeriodRange(previousEndPeriod, wordAdditionData.currentDate());
+//
+//        int workingDaysForPeriod = calculateWorkingDaysForPeriod(currentPeriodRange);
+//
+//        int newWordsGoalForPeriod = wordAdditionData.newWordsPerDayGoal() * workingDaysForPeriod;
+//
+//        Double goalCompletionPercentage =
+//                calculateGoalCompletionPercentage(1, dictionaryReport.getNewWordsActual(), newWordsGoalForPeriod);
+//
+//        goalCompletionPercentage = roundToThreeDigitAfterComma(goalCompletionPercentage);
+        CalculationResultData calculationResultData = calculate(
+                currentPeriodRange,
+                wordAdditionData,
+                () -> calculateGoalCompletionPercentage(
+                        1, dictionaryReport.getNewWordsActual(), wordAdditionData.newWordsPerDayGoal())
+        );
 
-        int workingDaysForPeriod = calculateWorkingDaysForPeriod(currentPeriodRange);
-
-        int newWordsGoalForPeriod = wordAdditionData.newWordsPerDayGoal() * workingDaysForPeriod;
-
-        Double goalCompletionPercentage = calculateGoalCompletionPercentage(
-                newWordsGoalForPeriod, dictionaryReport.getGoalCompletionPercentage());
-
-        goalCompletionPercentage = roundToThreeDigitAfterComma(goalCompletionPercentage);
-
-        return dictionaryReport.buildFrom();
+        return dictionaryReport.buildFrom(
+                calculationResultData.goalCompletionPercentage(), calculationResultData.newWordsGoalForPeriod());
     }
 
     protected PeriodRange buildPeriodRange(LocalDate currentDate, LocalDate userCreatedAt) {
@@ -97,8 +124,7 @@ public abstract class AbstractWordAdditionGoalReportRowService {
             return 1;
         }
         return (int) Stream.iterate(currentPeriodRange.startPeriod(), date -> date.plusDays(1))
-                .limit(ChronoUnit.DAYS.between(
-                        currentPeriodRange.startPeriod(), currentPeriodRange.endPeriod()) + 1)
+                .limit(ChronoUnit.DAYS.between(currentPeriodRange.startPeriod(), currentPeriodRange.endPeriod()) + 1)
                 .filter(this::isWorkingDay)
                 .count();
     }
@@ -107,13 +133,15 @@ public abstract class AbstractWordAdditionGoalReportRowService {
         return date.getDayOfWeek().getValue() < 6;
     }
 
-    protected Double calculateGoalCompletionPercentage(int newWordsGoalForPeriod) {
-        return ((double) 1 / newWordsGoalForPeriod) * 100;
+    protected Double calculateGoalCompletionPercentage(int addedWords, int newWordsGoalForPeriod) {
+        return ((double) addedWords / newWordsGoalForPeriod) * 100;
     }
 
     protected Double calculateGoalCompletionPercentage(
-            int newWordsGoalForPeriod, Double previousGoalCompletionPercentage) {
-        Double goalCompletionPercentage = calculateGoalCompletionPercentage(newWordsGoalForPeriod);
+            int addedWord, int previousAddedWord, int newWordsGoalForPeriod) {
+        Double goalCompletionPercentage = calculateGoalCompletionPercentage(addedWord, newWordsGoalForPeriod);
+        Double previousGoalCompletionPercentage =
+                calculateGoalCompletionPercentage(previousAddedWord, newWordsGoalForPeriod);
         return goalCompletionPercentage + previousGoalCompletionPercentage;
     }
 
@@ -125,5 +153,9 @@ public abstract class AbstractWordAdditionGoalReportRowService {
     protected DictionaryWordAdditionGoalReport buildReportByDictionary(
             Long dictionaryId, Double goalCompletionPercentage, int newWordsGoal) {
         return new DictionaryWordAdditionGoalReport(dictionaryId, goalCompletionPercentage, newWordsGoal, 1);
+    }
+
+    private record CalculationResultData(PeriodRange currentPeriodRange, Double goalCompletionPercentage,
+                                         int newWordsGoalForPeriod) {
     }
 }
