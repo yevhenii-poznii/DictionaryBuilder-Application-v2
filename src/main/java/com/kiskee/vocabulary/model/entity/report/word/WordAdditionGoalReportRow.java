@@ -22,10 +22,12 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Data
 @Entity
 @AllArgsConstructor
+@SuperBuilder(toBuilder = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "report_period", discriminatorType = DiscriminatorType.STRING)
@@ -62,16 +64,5 @@ public class WordAdditionGoalReportRow {
 
     public String getRowPeriod() {
         return this.getClass().getAnnotation(DiscriminatorValue.class).value();
-    }
-
-    public WordAdditionGoalReportRow buildFrom(
-            PeriodRange currentPeriodRange, int workingDays, Set<DictionaryWordAdditionGoalReport> dictionaryReports) {
-        return new WordAdditionGoalReportRow(
-                this.id,
-                currentPeriodRange.startPeriod(),
-                currentPeriodRange.endPeriod(),
-                workingDays,
-                dictionaryReports,
-                this.reportPeriod);
     }
 }

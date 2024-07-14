@@ -9,8 +9,10 @@ import jakarta.persistence.Entity;
 import java.util.Set;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Entity
+@SuperBuilder(toBuilder = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @DiscriminatorValue(value = ReportPeriodUtil.YEAR)
 public class YearlyWordAdditionGoalReportRow extends WordAdditionGoalReportRow {

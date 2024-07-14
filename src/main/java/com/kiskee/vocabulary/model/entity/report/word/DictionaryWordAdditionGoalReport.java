@@ -40,8 +40,13 @@ public class DictionaryWordAdditionGoalReport {
         this.newWordsActual = newWordsActual;
     }
 
-    public DictionaryWordAdditionGoalReport buildFrom(Double goalCompletionPercentage, int newWordsGoalForPeriod) {
+    public DictionaryWordAdditionGoalReport buildFrom(
+            Double goalCompletionPercentage, int newWordsGoalForPeriod, int addedWords) {
         return new DictionaryWordAdditionGoalReport(
-                this.id, this.dictionaryId, goalCompletionPercentage, newWordsGoalForPeriod, this.newWordsActual++);
+                this.id,
+                this.dictionaryId,
+                goalCompletionPercentage,
+                newWordsGoalForPeriod,
+                this.newWordsActual + addedWords);
     }
 }

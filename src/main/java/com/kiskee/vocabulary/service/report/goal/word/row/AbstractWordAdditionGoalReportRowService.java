@@ -56,7 +56,13 @@ public abstract class AbstractWordAdditionGoalReportRowService {
                         updateDictionaryReport(row, workingDaysForPeriod, dictionaryReport, wordAdditionData))
                 .collect(Collectors.toSet());
 
-        return row.buildFrom(currentPeriodRange, workingDaysForPeriod, recalculatedDictionaryReports);
+        return row.toBuilder()
+                .reportPeriod(row.getRowPeriod())
+                .startPeriod(currentPeriodRange.startPeriod())
+                .endPeriod(currentPeriodRange.endPeriod())
+                .workingDays(workingDaysForPeriod)
+                .dictionaryReports(recalculatedDictionaryReports)
+                .build();
     }
 
     private PeriodRange buildPeriodRange(LocalDate currentDate, LocalDate userCreatedAt) {
@@ -93,14 +99,15 @@ public abstract class AbstractWordAdditionGoalReportRowService {
             WordAdditionData wordAdditionData) {
         Double goalCompletionPercentage = recalculateGoalCompletionPercentageForDictionaryReport(
                 row, dictionaryReport, wordAdditionData, currentWorkingDays);
-        // TODO: Implement newWordsGoalForPeriod calculation
         goalCompletionPercentage = roundToThreeDigitAfterComma(goalCompletionPercentage);
         int newWordsGoalForPeriod = calculateNewWordsGoalForPeriod(
                 currentWorkingDays,
                 row.getWorkingDays(),
                 dictionaryReport.getNewWordsGoal(),
                 wordAdditionData.newWordsPerDayGoal());
-        return dictionaryReport.buildFrom(goalCompletionPercentage, newWordsGoalForPeriod);
+
+        return dictionaryReport.buildFrom(
+                goalCompletionPercentage, newWordsGoalForPeriod, wordAdditionData.addedWords());
     }
 
     private Double recalculateGoalCompletionPercentageForDictionaryReport(
@@ -153,8 +160,8 @@ public abstract class AbstractWordAdditionGoalReportRowService {
     private int calculateNewWordsGoalForPeriod(
             int currentWorkingDays, int previousWorkingDays, int previousWordsGoal, int newWordsGoalForToday) {
         int currentWorkingDaysWithoutCurrentDay = currentWorkingDays - 1; // excluding current day
-        int previousDailyAverageWordsGoal = previousWordsGoal / previousWorkingDays;
-        int previousWordsGoalForPeriod = previousDailyAverageWordsGoal * currentWorkingDaysWithoutCurrentDay;
-        return previousWordsGoalForPeriod + newWordsGoalForToday;
+        double previousDailyAverageWordsGoal = (double) previousWordsGoal / previousWorkingDays;
+        double previousWordsGoalForPeriod = previousDailyAverageWordsGoal * currentWorkingDaysWithoutCurrentDay;
+        return (int) (previousWordsGoalForPeriod + newWordsGoalForToday);
     }
 }
