@@ -443,7 +443,7 @@ public class WordServiceImplTest {
         List<Word> existingWords = prepareExistingWordsToUpdateCounters(true, 0);
         when(wordRepository.findByIdIn(wordIds)).thenReturn(existingWords);
 
-        WordPreference wordPreference = new WordPreference(10);
+        WordPreference wordPreference = new WordPreference(10, 10);
         when(wordPreferenceService.getWordPreference(USER_ID)).thenReturn(wordPreference);
 
         wordService.updateRightAnswersCounters(USER_ID, wordsToUpdate);
@@ -463,7 +463,7 @@ public class WordServiceImplTest {
         List<Word> existingWords = prepareExistingWordsToUpdateCounters(true, 9);
         when(wordRepository.findByIdIn(wordIds)).thenReturn(existingWords);
 
-        WordPreference wordPreference = new WordPreference(10);
+        WordPreference wordPreference = new WordPreference(10, 10);
         when(wordPreferenceService.getWordPreference(USER_ID)).thenReturn(wordPreference);
 
         wordService.updateRightAnswersCounters(USER_ID, wordsToUpdate);
