@@ -17,7 +17,6 @@ public abstract class AbstractWordAdditionGoalReportRowService {
     public abstract String getRowPeriod();
 
     private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#.###");
-    private static final int PREVIOUS_DAY_EXCLUSIONS = 1;
 
     protected abstract WordAdditionGoalReportRow buildPeriodRow(
             PeriodRange currentPeriodRange,
@@ -95,9 +94,12 @@ public abstract class AbstractWordAdditionGoalReportRowService {
         Double goalCompletionPercentage = recalculateGoalCompletionPercentageForDictionaryReport(
                 row, dictionaryReport, wordAdditionData, currentWorkingDays);
         // TODO: Implement newWordsGoalForPeriod calculation
-        int newWordsGoalForPeriod = wordAdditionData.newWordsPerDayGoal() * currentWorkingDays;
         goalCompletionPercentage = roundToThreeDigitAfterComma(goalCompletionPercentage);
-
+        int newWordsGoalForPeriod = calculateNewWordsGoalForPeriod(
+                currentWorkingDays,
+                row.getWorkingDays(),
+                dictionaryReport.getNewWordsGoal(),
+                wordAdditionData.newWordsPerDayGoal());
         return dictionaryReport.buildFrom(goalCompletionPercentage, newWordsGoalForPeriod);
     }
 
@@ -146,5 +148,13 @@ public abstract class AbstractWordAdditionGoalReportRowService {
     private DictionaryWordAdditionGoalReport buildReportByDictionary(
             Long dictionaryId, Double goalCompletionPercentage, int newWordsGoal, int addedWords) {
         return new DictionaryWordAdditionGoalReport(dictionaryId, goalCompletionPercentage, newWordsGoal, addedWords);
+    }
+
+    private int calculateNewWordsGoalForPeriod(
+            int currentWorkingDays, int previousWorkingDays, int previousWordsGoal, int newWordsGoalForToday) {
+        int currentWorkingDaysWithoutCurrentDay = currentWorkingDays - 1; // excluding current day
+        int previousDailyAverageWordsGoal = previousWordsGoal / previousWorkingDays;
+        int previousWordsGoalForPeriod = previousDailyAverageWordsGoal * currentWorkingDaysWithoutCurrentDay;
+        return previousWordsGoalForPeriod + newWordsGoalForToday;
     }
 }
