@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 public class MonthlyWordAdditionGoalReportRow extends WordAdditionGoalReportRow {
 
     public MonthlyWordAdditionGoalReportRow(
-            PeriodRange currentPeriodRange, Set<DictionaryWordAdditionGoalReport> dictionaryReports) {
-        super(currentPeriodRange, dictionaryReports);
+            PeriodRange currentPeriodRange, int workingDays, Set<DictionaryWordAdditionGoalReport> dictionaryReports) {
+        super(currentPeriodRange, workingDays, dictionaryReports);
     }
 }

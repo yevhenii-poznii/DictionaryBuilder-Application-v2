@@ -18,8 +18,10 @@ public class YearlyWordAdditionGoalReportRowService extends AbstractWordAddition
 
     @Override
     protected WordAdditionGoalReportRow buildPeriodRow(
-            PeriodRange currentPeriodRange, Set<DictionaryWordAdditionGoalReport> dictionaryReports) {
-        return new YearlyWordAdditionGoalReportRow(currentPeriodRange, dictionaryReports);
+            PeriodRange currentPeriodRange,
+            int workingDaysForPeriod,
+            Set<DictionaryWordAdditionGoalReport> dictionaryReports) {
+        return new YearlyWordAdditionGoalReportRow(currentPeriodRange, workingDaysForPeriod, dictionaryReports);
     }
 
     @Override

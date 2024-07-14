@@ -11,6 +11,7 @@ create table word_addition_goal_report_row
     id            bigserial   not null primary key,
     start_period  date,
     end_period    date        not null,
+    working_days  integer     not null,
     report_period varchar(50) not null check (report_period IN ('day', 'week', 'month', 'year', 'total')),
 
     report_id     bigint,

@@ -55,7 +55,7 @@ public class WordServiceImpl implements WordService, WordCounterUpdateService {
 
         UUID userId = IdentityUtil.getUserId();
         int newWordsPerDayGoal = wordPreferenceService.getWordPreference(userId).newWordsPerDayGoal();
-        updateWordAdditionGoalReportService.updateReport(userId, dictionaryId, newWordsPerDayGoal);
+        updateWordAdditionGoalReportService.updateReport(userId, dictionaryId, 1, newWordsPerDayGoal);
 
         return mapToResponse(saved, VocabularyResponseMessageEnum.WORD_ADDED, LogMessageEnum.WORD_ADDED);
     }

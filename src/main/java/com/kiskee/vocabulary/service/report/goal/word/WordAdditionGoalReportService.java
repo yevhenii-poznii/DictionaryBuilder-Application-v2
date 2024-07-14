@@ -32,7 +32,7 @@ public class WordAdditionGoalReportService implements UpdateGoalReportService {
     private final List<WordAdditionGoalReportRowService> rowServices;
 
     @Override
-    public void updateReport(UUID userId, Long dictionaryId, int newWordsPerDayGoal) {
+    public void updateReport(UUID userId, Long dictionaryId, int addedWords, int newWordsPerDayGoal) {
         Optional<WordAdditionGoalReport> report = repository.findByUserId(userId);
 
         ZoneId userTimeZone = TimeZoneContextHolder.getTimeZone();
@@ -43,7 +43,13 @@ public class WordAdditionGoalReportService implements UpdateGoalReportService {
         LocalDate currentDateAtUserTimeZone = LocalDate.now(userTimeZone);
 
         WordAdditionData wordAdditionData = new WordAdditionData(
-                userId, dictionaryId, newWordsPerDayGoal, userCreatedAt, currentDateAtUserTimeZone, userTimeZone);
+                userId,
+                dictionaryId,
+                addedWords,
+                newWordsPerDayGoal,
+                userCreatedAt,
+                currentDateAtUserTimeZone,
+                userTimeZone);
 
         if (report.isPresent()) {
             updateExistingReport(wordAdditionData, report.get());

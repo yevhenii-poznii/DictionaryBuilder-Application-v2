@@ -41,9 +41,8 @@ public class WordAdditionGoalReportRow {
     @Column(nullable = false)
     private LocalDate endPeriod;
 
-    // TODO Is there need in this field?
-    //    @Column(nullable = false)
-    //    private int workingDays;
+    @Column(nullable = false)
+    private int workingDays;
 
     @JoinColumn(name = "reportRowId")
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
@@ -53,14 +52,26 @@ public class WordAdditionGoalReportRow {
     private String reportPeriod;
 
     public WordAdditionGoalReportRow(
-            PeriodRange currentPeriodRange, Set<DictionaryWordAdditionGoalReport> dictionaryReports) {
+            PeriodRange currentPeriodRange, int workingDays, Set<DictionaryWordAdditionGoalReport> dictionaryReports) {
         this.reportPeriod = this.getRowPeriod();
         this.startPeriod = currentPeriodRange.startPeriod();
         this.endPeriod = currentPeriodRange.endPeriod();
+        this.workingDays = workingDays;
         this.dictionaryReports = dictionaryReports;
     }
 
     public String getRowPeriod() {
         return this.getClass().getAnnotation(DiscriminatorValue.class).value();
+    }
+
+    public WordAdditionGoalReportRow buildFrom(
+            PeriodRange currentPeriodRange, int workingDays, Set<DictionaryWordAdditionGoalReport> dictionaryReports) {
+        return new WordAdditionGoalReportRow(
+                this.id,
+                currentPeriodRange.startPeriod(),
+                currentPeriodRange.endPeriod(),
+                workingDays,
+                dictionaryReports,
+                this.reportPeriod);
     }
 }
