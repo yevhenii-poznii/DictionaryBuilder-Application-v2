@@ -14,7 +14,6 @@ import com.kiskee.vocabulary.model.dto.user.preference.WordPreference;
 import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
 import com.kiskee.vocabulary.model.entity.user.preference.UserPreference;
 import com.kiskee.vocabulary.repository.user.preference.UserPreferenceRepository;
-
 import java.time.Duration;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -53,7 +52,15 @@ public class UserPreferenceServiceTest {
         when(givenUserEntity.getId()).thenReturn(userId);
 
         UserPreference userPreference = new UserPreference(
-                userId, ProfileVisibility.PRIVATE, 100, true, PageFilter.BY_ADDED_AT_ASC, 10, 10, Duration.ofHours(1), givenUserEntity);
+                userId,
+                ProfileVisibility.PRIVATE,
+                100,
+                true,
+                PageFilter.BY_ADDED_AT_ASC,
+                10,
+                10,
+                Duration.ofHours(1),
+                givenUserEntity);
         when(userPreferenceMapper.toEntity(
                         defaultUserPreferenceProperties,
                         givenUserEntity,
@@ -78,14 +85,14 @@ public class UserPreferenceServiceTest {
         UUID userId = UUID.fromString("75ab44f4-40a3-4094-a885-51ade9e6df4a");
         int rightAnswersToDisableInRepetition = 10;
         int newWordsPerDayGoal = 10;
-        WordPreference expectedWordPreference = new WordPreference(rightAnswersToDisableInRepetition, newWordsPerDayGoal);
+        WordPreference expectedWordPreference =
+                new WordPreference(rightAnswersToDisableInRepetition, newWordsPerDayGoal);
         when(userPreferenceRepository.findWordPreferenceByUserId(userId)).thenReturn(expectedWordPreference);
 
         WordPreference actualWordPreference = userPreferenceService.getWordPreference(userId);
 
         assertThat(actualWordPreference.rightAnswersToDisableInRepetition())
                 .isEqualTo(rightAnswersToDisableInRepetition);
-        assertThat(actualWordPreference.newWordsPerDayGoal())
-                .isEqualTo(newWordsPerDayGoal);
+        assertThat(actualWordPreference.newWordsPerDayGoal()).isEqualTo(newWordsPerDayGoal);
     }
 }

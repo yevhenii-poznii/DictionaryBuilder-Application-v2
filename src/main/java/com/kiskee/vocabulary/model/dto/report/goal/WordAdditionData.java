@@ -1,7 +1,6 @@
 package com.kiskee.vocabulary.model.dto.report.goal;
 
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.UUID;
 
 public record WordAdditionData(
@@ -10,5 +9,4 @@ public record WordAdditionData(
         int addedWords,
         int newWordsPerDayGoal,
         LocalDate userCreatedAt,
-        LocalDate currentDate,
-        ZoneId userTimeZone) {}
+        LocalDate currentDate) {}

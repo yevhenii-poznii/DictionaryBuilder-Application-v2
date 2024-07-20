@@ -14,7 +14,7 @@ import com.kiskee.vocabulary.model.dto.vocabulary.word.WordUpdateRequest;
 import com.kiskee.vocabulary.model.entity.vocabulary.Word;
 import com.kiskee.vocabulary.model.entity.vocabulary.WordTranslation;
 import com.kiskee.vocabulary.repository.vocabulary.WordRepository;
-import com.kiskee.vocabulary.service.report.UpdateGoalReportService;
+import com.kiskee.vocabulary.service.cache.CacheService;
 import com.kiskee.vocabulary.service.user.preference.WordPreferenceService;
 import com.kiskee.vocabulary.service.vocabulary.dictionary.DictionaryAccessValidator;
 import com.kiskee.vocabulary.service.vocabulary.word.translation.WordTranslationService;
@@ -43,8 +43,8 @@ public class WordServiceImpl implements WordService, WordCounterUpdateService {
     private final DictionaryAccessValidator dictionaryAccessValidator;
     private final WordTranslationService wordTranslationService;
 
+    private final CacheService cacheService;
     private final WordPreferenceService wordPreferenceService;
-    private final UpdateGoalReportService updateWordAdditionGoalReportService;
 
     @Override
     @Transactional
@@ -54,8 +54,7 @@ public class WordServiceImpl implements WordService, WordCounterUpdateService {
         Word saved = repository.save(wordToSave);
 
         UUID userId = IdentityUtil.getUserId();
-        int newWordsPerDayGoal = wordPreferenceService.getWordPreference(userId).newWordsPerDayGoal();
-        updateWordAdditionGoalReportService.updateReport(userId, dictionaryId, 1, newWordsPerDayGoal);
+        cacheService.updateCache(userId, dictionaryId);
 
         return mapToResponse(saved, VocabularyResponseMessageEnum.WORD_ADDED, LogMessageEnum.WORD_ADDED);
     }

@@ -25,6 +25,7 @@ import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
 import com.kiskee.vocabulary.model.entity.vocabulary.Word;
 import com.kiskee.vocabulary.model.entity.vocabulary.WordTranslation;
 import com.kiskee.vocabulary.repository.vocabulary.WordRepository;
+import com.kiskee.vocabulary.service.cache.TemporaryWordAdditionCacheService;
 import com.kiskee.vocabulary.service.user.preference.WordPreferenceService;
 import com.kiskee.vocabulary.service.vocabulary.dictionary.DictionaryAccessValidator;
 import com.kiskee.vocabulary.service.vocabulary.word.translation.WordTranslationService;
@@ -74,6 +75,9 @@ public class WordServiceImplTest {
     private WordPreferenceService wordPreferenceService;
 
     @Mock
+    private TemporaryWordAdditionCacheService cacheService;
+
+    @Mock
     private SecurityContext securityContext;
 
     @Captor
@@ -118,6 +122,7 @@ public class WordServiceImplTest {
         Word actualWord = wordCaptor.getValue();
 
         verify(dictionaryAccessValidator).verifyUserHasDictionary(dictionaryId);
+        verify(cacheService).updateCache(USER_ID, dictionaryId);
 
         assertThat(actualWord.getWord()).isEqualTo(wordSaveResponse.getWord().getWord());
         assertThat(actualWord.isUseInRepetition())
