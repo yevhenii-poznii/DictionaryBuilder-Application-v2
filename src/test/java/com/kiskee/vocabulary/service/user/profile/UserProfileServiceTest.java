@@ -8,11 +8,13 @@ import static org.mockito.Mockito.when;
 import com.kiskee.vocabulary.config.properties.user.DefaultUserProfileProperties;
 import com.kiskee.vocabulary.mapper.user.profile.UserProfileMapper;
 import com.kiskee.vocabulary.model.dto.registration.InternalRegistrationRequest;
+import com.kiskee.vocabulary.model.dto.user.profile.UserCreatedAt;
 import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
 import com.kiskee.vocabulary.model.entity.user.profile.UserProfile;
 import com.kiskee.vocabulary.model.entity.vocabulary.Dictionary;
 import com.kiskee.vocabulary.repository.user.profile.UserProfileRepository;
 import com.kiskee.vocabulary.service.vocabulary.dictionary.DictionaryCreationService;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -124,5 +126,16 @@ public class UserProfileServiceTest {
         assertThat(actual.getDictionaries())
                 .extracting(Dictionary::getDictionaryName)
                 .containsExactly(dictionaryName);
+    }
+
+    @Test
+    void testGetCreatedAtField_WhenUserIdIsGiven_ThenReturnCreatedAtField() {
+        Instant createdAtInstant = Instant.parse("2021-01-01T00:00:00Z");
+        UserCreatedAt userCreatedAt = new UserCreatedAt(createdAtInstant);
+        when(userProfileRepository.findCreatedAtByUserId(USER_ID)).thenReturn(userCreatedAt);
+
+        Instant actual = userProfileService.getCreatedAtField(USER_ID);
+
+        assertThat(actual).isEqualTo(createdAtInstant);
     }
 }

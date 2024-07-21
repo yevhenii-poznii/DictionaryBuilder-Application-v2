@@ -29,6 +29,7 @@ public class TemporaryWordAdditionCacheService implements CacheService {
         TemporaryWordAdditionData data = dataOpt.orElseGet(() -> createFromScratch(key, userId, dictionaryId))
                 .incrementAddedWords();
         repository.save(data);
+        log.info("Temporary word addition data updated for key: {}", key);
 
         scheduler.scheduleUpdateReport(key);
     }

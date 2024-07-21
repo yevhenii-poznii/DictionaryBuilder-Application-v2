@@ -44,7 +44,7 @@ public class WordAdditionUpdateReportScheduler implements UpdateReportScheduler 
     }
 
     @Scheduled(initialDelayString = "${scheduler.initial-delay}")
-    public void updateWordAdditionGoalReports() {
+    public void scheduleUpdateReportsOnStartup() {
         Iterable<TemporaryWordAdditionData> toSchedule = repository.findAll();
         List<TemporaryWordAdditionData> toScheduleSorted = sortByDate(toSchedule);
         if (!toScheduleSorted.isEmpty()) {
