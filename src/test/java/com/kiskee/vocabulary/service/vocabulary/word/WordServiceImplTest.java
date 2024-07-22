@@ -14,7 +14,6 @@ import com.kiskee.vocabulary.enums.user.UserRole;
 import com.kiskee.vocabulary.exception.ForbiddenAccessException;
 import com.kiskee.vocabulary.exception.ResourceNotFoundException;
 import com.kiskee.vocabulary.mapper.dictionary.WordMapper;
-import com.kiskee.vocabulary.model.dto.ResponseMessage;
 import com.kiskee.vocabulary.model.dto.user.preference.WordPreference;
 import com.kiskee.vocabulary.model.dto.vocabulary.word.WordDto;
 import com.kiskee.vocabulary.model.dto.vocabulary.word.WordSaveRequest;
@@ -396,8 +395,7 @@ public class WordServiceImplTest {
         when(wordRepository.findByIdIn(wordId)).thenReturn(wordsToDelete);
         doNothing().when(wordRepository).deleteAll(wordsCaptor.capture());
 
-        ResponseMessage responseMessage = wordService.deleteWords(dictionaryId, wordId);
-        System.out.println(responseMessage.getResponseMessage());
+        wordService.deleteWords(dictionaryId, wordId);
         List<Word> deletedWords = wordsCaptor.getValue();
 
         verify(dictionaryAccessValidator).verifyUserHasDictionary(dictionaryId);
