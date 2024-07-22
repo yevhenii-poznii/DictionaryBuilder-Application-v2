@@ -8,6 +8,8 @@ import com.kiskee.vocabulary.util.report.ReportPeriodUtil;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -51,10 +53,8 @@ public abstract class AbstractWordAdditionGoalReportRowService {
                 buildPeriodRange(wordAdditionData.currentDate(), wordAdditionData.userCreatedAt());
         int workingDaysForPeriod = calculateWorkingDaysForPeriod(currentPeriodRange);
 
-        Set<DictionaryWordAdditionGoalReport> recalculatedDictionaryReports = row.getDictionaryReports().stream()
-                .map(dictionaryReport ->
-                        updateDictionaryReport(row, workingDaysForPeriod, dictionaryReport, wordAdditionData))
-                .collect(Collectors.toSet());
+        Set<DictionaryWordAdditionGoalReport> recalculatedDictionaryReports =
+                updateDictionaryReports(row, wordAdditionData, workingDaysForPeriod);
 
         return row.toBuilder()
                 .reportPeriod(row.getRowPeriod())
@@ -92,7 +92,28 @@ public abstract class AbstractWordAdditionGoalReportRowService {
         return date.getDayOfWeek().getValue() < 6;
     }
 
-    private DictionaryWordAdditionGoalReport updateDictionaryReport(
+    private Set<DictionaryWordAdditionGoalReport> updateDictionaryReports(
+            WordAdditionGoalReportRow row, WordAdditionData wordAdditionData, int workingDaysForPeriod) {
+        Set<DictionaryWordAdditionGoalReport> dictionaryWordAdditionGoalReports =
+                new HashSet<>(row.getDictionaryReports());
+
+        Optional<DictionaryWordAdditionGoalReport> existingDictionaryReport = dictionaryWordAdditionGoalReports.stream()
+                .filter(dictionaryReport -> dictionaryReport.getDictionaryId().equals(wordAdditionData.dictionaryId()))
+                .findFirst();
+
+        if (existingDictionaryReport.isEmpty()) {
+            DictionaryWordAdditionGoalReport newDictionaryReport =
+                    buildReportByDictionary(wordAdditionData.dictionaryId(), 0.0, 0, 0);
+            dictionaryWordAdditionGoalReports.add(newDictionaryReport);
+        }
+
+        return dictionaryWordAdditionGoalReports.stream()
+                .map(dictionaryReport ->
+                        recalculateDictionaryReport(row, workingDaysForPeriod, dictionaryReport, wordAdditionData))
+                .collect(Collectors.toSet());
+    }
+
+    private DictionaryWordAdditionGoalReport recalculateDictionaryReport(
             WordAdditionGoalReportRow row,
             int currentWorkingDays,
             DictionaryWordAdditionGoalReport dictionaryReport,
@@ -106,8 +127,10 @@ public abstract class AbstractWordAdditionGoalReportRowService {
                 dictionaryReport.getNewWordsGoal(),
                 wordAdditionData.newWordsPerDayGoal());
 
-        return dictionaryReport.buildFrom(
-                goalCompletionPercentage, newWordsGoalForPeriod, wordAdditionData.addedWords());
+        return !dictionaryReport.getDictionaryId().equals(wordAdditionData.dictionaryId())
+                ? dictionaryReport.buildFrom(goalCompletionPercentage, newWordsGoalForPeriod)
+                : dictionaryReport.buildFrom(
+                        goalCompletionPercentage, newWordsGoalForPeriod, wordAdditionData.addedWords());
     }
 
     private Double recalculateGoalCompletionPercentageForDictionaryReport(
