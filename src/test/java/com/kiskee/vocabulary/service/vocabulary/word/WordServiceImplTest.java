@@ -14,8 +14,7 @@ import com.kiskee.vocabulary.enums.user.UserRole;
 import com.kiskee.vocabulary.exception.ForbiddenAccessException;
 import com.kiskee.vocabulary.exception.ResourceNotFoundException;
 import com.kiskee.vocabulary.mapper.dictionary.WordMapper;
-import com.kiskee.vocabulary.model.dto.ResponseMessage;
-import com.kiskee.vocabulary.model.dto.user.WordPreference;
+import com.kiskee.vocabulary.model.dto.user.preference.WordPreference;
 import com.kiskee.vocabulary.model.dto.vocabulary.word.WordDto;
 import com.kiskee.vocabulary.model.dto.vocabulary.word.WordSaveRequest;
 import com.kiskee.vocabulary.model.dto.vocabulary.word.WordSaveResponse;
@@ -25,6 +24,7 @@ import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
 import com.kiskee.vocabulary.model.entity.vocabulary.Word;
 import com.kiskee.vocabulary.model.entity.vocabulary.WordTranslation;
 import com.kiskee.vocabulary.repository.vocabulary.WordRepository;
+import com.kiskee.vocabulary.service.cache.TemporaryWordAdditionCacheService;
 import com.kiskee.vocabulary.service.user.preference.WordPreferenceService;
 import com.kiskee.vocabulary.service.vocabulary.dictionary.DictionaryAccessValidator;
 import com.kiskee.vocabulary.service.vocabulary.word.translation.WordTranslationService;
@@ -74,6 +74,9 @@ public class WordServiceImplTest {
     private WordPreferenceService wordPreferenceService;
 
     @Mock
+    private TemporaryWordAdditionCacheService cacheService;
+
+    @Mock
     private SecurityContext securityContext;
 
     @Captor
@@ -118,6 +121,7 @@ public class WordServiceImplTest {
         Word actualWord = wordCaptor.getValue();
 
         verify(dictionaryAccessValidator).verifyUserHasDictionary(dictionaryId);
+        verify(cacheService).updateCache(USER_ID, dictionaryId);
 
         assertThat(actualWord.getWord()).isEqualTo(wordSaveResponse.getWord().getWord());
         assertThat(actualWord.isUseInRepetition())
@@ -391,8 +395,7 @@ public class WordServiceImplTest {
         when(wordRepository.findByIdIn(wordId)).thenReturn(wordsToDelete);
         doNothing().when(wordRepository).deleteAll(wordsCaptor.capture());
 
-        ResponseMessage responseMessage = wordService.deleteWords(dictionaryId, wordId);
-        System.out.println(responseMessage.getResponseMessage());
+        wordService.deleteWords(dictionaryId, wordId);
         List<Word> deletedWords = wordsCaptor.getValue();
 
         verify(dictionaryAccessValidator).verifyUserHasDictionary(dictionaryId);
@@ -443,7 +446,7 @@ public class WordServiceImplTest {
         List<Word> existingWords = prepareExistingWordsToUpdateCounters(true, 0);
         when(wordRepository.findByIdIn(wordIds)).thenReturn(existingWords);
 
-        WordPreference wordPreference = new WordPreference(10);
+        WordPreference wordPreference = new WordPreference(10, 10);
         when(wordPreferenceService.getWordPreference(USER_ID)).thenReturn(wordPreference);
 
         wordService.updateRightAnswersCounters(USER_ID, wordsToUpdate);
@@ -463,7 +466,7 @@ public class WordServiceImplTest {
         List<Word> existingWords = prepareExistingWordsToUpdateCounters(true, 9);
         when(wordRepository.findByIdIn(wordIds)).thenReturn(existingWords);
 
-        WordPreference wordPreference = new WordPreference(10);
+        WordPreference wordPreference = new WordPreference(10, 10);
         when(wordPreferenceService.getWordPreference(USER_ID)).thenReturn(wordPreference);
 
         wordService.updateRightAnswersCounters(USER_ID, wordsToUpdate);

@@ -35,6 +35,8 @@ spring:
       starttls.enable: true
   messages:
     basename: messages
+  jackson:
+    time-zone: UTC
 logging:
   level:
     org.springframework.security: DEBUG
@@ -57,6 +59,8 @@ vocabulary:
       right-answers-to-disable-in-repetition: ${RIGHT_ANSWERS_TO_DISABLE_IN_REPETITION:10}
       words-per-page: ${WORDS_PER_PAGE:100}
       blur-translation: ${BLUR_TRANSLATION:true}
+      new-words-per-day-goal: ${NEW_WORDS_PER_DAY_GOAL:10}
+      daily-repetition-duration-goal: ${DAILY_REPETITION_DURATION_GOAL:1h}
   jwt:
     secret-key-path: ${JWE_SECRET_KEY_PATH:secretkey-256.bin}
     jwe-algorithm: ${JWE_ALGORITHM:dir}
@@ -68,3 +72,8 @@ vocabulary:
 config:
   mvc:
     allowed-origins: https://localhost:3000
+scheduler:
+  pool-size: ${SCHEDULER_POOL_SIZE:10}
+  thread-name-prefix: ${SCHEDULER_THREAD_NAME_PREFIX:scheduler-}
+  start-task-delay: ${SCHEDULER_START_TASK_DELAY:PT100S}
+  initial-delay: ${SCHEDULER_START_TASK_DELAY:PT10S}

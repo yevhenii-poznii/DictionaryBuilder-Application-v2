@@ -1,6 +1,6 @@
 package com.kiskee.vocabulary.repository.user.preference;
 
-import com.kiskee.vocabulary.model.dto.user.WordPreference;
+import com.kiskee.vocabulary.model.dto.user.preference.WordPreference;
 import com.kiskee.vocabulary.model.entity.user.preference.UserPreference;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;

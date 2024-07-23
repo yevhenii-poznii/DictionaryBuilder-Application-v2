@@ -2,10 +2,12 @@ package com.kiskee.vocabulary.model.entity.user.preference;
 
 import com.kiskee.vocabulary.enums.user.ProfileVisibility;
 import com.kiskee.vocabulary.enums.vocabulary.PageFilter;
+import com.kiskee.vocabulary.model.converter.DurationStringConverter;
 import com.kiskee.vocabulary.model.entity.user.UserProfilePreferenceType;
 import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -13,6 +15,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
+import java.time.Duration;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -30,13 +33,12 @@ public class UserPreference implements UserProfilePreferenceType {
     @Id
     private UUID userId;
 
+    // profile preference
     @Column(nullable = false)
     @Enumerated(value = EnumType.STRING)
     private ProfileVisibility profileVisibility;
 
-    @Column(nullable = false)
-    private int rightAnswersToDisableInRepetition;
-
+    // dictionary preference
     @Column(nullable = false)
     private int wordsPerPage;
 
@@ -46,6 +48,18 @@ public class UserPreference implements UserProfilePreferenceType {
     @Column(nullable = false)
     @Enumerated(value = EnumType.STRING)
     private PageFilter pageFilter;
+
+    // word preference
+    @Column(nullable = false)
+    private int rightAnswersToDisableInRepetition;
+
+    @Column(nullable = false)
+    private int newWordsPerDayGoal;
+
+    // repetition preference
+    @Column(nullable = false)
+    @Convert(converter = DurationStringConverter.class)
+    private Duration dailyRepetitionDurationGoal;
 
     @MapsId
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)

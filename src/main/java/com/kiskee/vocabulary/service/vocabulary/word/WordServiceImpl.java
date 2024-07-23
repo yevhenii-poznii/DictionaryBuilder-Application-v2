@@ -14,6 +14,7 @@ import com.kiskee.vocabulary.model.dto.vocabulary.word.WordUpdateRequest;
 import com.kiskee.vocabulary.model.entity.vocabulary.Word;
 import com.kiskee.vocabulary.model.entity.vocabulary.WordTranslation;
 import com.kiskee.vocabulary.repository.vocabulary.WordRepository;
+import com.kiskee.vocabulary.service.cache.CacheService;
 import com.kiskee.vocabulary.service.user.preference.WordPreferenceService;
 import com.kiskee.vocabulary.service.vocabulary.dictionary.DictionaryAccessValidator;
 import com.kiskee.vocabulary.service.vocabulary.word.translation.WordTranslationService;
@@ -42,16 +43,18 @@ public class WordServiceImpl implements WordService, WordCounterUpdateService {
     private final DictionaryAccessValidator dictionaryAccessValidator;
     private final WordTranslationService wordTranslationService;
 
+    private final CacheService cacheService;
     private final WordPreferenceService wordPreferenceService;
 
     @Override
     @Transactional
     public WordSaveResponse addWord(Long dictionaryId, WordSaveRequest wordSaveRequest) {
         dictionaryAccessValidator.verifyUserHasDictionary(dictionaryId);
-
         Word wordToSave = mapper.toEntity(wordSaveRequest, dictionaryId);
-
         Word saved = repository.save(wordToSave);
+
+        UUID userId = IdentityUtil.getUserId();
+        cacheService.updateCache(userId, dictionaryId);
 
         return mapToResponse(saved, VocabularyResponseMessageEnum.WORD_ADDED, LogMessageEnum.WORD_ADDED);
     }
@@ -93,6 +96,9 @@ public class WordServiceImpl implements WordService, WordCounterUpdateService {
         Word wordToDelete = getWord(wordId, dictionaryId);
 
         repository.delete(wordToDelete);
+
+        // TODO update word addition goal report if deleted word was added today
+
         displayLog(LogMessageEnum.WORD_DELETED, wordToDelete);
 
         return new ResponseMessage(
@@ -110,9 +116,15 @@ public class WordServiceImpl implements WordService, WordCounterUpdateService {
 
         repository.deleteAll(wordsToDelete);
 
+        // TODO update word addition goal report if deleted words were added today
+
         return new ResponseMessage(
                 String.format(VocabularyResponseMessageEnum.WORDS_DELETE.getResponseMessage(), wordsToDelete));
     }
+
+    /* TODO implement method for move word to another dictionary
+    implementation
+     */
 
     // TODO
     @Async
@@ -129,7 +141,7 @@ public class WordServiceImpl implements WordService, WordCounterUpdateService {
         List<Word> existingWords = repository.findByIdIn(wordIdsToUpdate.keySet());
 
         int rightAnswersToDisableInRepetition =
-                wordPreferenceService.getWordPreference(userId).getRightAnswersToDisableInRepetition();
+                wordPreferenceService.getWordPreference(userId).rightAnswersToDisableInRepetition();
         existingWords.forEach(word ->
                 word.setCounterRightAnswers(wordIdsToUpdate.get(word.getId()), rightAnswersToDisableInRepetition));
 

@@ -1,38 +1,59 @@
 package com.kiskee.vocabulary.model.dto.redis;
 
 import com.kiskee.vocabulary.exception.repetition.RepetitionException;
+import com.kiskee.vocabulary.model.dto.report.RepetitionResultDataDto;
 import com.kiskee.vocabulary.model.dto.vocabulary.word.WordDto;
 import java.time.Instant;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import org.apache.commons.collections4.CollectionUtils;
 
 @Data
-@Builder
 @AllArgsConstructor
+@SuperBuilder(toBuilder = true)
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class RepetitionData {
+public class RepetitionData extends RepetitionResultDataDto {
 
     private Deque<WordDto> repetitionWords;
     private List<WordDto> passedWords;
     private WordDto currentWord;
-    private Instant startTime;
-    private Instant endTime;
-    private List<Pause> pauses;
-    private int rightAnswersCount;
-    private int wrongAnswersCount;
-    private int skippedWordsCount;
-    private int totalElements;
-    private int totalElementsPassed;
-    private long dictionaryId;
-    private UUID userId;
+
+    public RepetitionData(List<WordDto> repetitionWords, long dictionaryId, UUID userId) {
+        this.repetitionWords = new ArrayDeque<>(repetitionWords);
+        this.passedWords = new ArrayList<>();
+        this.currentWord = this.repetitionWords.pop();
+        super.setPauses(new ArrayList<>());
+        super.setStartTime(Instant.now());
+        super.setTotalElements(repetitionWords.size());
+        super.setDictionaryId(dictionaryId);
+        super.setUserId(userId);
+    }
+
+    public RepetitionResultDataDto toResult() {
+        return RepetitionResultDataDto.builder()
+                .userId(this.getUserId())
+                .dictionaryId(this.getDictionaryId())
+                .startTime(this.getStartTime())
+                .endTime(Instant.now())
+                .pauses(this.getPauses())
+                .rightAnswersCount(this.getRightAnswersCount())
+                .wrongAnswersCount(this.getWrongAnswersCount())
+                .skippedWordsCount(this.getSkippedWordsCount())
+                .totalElements(this.getTotalElements())
+                .totalElementsPassed(this.getTotalElementsPassed())
+                .build();
+    }
 
     public RepetitionData updateData(boolean isCorrect) {
         if (isCorrect) {
@@ -46,7 +67,7 @@ public class RepetitionData {
     }
 
     public RepetitionData skip() {
-        this.skippedWordsCount++;
+        this.incrementSkippedWordsCount();
         this.setNext();
         return this;
     }
@@ -81,18 +102,14 @@ public class RepetitionData {
         this.setCurrentWord(next);
     }
 
-    private void incrementTotalElementsPassed() {
-        this.totalElementsPassed++;
-    }
-
-    private void incrementRightAnswersCount() {
-        this.rightAnswersCount++;
+    protected void incrementRightAnswersCount() {
+        super.incrementRightAnswersCount();
         this.currentWord.incrementCounterRightAnswers();
-        incrementTotalElementsPassed();
+        this.incrementTotalElementsPassed();
     }
 
-    private void incrementWrongAnswersCount() {
-        this.wrongAnswersCount++;
+    protected void incrementWrongAnswersCount() {
+        super.incrementWrongAnswersCount();
         this.currentWord.decrementCounterRightAnswers();
         incrementTotalElementsPassed();
     }
