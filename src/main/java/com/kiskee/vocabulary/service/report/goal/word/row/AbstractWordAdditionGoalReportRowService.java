@@ -182,6 +182,9 @@ public abstract class AbstractWordAdditionGoalReportRowService {
 
     private int calculateNewWordsGoalForPeriod(
             int currentWorkingDays, int previousWorkingDays, int previousWordsGoal, int newWordsGoalForToday) {
+        if (previousWordsGoal == 0) {
+            return newWordsGoalForToday * currentWorkingDays;
+        }
         int currentWorkingDaysWithoutCurrentDay = currentWorkingDays - 1; // excluding current day
         double previousDailyAverageWordsGoal = (double) previousWordsGoal / previousWorkingDays;
         double previousWordsGoalForPeriod = previousDailyAverageWordsGoal * currentWorkingDaysWithoutCurrentDay;

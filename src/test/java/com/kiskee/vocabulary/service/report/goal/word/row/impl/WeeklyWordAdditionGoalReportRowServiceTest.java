@@ -149,7 +149,7 @@ public class WeeklyWordAdditionGoalReportRowServiceTest {
     }
 
     @ParameterizedTest
-    @MethodSource("updateRowForNextDayInTheSamePeriod")
+    @MethodSource("updateRowForNextDayInTheSamePeriodAndForNewDictionaryId")
     void
             testUpdateRow_WhenRowExistsForPreviousDayAndCurrentDateInTheSamePeriodButGivenNewDictionaryId_ThenRecalculateRowForNewDay(
                     TestData testData) {
@@ -166,6 +166,9 @@ public class WeeklyWordAdditionGoalReportRowServiceTest {
         WordAdditionGoalReportRow weeklyRow =
                 weeklyWordAdditionGoalReportRowService.updateRow(weeklyRowForToday, testData.data());
 
+        DictionaryWordAdditionGoalReport recalculatedExistingDictionaryReport = dictionaryGoalReport.buildFrom(
+                dictionaryGoalReport.getGoalCompletionPercentage() / 2, dictionaryGoalReport.getNewWordsGoal() * 2);
+
         System.out.println(weeklyRow.getDictionaryReports());
         assertThat(weeklyRow.getWorkingDays()).isEqualTo(2);
         assertThat(weeklyRow.getRowPeriod()).isEqualTo(ReportPeriodUtil.WEEK);
@@ -173,7 +176,8 @@ public class WeeklyWordAdditionGoalReportRowServiceTest {
                 .isEqualTo(testData.data().currentDate().minusDays(1));
         assertThat(weeklyRow.getEndPeriod()).isEqualTo(testData.data().currentDate());
         assertThat(weeklyRow.getDictionaryReports())
-                .containsExactlyInAnyOrder(dictionaryGoalReport, testData.expectedDictionaryGoalReport());
+                .containsExactlyInAnyOrder(
+                        recalculatedExistingDictionaryReport, testData.expectedDictionaryGoalReport());
     }
 
     private static Stream<TestData> buildRowFromScratchTestData() {
@@ -266,22 +270,25 @@ public class WeeklyWordAdditionGoalReportRowServiceTest {
         return testDataList.stream();
     }
 
-    //    private static Stream<TestData> updateRowForNextDayInTheSamePeriodAndForNewDictionaryId() {
-    //        Long dictionaryId = 10L;
-    //        int newWordsGoal = 10;
-    //        LocalDate userCreatedAt = LocalDate.of(2024, 7, 9);
-    //        LocalDate currentDate = LocalDate.of(2024, 7, 16);
-    //        DecimalFormat decimalFormat = new DecimalFormat("#.###");
-    //        List<TestData> testDataList = IntStream.range(1, 12)
-    //                .mapToObj(i -> new TestData(
-    //                        new WordAdditionData(USER_ID, dictionaryId, i, newWordsGoal, userCreatedAt, currentDate),
-    //                        new DictionaryWordAdditionGoalReport(
-    //                                1L, dictionaryId, Double.parseDouble(decimalFormat.format(((double) (i + 7) /
-    // (newWordsGoal * 2)) * 100)), newWordsGoal * 2, i + 7)))
-    //                .toList();
-    //
-    //        return testDataList.stream();
-    //    }
+    private static Stream<TestData> updateRowForNextDayInTheSamePeriodAndForNewDictionaryId() {
+        Long dictionaryId = 10L;
+        int newWordsGoal = 10;
+        LocalDate userCreatedAt = LocalDate.of(2024, 7, 9);
+        LocalDate currentDate = LocalDate.of(2024, 7, 16);
+        DecimalFormat decimalFormat = new DecimalFormat("#.###");
+        List<TestData> testDataList = IntStream.range(1, 12)
+                .mapToObj(i -> new TestData(
+                        new WordAdditionData(USER_ID, dictionaryId, i, newWordsGoal, userCreatedAt, currentDate),
+                        new DictionaryWordAdditionGoalReport(
+                                null,
+                                dictionaryId,
+                                Double.parseDouble(decimalFormat.format((double) i / (newWordsGoal * 2) * 100)),
+                                newWordsGoal * 2,
+                                i)))
+                .toList();
+
+        return testDataList.stream();
+    }
 
     private record TestData(WordAdditionData data, DictionaryWordAdditionGoalReport expectedDictionaryGoalReport) {}
 }
