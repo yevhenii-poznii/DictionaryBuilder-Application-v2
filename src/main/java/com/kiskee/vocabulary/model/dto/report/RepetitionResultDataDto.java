@@ -1,7 +1,8 @@
 package com.kiskee.vocabulary.model.dto.report;
 
-import com.kiskee.vocabulary.model.dto.redis.Pause;
+import com.kiskee.vocabulary.model.entity.redis.repetition.Pause;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import lombok.AccessLevel;
@@ -20,7 +21,7 @@ public class RepetitionResultDataDto implements RepetitionResultData {
     private long dictionaryId;
     private Instant startTime;
     private Instant endTime;
-    private List<Pause> pauses;
+    private List<Pause> pauses = new ArrayList<>();
     private int rightAnswersCount;
     private int wrongAnswersCount;
     private int skippedWordsCount;

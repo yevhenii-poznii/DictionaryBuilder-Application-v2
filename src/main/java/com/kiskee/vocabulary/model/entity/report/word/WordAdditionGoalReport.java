@@ -26,7 +26,7 @@ public class WordAdditionGoalReport {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false, unique = true)
     private UUID userId;
 
     @JoinColumn(name = "reportId")

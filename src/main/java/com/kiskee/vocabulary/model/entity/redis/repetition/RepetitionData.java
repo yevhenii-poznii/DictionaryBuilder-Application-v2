@@ -1,12 +1,11 @@
-package com.kiskee.vocabulary.model.dto.redis;
+package com.kiskee.vocabulary.model.entity.redis.repetition;
 
 import com.kiskee.vocabulary.exception.repetition.RepetitionException;
 import com.kiskee.vocabulary.model.dto.report.RepetitionResultDataDto;
 import com.kiskee.vocabulary.model.dto.vocabulary.word.WordDto;
+import jakarta.persistence.Id;
 import java.time.Instant;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Deque;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -17,23 +16,27 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.data.redis.core.RedisHash;
 
 @Data
 @AllArgsConstructor
+@RedisHash("repetitionData")
 @SuperBuilder(toBuilder = true)
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class RepetitionData extends RepetitionResultDataDto {
 
-    private Deque<WordDto> repetitionWords;
-    private List<WordDto> passedWords;
+    @Id
+    private String id;
+
+    private List<WordDto> repetitionWords = new ArrayList<>();
+    private List<WordDto> passedWords = new ArrayList<>();
     private WordDto currentWord;
 
     public RepetitionData(List<WordDto> repetitionWords, long dictionaryId, UUID userId) {
-        this.repetitionWords = new ArrayDeque<>(repetitionWords);
-        this.passedWords = new ArrayList<>();
-        this.currentWord = this.repetitionWords.pop();
-        super.setPauses(new ArrayList<>());
+        this.setId(userId.toString());
+        this.repetitionWords = new ArrayList<>(repetitionWords);
+        this.currentWord = this.repetitionWords.removeLast();
         super.setStartTime(Instant.now());
         super.setTotalElements(repetitionWords.size());
         super.setDictionaryId(dictionaryId);
@@ -42,7 +45,7 @@ public class RepetitionData extends RepetitionResultDataDto {
 
     public RepetitionResultDataDto toResult() {
         return RepetitionResultDataDto.builder()
-                .userId(this.getUserId())
+                .userId(UUID.fromString(this.getId()))
                 .dictionaryId(this.getDictionaryId())
                 .startTime(this.getStartTime())
                 .endTime(Instant.now())
@@ -98,7 +101,7 @@ public class RepetitionData extends RepetitionResultDataDto {
             setCurrentWord(null);
             return;
         }
-        WordDto next = this.getRepetitionWords().pop();
+        WordDto next = this.getRepetitionWords().removeLast();
         this.setCurrentWord(next);
     }
 
