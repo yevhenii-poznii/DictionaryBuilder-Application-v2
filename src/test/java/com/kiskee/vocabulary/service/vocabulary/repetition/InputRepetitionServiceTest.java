@@ -17,8 +17,6 @@ import com.kiskee.vocabulary.enums.user.UserRole;
 import com.kiskee.vocabulary.exception.ResourceNotFoundException;
 import com.kiskee.vocabulary.exception.repetition.RepetitionException;
 import com.kiskee.vocabulary.mapper.repetition.RepetitionWordMapper;
-import com.kiskee.vocabulary.model.dto.redis.Pause;
-import com.kiskee.vocabulary.model.dto.redis.RepetitionData;
 import com.kiskee.vocabulary.model.dto.repetition.RepetitionRunningStatus;
 import com.kiskee.vocabulary.model.dto.repetition.RepetitionStartFilterRequest;
 import com.kiskee.vocabulary.model.dto.repetition.filter.DefaultCriteriaFilter;
@@ -26,17 +24,18 @@ import com.kiskee.vocabulary.model.dto.repetition.message.WSRequest;
 import com.kiskee.vocabulary.model.dto.repetition.message.WSResponse;
 import com.kiskee.vocabulary.model.dto.vocabulary.word.WordDto;
 import com.kiskee.vocabulary.model.dto.vocabulary.word.WordTranslationDto;
+import com.kiskee.vocabulary.model.entity.redis.repetition.Pause;
+import com.kiskee.vocabulary.model.entity.redis.repetition.RepetitionData;
 import com.kiskee.vocabulary.model.entity.user.UserVocabularyApplication;
 import com.kiskee.vocabulary.model.entity.vocabulary.Dictionary;
-import com.kiskee.vocabulary.repository.redis.RedisRepository;
+import com.kiskee.vocabulary.repository.redis.RepetitionDataRepository;
 import com.kiskee.vocabulary.service.vocabulary.dictionary.DictionaryAccessValidator;
 import com.kiskee.vocabulary.service.vocabulary.repetition.loader.RepetitionWordLoaderFactory;
 import com.kiskee.vocabulary.service.vocabulary.repetition.loader.criteria.RepetitionWordCriteriaLoader;
 import com.kiskee.vocabulary.service.vocabulary.word.WordCounterUpdateService;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Deque;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.IntStream;
@@ -67,7 +66,7 @@ public class InputRepetitionServiceTest {
     private RepetitionWordLoaderFactory repetitionWordLoaderFactory;
 
     @Mock
-    private RedisRepository repository;
+    private RepetitionDataRepository repository;
 
     @Mock
     private RepetitionWordMapper mapper;
@@ -97,8 +96,7 @@ public class InputRepetitionServiceTest {
         RepetitionData repetitionData = mock(RepetitionData.class);
         when(repetitionData.isPaused()).thenReturn(false);
 
-        when(repository.existsByUserId(USER_ID)).thenReturn(true);
-        when(repository.getByUserId(USER_ID)).thenReturn(repetitionData);
+        when(repository.findById(USER_ID.toString())).thenReturn(Optional.of(repetitionData));
 
         RepetitionRunningStatus repetitionRunningStatus = inputRepetitionService.isRepetitionRunning();
         assertThat(repetitionRunningStatus.isRunning()).isTrue();
@@ -113,8 +111,7 @@ public class InputRepetitionServiceTest {
         RepetitionData repetitionData = mock(RepetitionData.class);
         when(repetitionData.isPaused()).thenReturn(true);
 
-        when(repository.existsByUserId(USER_ID)).thenReturn(true);
-        when(repository.getByUserId(USER_ID)).thenReturn(repetitionData);
+        when(repository.findById(USER_ID.toString())).thenReturn(Optional.of(repetitionData));
 
         RepetitionRunningStatus repetitionRunningStatus = inputRepetitionService.isRepetitionRunning();
         assertThat(repetitionRunningStatus.isRunning()).isTrue();
@@ -122,25 +119,11 @@ public class InputRepetitionServiceTest {
     }
 
     @Test
-    void testIsRepetitionRunning_WhenRepetitionDataIsNull_ThenThrowResourceNotFoundException() {
-        setAuth();
-
-        when(repository.existsByUserId(USER_ID)).thenReturn(true);
-        when(repository.getByUserId(USER_ID))
-                .thenThrow(new ResourceNotFoundException(
-                        String.format("Repetition data not found for user [%s]", USER_ID)));
-
-        assertThatExceptionOfType(ResourceNotFoundException.class)
-                .isThrownBy(() -> inputRepetitionService.isRepetitionRunning())
-                .withMessage(String.format("Repetition data not found for user [%s]", USER_ID));
-    }
-
-    @Test
     void
             testIsRepetitionRunning_WhenDataDoesNotExistForUser_ThenReturnIsRunningFalseAndPausedFalseRepetitionRunningStatus() {
         setAuth();
 
-        when(repository.existsByUserId(USER_ID)).thenReturn(false);
+        when(repository.findById(USER_ID.toString())).thenReturn(Optional.empty());
 
         RepetitionRunningStatus repetitionRunningStatus = inputRepetitionService.isRepetitionRunning();
 
@@ -160,7 +143,7 @@ public class InputRepetitionServiceTest {
                 RepetitionStartFilterRequest.RepetitionFilter.REPETITION_ONLY,
                 new DefaultCriteriaFilter(DefaultCriteriaFilter.CriteriaFilterType.ALL));
 
-        when(repository.existsByUserId(USER_ID)).thenReturn(false);
+        when(repository.existsById(USER_ID.toString())).thenReturn(false);
         doNothing().when(dictionaryAccessValidator).verifyUserHasDictionary(dictionaryId);
 
         RepetitionWordCriteriaLoader repetitionWordCriteriaLoader = mock(RepetitionWordCriteriaLoader.class);
@@ -172,9 +155,9 @@ public class InputRepetitionServiceTest {
         when(repetitionWordCriteriaLoader.loadRepetitionWordPage(dictionaryId, startFilterRequest))
                 .thenReturn(loadedWords);
 
-        doNothing().when(repository).save(eq(USER_ID), repetitionDataCaptor.capture());
-
         RepetitionRunningStatus runningStatus = inputRepetitionService.start(dictionaryId, startFilterRequest);
+
+        verify(repository).save(repetitionDataCaptor.capture());
 
         RepetitionData repetitionData = repetitionDataCaptor.getValue();
 
@@ -182,10 +165,10 @@ public class InputRepetitionServiceTest {
         assertThat(runningStatus.isPaused()).isFalse();
         assertThat(repetitionData.getRepetitionWords().size()).isEqualTo(2);
         assertThat(repetitionData.getPassedWords()).isEmpty();
-        assertThat(repetitionData.getCurrentWord()).isEqualTo(loadedWords.getFirst());
+        assertThat(repetitionData.getCurrentWord()).isEqualTo(loadedWords.getLast());
         assertThat(repetitionData.getPauses()).isEmpty();
         assertThat(repetitionData.getTotalElements()).isEqualTo(loadedWords.size());
-        assertThat(repetitionData.getUserId()).isEqualTo(USER_ID);
+        assertThat(repetitionData.getId()).isEqualTo(USER_ID.toString());
     }
 
     @Test
@@ -197,7 +180,7 @@ public class InputRepetitionServiceTest {
                 RepetitionStartFilterRequest.RepetitionFilter.REPETITION_ONLY,
                 new DefaultCriteriaFilter(DefaultCriteriaFilter.CriteriaFilterType.ALL));
 
-        when(repository.existsByUserId(USER_ID)).thenReturn(true);
+        when(repository.existsById(USER_ID.toString())).thenReturn(true);
 
         assertThatExceptionOfType(RepetitionException.class)
                 .isThrownBy(() -> inputRepetitionService.start(dictionaryId, startFilterRequest))
@@ -213,7 +196,7 @@ public class InputRepetitionServiceTest {
                 RepetitionStartFilterRequest.RepetitionFilter.REPETITION_ONLY,
                 new DefaultCriteriaFilter(DefaultCriteriaFilter.CriteriaFilterType.ALL));
 
-        when(repository.existsByUserId(USER_ID)).thenReturn(false);
+        when(repository.existsById(USER_ID.toString())).thenReturn(false);
         doThrow(new ResourceNotFoundException(String.format(
                         ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(),
                         Dictionary.class.getSimpleName(),
@@ -238,7 +221,7 @@ public class InputRepetitionServiceTest {
                 RepetitionStartFilterRequest.RepetitionFilter.REPETITION_ONLY,
                 new DefaultCriteriaFilter(DefaultCriteriaFilter.CriteriaFilterType.ALL));
 
-        when(repository.existsByUserId(USER_ID)).thenReturn(false);
+        when(repository.existsById(USER_ID.toString())).thenReturn(false);
         doNothing().when(dictionaryAccessValidator).verifyUserHasDictionary(dictionaryId);
 
         RepetitionWordCriteriaLoader repetitionWordCriteriaLoader = mock(RepetitionWordCriteriaLoader.class);
@@ -258,14 +241,13 @@ public class InputRepetitionServiceTest {
     void testPause_WhenRepetitionIsRunningAndNotPaused_ThenStartPause() {
         setAuth();
 
-        when(repository.existsByUserId(USER_ID)).thenReturn(true);
-
         RepetitionData repetitionData =
                 RepetitionData.builder().pauses(new ArrayList<>()).build();
-        when(repository.getByUserId(USER_ID)).thenReturn(repetitionData);
-        doNothing().when(repository).save(eq(USER_ID), repetitionDataCaptor.capture());
+        when(repository.findById(USER_ID.toString())).thenReturn(Optional.of(repetitionData));
 
         RepetitionRunningStatus runningStatus = inputRepetitionService.pause();
+
+        verify(repository).save(repetitionDataCaptor.capture());
 
         RepetitionData pausedRepetitionData = repetitionDataCaptor.getValue();
         assertThat(pausedRepetitionData.isPaused()).isTrue();
@@ -278,12 +260,10 @@ public class InputRepetitionServiceTest {
     void testPause_WhenRepetitionIsRunningAndAlreadyPaused_ThenThrowRepetitionException() {
         setAuth();
 
-        when(repository.existsByUserId(USER_ID)).thenReturn(true);
-
         Pause alreadyStartedPause = Pause.start();
         RepetitionData repetitionData =
                 RepetitionData.builder().pauses(List.of(alreadyStartedPause)).build();
-        when(repository.getByUserId(USER_ID)).thenReturn(repetitionData);
+        when(repository.findById(USER_ID.toString())).thenReturn(Optional.of(repetitionData));
 
         assertThatExceptionOfType(RepetitionException.class)
                 .isThrownBy(() -> inputRepetitionService.pause())
@@ -294,8 +274,6 @@ public class InputRepetitionServiceTest {
     void testPause_WhenRepetitionIsNotRunning_ThenThrowRepetitionException() {
         setAuth();
 
-        when(repository.existsByUserId(USER_ID)).thenReturn(false);
-
         assertThatExceptionOfType(RepetitionException.class)
                 .isThrownBy(() -> inputRepetitionService.pause())
                 .withMessage("Repetition is not running");
@@ -305,15 +283,14 @@ public class InputRepetitionServiceTest {
     void testUnpause_WhenRepetitionIsRunningAndPaused_ThenEndPause() {
         setAuth();
 
-        when(repository.existsByUserId(USER_ID)).thenReturn(true);
-
         Pause startedPause = Pause.start();
         RepetitionData repetitionData =
                 RepetitionData.builder().pauses(List.of(startedPause)).build();
-        when(repository.getByUserId(USER_ID)).thenReturn(repetitionData);
-        doNothing().when(repository).save(eq(USER_ID), repetitionDataCaptor.capture());
+        when(repository.findById(USER_ID.toString())).thenReturn(Optional.of(repetitionData));
 
         RepetitionRunningStatus runningStatus = inputRepetitionService.unpause();
+
+        verify(repository).save(repetitionDataCaptor.capture());
 
         RepetitionData unpausedRepetitionData = repetitionDataCaptor.getValue();
         assertThat(unpausedRepetitionData.isPaused()).isFalse();
@@ -326,11 +303,9 @@ public class InputRepetitionServiceTest {
     void testUnpause_WhenRepetitionIsRunningAndHasNoStartedPause_ThenThrowRepetitionException() {
         setAuth();
 
-        when(repository.existsByUserId(USER_ID)).thenReturn(true);
-
         RepetitionData repetitionData =
                 RepetitionData.builder().pauses(List.of()).build();
-        when(repository.getByUserId(USER_ID)).thenReturn(repetitionData);
+        when(repository.findById(USER_ID.toString())).thenReturn(Optional.of(repetitionData));
 
         assertThatExceptionOfType(RepetitionException.class)
                 .isThrownBy(() -> inputRepetitionService.unpause())
@@ -340,8 +315,6 @@ public class InputRepetitionServiceTest {
     @Test
     void testUnpause_WhenRepetitionIsNotRunning_ThenThrowRepetitionException() {
         setAuth();
-
-        when(repository.existsByUserId(USER_ID)).thenReturn(false);
 
         assertThatExceptionOfType(RepetitionException.class)
                 .isThrownBy(() -> inputRepetitionService.unpause())
@@ -353,15 +326,13 @@ public class InputRepetitionServiceTest {
             testStop_WhenRepetitionIsRunningAndPassedWordsAreEmpty_ThenClearRepetitionDataAndReturnIsRunningFalseRepetitionRunningStatus() {
         setAuth();
 
-        when(repository.existsByUserId(USER_ID)).thenReturn(true);
-
         RepetitionData repetitionData =
                 RepetitionData.builder().passedWords(new ArrayList<>()).build();
-        when(repository.getByUserId(USER_ID)).thenReturn(repetitionData);
+        when(repository.findById(USER_ID.toString())).thenReturn(Optional.of(repetitionData));
 
         RepetitionRunningStatus runningStatus = inputRepetitionService.stop();
 
-        verify(repository).clearByUserId(USER_ID);
+        verify(repository).delete(repetitionData);
 
         assertThat(runningStatus.isRunning()).isFalse();
         assertThat(runningStatus.isPaused()).isFalse();
@@ -371,18 +342,16 @@ public class InputRepetitionServiceTest {
     void testStop_WhenRepetitionIsRunningAndPassedWordsAreNotEmpty_ThenUpdateWordCountersAndClearRepetitionData() {
         setAuth();
 
-        when(repository.existsByUserId(USER_ID)).thenReturn(true);
-
         List<WordDto> passedWords = List.of(
                 new WordDto(1L, "word1", true, Set.of(), 1, null), new WordDto(2L, "word2", true, Set.of(), 1, null));
         RepetitionData repetitionData =
                 RepetitionData.builder().passedWords(passedWords).build();
-        when(repository.getByUserId(USER_ID)).thenReturn(repetitionData);
+        when(repository.findById(USER_ID.toString())).thenReturn(Optional.of(repetitionData));
 
         RepetitionRunningStatus runningStatus = inputRepetitionService.stop();
 
         verify(wordCounterUpdateService).updateRightAnswersCounters(USER_ID, passedWords);
-        verify(repository).clearByUserId(USER_ID);
+        verify(repository).delete(repetitionData);
 
         assertThat(runningStatus.isRunning()).isFalse();
         assertThat(runningStatus.isPaused()).isFalse();
@@ -391,8 +360,6 @@ public class InputRepetitionServiceTest {
     @Test
     void testStop_WhenRepetitionIsNotRunning_ThenThrowRepetitionException() {
         setAuth();
-
-        when(repository.existsByUserId(USER_ID)).thenReturn(false);
 
         assertThatExceptionOfType(RepetitionException.class)
                 .isThrownBy(() -> inputRepetitionService.stop())
@@ -406,10 +373,10 @@ public class InputRepetitionServiceTest {
 
         WSRequest wsRequest = new WSRequest(null, WSRequest.Operation.START);
 
-        WordDto currentWord = prepareRepetitionWords().pop();
+        WordDto currentWord = prepareRepetitionWords().removeLast();
         RepetitionData repetitionData =
                 RepetitionData.builder().currentWord(currentWord).build();
-        when(repository.getByUserId(USER_ID)).thenReturn(repetitionData);
+        when(repository.findById(USER_ID.toString())).thenReturn(Optional.of(repetitionData));
 
         WSResponse response = mock(WSResponse.class);
         when(response.getWord()).thenReturn(currentWord.getWord());
@@ -429,7 +396,7 @@ public class InputRepetitionServiceTest {
 
         RepetitionData repetitionData =
                 RepetitionData.builder().currentWord(null).build();
-        when(repository.getByUserId(USER_ID)).thenReturn(repetitionData);
+        when(repository.findById(USER_ID.toString())).thenReturn(Optional.of(repetitionData));
 
         assertThatExceptionOfType(RepetitionException.class)
                 .isThrownBy(() -> inputRepetitionService.handleRepetitionMessage(authentication, wsRequest))
@@ -443,17 +410,17 @@ public class InputRepetitionServiceTest {
 
         WSRequest wsRequest = new WSRequest(null, WSRequest.Operation.SKIP);
 
-        Deque<WordDto> repetitionWords = prepareRepetitionWords();
-        WordDto currentWord = repetitionWords.pop();
+        List<WordDto> repetitionWords = prepareRepetitionWords();
+        WordDto currentWord = repetitionWords.removeLast();
         RepetitionData repetitionData = RepetitionData.builder()
                 .repetitionWords(repetitionWords)
                 .currentWord(currentWord)
                 .build();
-        when(repository.getByUserId(USER_ID)).thenReturn(repetitionData);
-
-        doNothing().when(repository).save(eq(USER_ID), repetitionDataCaptor.capture());
+        when(repository.findById(USER_ID.toString())).thenReturn(Optional.of(repetitionData));
 
         inputRepetitionService.handleRepetitionMessage(authentication, wsRequest);
+
+        verify(repository).save(repetitionDataCaptor.capture());
 
         RepetitionData updatedRepetitionData = repetitionDataCaptor.getValue();
         assertThat(updatedRepetitionData.getSkippedWordsCount()).isEqualTo(1);
@@ -466,13 +433,13 @@ public class InputRepetitionServiceTest {
 
         WSRequest wsRequest = new WSRequest(null, WSRequest.Operation.SKIP);
 
-        Deque<WordDto> repetitionWords = new ArrayDeque<>();
+        List<WordDto> repetitionWords = new ArrayList<>();
         WordDto currentWord = new WordDto(3L, "word3", true, Set.of(), 0, null);
         RepetitionData repetitionData = RepetitionData.builder()
                 .repetitionWords(repetitionWords)
                 .currentWord(currentWord)
                 .build();
-        when(repository.getByUserId(USER_ID)).thenReturn(repetitionData);
+        when(repository.findById(USER_ID.toString())).thenReturn(Optional.of(repetitionData));
 
         assertThatExceptionOfType(RepetitionException.class)
                 .isThrownBy(() -> inputRepetitionService.handleRepetitionMessage(authentication, wsRequest))
@@ -486,19 +453,14 @@ public class InputRepetitionServiceTest {
 
         WSRequest wsRequest = new WSRequest("translation 1, translation 2", WSRequest.Operation.NEXT);
 
-        Deque<WordDto> repetitionWords = prepareRepetitionWords();
-        WordDto currentWord = repetitionWords.pop();
-        ArrayList<WordDto> passedWords = new ArrayList<>(List.of(mock(WordDto.class)));
-        RepetitionData repetitionData = RepetitionData.builder()
-                .repetitionWords(repetitionWords)
-                .passedWords(passedWords)
-                .currentWord(currentWord)
-                .build();
-        when(repository.getByUserId(USER_ID)).thenReturn(repetitionData);
-        doNothing().when(repository).save(eq(USER_ID), repetitionDataCaptor.capture());
+        List<WordDto> repetitionWords = prepareRepetitionWords();
+        WordDto currentWord = repetitionWords.getLast();
+        RepetitionData repetitionData = new RepetitionData(repetitionWords, 1L, USER_ID);
+        when(repository.findById(USER_ID.toString())).thenReturn(Optional.of(repetitionData));
 
         inputRepetitionService.handleRepetitionMessage(authentication, wsRequest);
 
+        verify(repository).save(repetitionDataCaptor.capture());
         verify(mapper).toWSResponse(any(RepetitionData.class), anyLong());
 
         RepetitionData savedData = repetitionDataCaptor.getValue();
@@ -514,18 +476,18 @@ public class InputRepetitionServiceTest {
 
         WSRequest wsRequest = new WSRequest("translation 3, translation 4", WSRequest.Operation.NEXT);
 
-        Deque<WordDto> repetitionWords = prepareRepetitionWords();
-        WordDto currentWord = repetitionWords.pop();
+        List<WordDto> repetitionWords = prepareRepetitionWords();
+        WordDto currentWord = repetitionWords.removeLast();
         RepetitionData repetitionData = RepetitionData.builder()
                 .repetitionWords(repetitionWords)
                 .passedWords(new ArrayList<>())
                 .currentWord(currentWord)
                 .build();
-        when(repository.getByUserId(USER_ID)).thenReturn(repetitionData);
-        doNothing().when(repository).save(eq(USER_ID), repetitionDataCaptor.capture());
+        when(repository.findById(USER_ID.toString())).thenReturn(Optional.of(repetitionData));
 
         inputRepetitionService.handleRepetitionMessage(authentication, wsRequest);
 
+        verify(repository).save(repetitionDataCaptor.capture());
         verify(mapper).toWSResponse(any(RepetitionData.class), anyLong());
 
         RepetitionData savedData = repetitionDataCaptor.getValue();
@@ -541,8 +503,8 @@ public class InputRepetitionServiceTest {
 
         WSRequest wsRequest = new WSRequest("translation 1, translation 2", WSRequest.Operation.NEXT);
 
-        Deque<WordDto> repetitionWords = prepareRepetitionWords();
-        WordDto currentWord = repetitionWords.pop();
+        List<WordDto> repetitionWords = prepareRepetitionWords();
+        WordDto currentWord = repetitionWords.removeLast();
 
         List<WordDto> passedWord = new ArrayList<>();
         IntStream.range(0, 10).forEach(i -> passedWord.add(mock(WordDto.class)));
@@ -552,13 +514,12 @@ public class InputRepetitionServiceTest {
                 .passedWords(passedWord)
                 .currentWord(currentWord)
                 .build();
-        when(repository.getByUserId(USER_ID)).thenReturn(repetitionData);
+        when(repository.findById(USER_ID.toString())).thenReturn(Optional.of(repetitionData));
         doNothing().when(wordCounterUpdateService).updateRightAnswersCounters(eq(USER_ID), eq(passedWord));
-
-        doNothing().when(repository).save(eq(USER_ID), repetitionDataCaptor.capture());
 
         inputRepetitionService.handleRepetitionMessage(authentication, wsRequest);
 
+        verify(repository).save(repetitionDataCaptor.capture());
         verify(mapper).toWSResponse(any(RepetitionData.class), anyLong());
 
         RepetitionData savedData = repetitionDataCaptor.getValue();
@@ -575,7 +536,7 @@ public class InputRepetitionServiceTest {
 
         RepetitionData repetitionData =
                 RepetitionData.builder().currentWord(null).build();
-        when(repository.getByUserId(USER_ID)).thenReturn(repetitionData);
+        when(repository.findById(USER_ID.toString())).thenReturn(Optional.of(repetitionData));
 
         assertThatExceptionOfType(RepetitionException.class)
                 .isThrownBy(() -> inputRepetitionService.handleRepetitionMessage(authentication, wsRequest))
@@ -598,10 +559,10 @@ public class InputRepetitionServiceTest {
         return new ArrayList<>(List.of(
                 new WordDto(1L, "word1", true, Set.of(new WordTranslationDto("translation 1")), 0, null),
                 new WordDto(2L, "word2", true, Set.of(), 0, null),
-                new WordDto(3L, "word3", true, Set.of(), 0, null)));
+                new WordDto(3L, "word3", true, Set.of(new WordTranslationDto("translation 1")), 0, null)));
     }
 
-    private Deque<WordDto> prepareRepetitionWords() {
-        return new ArrayDeque<>(prepareLoadedWords());
+    private List<WordDto> prepareRepetitionWords() {
+        return new ArrayList<>(prepareLoadedWords());
     }
 }

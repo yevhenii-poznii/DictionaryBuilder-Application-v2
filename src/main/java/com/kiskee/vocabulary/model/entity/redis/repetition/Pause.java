@@ -1,4 +1,4 @@
-package com.kiskee.vocabulary.model.dto.redis;
+package com.kiskee.vocabulary.model.entity.redis.repetition;
 
 import java.time.Instant;
 import lombok.Getter;

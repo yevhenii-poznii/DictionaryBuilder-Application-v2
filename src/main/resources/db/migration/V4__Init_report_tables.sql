@@ -1,7 +1,7 @@
 create table word_addition_goal_report
 (
     id      bigserial not null primary key,
-    user_id uuid      not null,
+    user_id uuid      not null unique,
 
     constraint fk_user_id foreign key (user_id) references user_vocabulary_application (id) on delete cascade
 );

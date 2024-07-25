@@ -1,6 +1,6 @@
 package com.kiskee.vocabulary.model.dto.report;
 
-import com.kiskee.vocabulary.model.dto.redis.Pause;
+import com.kiskee.vocabulary.model.entity.redis.repetition.Pause;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;

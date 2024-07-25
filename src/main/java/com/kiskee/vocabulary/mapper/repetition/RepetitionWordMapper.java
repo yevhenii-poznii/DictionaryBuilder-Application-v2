@@ -1,8 +1,8 @@
 package com.kiskee.vocabulary.mapper.repetition;
 
-import com.kiskee.vocabulary.model.dto.redis.RepetitionData;
 import com.kiskee.vocabulary.model.dto.repetition.message.WSResponse;
 import com.kiskee.vocabulary.model.dto.vocabulary.word.WordDto;
+import com.kiskee.vocabulary.model.entity.redis.repetition.RepetitionData;
 import com.kiskee.vocabulary.model.entity.vocabulary.Word;
 import java.util.List;
 import org.mapstruct.Mapper;
