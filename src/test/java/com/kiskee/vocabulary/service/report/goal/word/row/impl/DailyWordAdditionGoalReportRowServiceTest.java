@@ -34,8 +34,8 @@ public class DailyWordAdditionGoalReportRowServiceTest {
 
         assertThat(dailyRow.getWorkingDays()).isEqualTo(1);
         assertThat(dailyRow.getRowPeriod()).isEqualTo(ReportPeriodUtil.DAY);
-        assertThat(dailyRow.getStartPeriod()).isEqualTo(testData.data().currentDate());
-        assertThat(dailyRow.getEndPeriod()).isEqualTo(testData.data().currentDate());
+        assertThat(dailyRow.getStartPeriod()).isEqualTo(testData.data().getCurrentDate());
+        assertThat(dailyRow.getEndPeriod()).isEqualTo(testData.data().getCurrentDate());
         assertThat(dailyRow.getDictionaryReports()).containsExactly(testData.expectedDictionaryGoalReport());
     }
 
@@ -46,8 +46,8 @@ public class DailyWordAdditionGoalReportRowServiceTest {
                 new DictionaryWordAdditionGoalReport(1L, 10L, 10.0, 10, 1);
         DailyWordAdditionGoalReportRow dailyRowForToday = DailyWordAdditionGoalReportRow.builder()
                 .id(1L)
-                .startPeriod(testData.data().currentDate())
-                .endPeriod(testData.data().currentDate())
+                .startPeriod(testData.data().getCurrentDate())
+                .endPeriod(testData.data().getCurrentDate())
                 .workingDays(1)
                 .dictionaryReports(Set.of(dictionaryGoalReport))
                 .build();
@@ -56,8 +56,8 @@ public class DailyWordAdditionGoalReportRowServiceTest {
                 dailyWordAdditionGoalReportRowService.updateRow(dailyRowForToday, testData.data());
         assertThat(updatedDailyRow.getWorkingDays()).isEqualTo(1);
         assertThat(updatedDailyRow.getRowPeriod()).isEqualTo(ReportPeriodUtil.DAY);
-        assertThat(updatedDailyRow.getStartPeriod()).isEqualTo(testData.data().currentDate());
-        assertThat(updatedDailyRow.getEndPeriod()).isEqualTo(testData.data().currentDate());
+        assertThat(updatedDailyRow.getStartPeriod()).isEqualTo(testData.data().getCurrentDate());
+        assertThat(updatedDailyRow.getEndPeriod()).isEqualTo(testData.data().getCurrentDate());
         assertThat(updatedDailyRow.getDictionaryReports()).containsExactly(testData.expectedDictionaryGoalReport());
     }
 
@@ -68,8 +68,8 @@ public class DailyWordAdditionGoalReportRowServiceTest {
                 new DictionaryWordAdditionGoalReport(1L, 5L, 10.0, 10, 1);
         DailyWordAdditionGoalReportRow dailyRowForToday = DailyWordAdditionGoalReportRow.builder()
                 .id(1L)
-                .startPeriod(testData.data().currentDate())
-                .endPeriod(testData.data().currentDate())
+                .startPeriod(testData.data().getCurrentDate())
+                .endPeriod(testData.data().getCurrentDate())
                 .workingDays(1)
                 .dictionaryReports(Set.of(dictionaryGoalReport))
                 .build();
@@ -78,22 +78,22 @@ public class DailyWordAdditionGoalReportRowServiceTest {
                 dailyWordAdditionGoalReportRowService.updateRow(dailyRowForToday, testData.data());
         assertThat(updatedDailyRow.getWorkingDays()).isEqualTo(1);
         assertThat(updatedDailyRow.getRowPeriod()).isEqualTo(ReportPeriodUtil.DAY);
-        assertThat(updatedDailyRow.getStartPeriod()).isEqualTo(testData.data().currentDate());
-        assertThat(updatedDailyRow.getEndPeriod()).isEqualTo(testData.data().currentDate());
+        assertThat(updatedDailyRow.getStartPeriod()).isEqualTo(testData.data().getCurrentDate());
+        assertThat(updatedDailyRow.getEndPeriod()).isEqualTo(testData.data().getCurrentDate());
         assertThat(updatedDailyRow.getDictionaryReports())
                 .containsExactlyInAnyOrder(dictionaryGoalReport, testData.expectedDictionaryGoalReport());
     }
 
     @ParameterizedTest
     @MethodSource("buildRowFromScratchTestData")
-    void testUpdateRow_WhenDailyRowExistsAndCurrentDateIsAfterPreviousDailyRow_ThenBuildRowFromScratch(
+    void testUpdateRow_WhenDailyRowExistsAndgetCurrentDateIsAfterPreviousDailyRow_ThenBuildRowFromScratch(
             TestData testData) {
         DictionaryWordAdditionGoalReport dictionaryGoalReport =
                 new DictionaryWordAdditionGoalReport(1L, 5L, 70.0, 10, 7);
         DailyWordAdditionGoalReportRow dailyRowForToday = DailyWordAdditionGoalReportRow.builder()
                 .id(1L)
-                .startPeriod(testData.data().currentDate().minusDays(1))
-                .endPeriod(testData.data().currentDate().minusDays(1))
+                .startPeriod(testData.data().getCurrentDate().minusDays(1))
+                .endPeriod(testData.data().getCurrentDate().minusDays(1))
                 .workingDays(1)
                 .dictionaryReports(Set.of(dictionaryGoalReport))
                 .build();
@@ -102,8 +102,8 @@ public class DailyWordAdditionGoalReportRowServiceTest {
                 dailyWordAdditionGoalReportRowService.updateRow(dailyRowForToday, testData.data());
         assertThat(updatedDailyRow.getWorkingDays()).isEqualTo(1);
         assertThat(updatedDailyRow.getRowPeriod()).isEqualTo(ReportPeriodUtil.DAY);
-        assertThat(updatedDailyRow.getStartPeriod()).isEqualTo(testData.data().currentDate());
-        assertThat(updatedDailyRow.getEndPeriod()).isEqualTo(testData.data().currentDate());
+        assertThat(updatedDailyRow.getStartPeriod()).isEqualTo(testData.data().getCurrentDate());
+        assertThat(updatedDailyRow.getEndPeriod()).isEqualTo(testData.data().getCurrentDate());
         assertThat(updatedDailyRow.getDictionaryReports())
                 .containsExactlyInAnyOrder(testData.expectedDictionaryGoalReport());
     }
@@ -112,10 +112,10 @@ public class DailyWordAdditionGoalReportRowServiceTest {
         Long dictionaryId = 10L;
         int newWordsGoal = 10;
         LocalDate userCreatedAt = LocalDate.of(2024, 7, 9);
-        LocalDate currentDate = LocalDate.of(2024, 7, 12);
+        LocalDate getCurrentDate = LocalDate.of(2024, 7, 12);
         List<TestData> testDataList = IntStream.range(1, 12)
                 .mapToObj(i -> new TestData(
-                        new WordAdditionData(USER_ID, dictionaryId, i, newWordsGoal, userCreatedAt, currentDate),
+                        new WordAdditionData(USER_ID, dictionaryId, i, newWordsGoal, userCreatedAt, getCurrentDate),
                         new DictionaryWordAdditionGoalReport(
                                 null, dictionaryId, (double) i * newWordsGoal, newWordsGoal, i)))
                 .toList();
@@ -127,10 +127,10 @@ public class DailyWordAdditionGoalReportRowServiceTest {
         Long dictionaryId = 10L;
         int newWordsGoal = 10;
         LocalDate userCreatedAt = LocalDate.of(2024, 7, 9);
-        LocalDate currentDate = LocalDate.of(2024, 7, 12);
+        LocalDate getCurrentDate = LocalDate.of(2024, 7, 12);
         List<TestData> testDataList = IntStream.range(1, 12)
                 .mapToObj(i -> new TestData(
-                        new WordAdditionData(USER_ID, dictionaryId, i, newWordsGoal, userCreatedAt, currentDate),
+                        new WordAdditionData(USER_ID, dictionaryId, i, newWordsGoal, userCreatedAt, getCurrentDate),
                         new DictionaryWordAdditionGoalReport(
                                 1L, dictionaryId, (double) (i + 1) * newWordsGoal, newWordsGoal, i + 1)))
                 .toList();

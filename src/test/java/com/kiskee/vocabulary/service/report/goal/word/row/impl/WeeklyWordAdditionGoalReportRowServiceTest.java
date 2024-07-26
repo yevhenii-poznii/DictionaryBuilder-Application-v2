@@ -38,8 +38,8 @@ public class WeeklyWordAdditionGoalReportRowServiceTest {
 
         assertThat(weeklyRow.getWorkingDays()).isEqualTo(1);
         assertThat(weeklyRow.getRowPeriod()).isEqualTo(ReportPeriodUtil.WEEK);
-        assertThat(weeklyRow.getStartPeriod()).isEqualTo(testData.data().currentDate());
-        assertThat(weeklyRow.getEndPeriod()).isEqualTo(testData.data().currentDate());
+        assertThat(weeklyRow.getStartPeriod()).isEqualTo(testData.data().getCurrentDate());
+        assertThat(weeklyRow.getEndPeriod()).isEqualTo(testData.data().getCurrentDate());
         assertThat(weeklyRow.getDictionaryReports()).containsExactly(testData.expectedDictionaryGoalReport());
     }
 
@@ -53,8 +53,8 @@ public class WeeklyWordAdditionGoalReportRowServiceTest {
 
         assertThat(weeklyRow.getWorkingDays()).isEqualTo(1);
         assertThat(weeklyRow.getRowPeriod()).isEqualTo(ReportPeriodUtil.WEEK);
-        assertThat(weeklyRow.getStartPeriod()).isEqualTo(testData.data().currentDate());
-        assertThat(weeklyRow.getEndPeriod()).isEqualTo(testData.data().currentDate());
+        assertThat(weeklyRow.getStartPeriod()).isEqualTo(testData.data().getCurrentDate());
+        assertThat(weeklyRow.getEndPeriod()).isEqualTo(testData.data().getCurrentDate());
         assertThat(weeklyRow.getDictionaryReports()).containsExactly(testData.expectedDictionaryGoalReport());
     }
 
@@ -69,8 +69,8 @@ public class WeeklyWordAdditionGoalReportRowServiceTest {
         assertThat(weeklyRow.getWorkingDays()).isEqualTo(3);
         assertThat(weeklyRow.getRowPeriod()).isEqualTo(ReportPeriodUtil.WEEK);
         assertThat(weeklyRow.getStartPeriod())
-                .isEqualTo(testData.data().currentDate().minusDays(2));
-        assertThat(weeklyRow.getEndPeriod()).isEqualTo(testData.data().currentDate());
+                .isEqualTo(testData.data().getCurrentDate().minusDays(2));
+        assertThat(weeklyRow.getEndPeriod()).isEqualTo(testData.data().getCurrentDate());
         assertThat(weeklyRow.getDictionaryReports()).containsExactly(testData.expectedDictionaryGoalReport());
     }
 
@@ -81,8 +81,8 @@ public class WeeklyWordAdditionGoalReportRowServiceTest {
                 new DictionaryWordAdditionGoalReport(1L, 10L, 70.0, 10, 7);
         WeeklyWordAdditionGoalReportRow weeklyRowForToday = WeeklyWordAdditionGoalReportRow.builder()
                 .id(1L)
-                .startPeriod(testData.data().currentDate())
-                .endPeriod(testData.data().currentDate())
+                .startPeriod(testData.data().getCurrentDate())
+                .endPeriod(testData.data().getCurrentDate())
                 .workingDays(1)
                 .dictionaryReports(Set.of(dictionaryGoalReport))
                 .build();
@@ -92,8 +92,8 @@ public class WeeklyWordAdditionGoalReportRowServiceTest {
 
         assertThat(weeklyRow.getWorkingDays()).isEqualTo(1);
         assertThat(weeklyRow.getRowPeriod()).isEqualTo(ReportPeriodUtil.WEEK);
-        assertThat(weeklyRow.getStartPeriod()).isEqualTo(testData.data().currentDate());
-        assertThat(weeklyRow.getEndPeriod()).isEqualTo(testData.data().currentDate());
+        assertThat(weeklyRow.getStartPeriod()).isEqualTo(testData.data().getCurrentDate());
+        assertThat(weeklyRow.getEndPeriod()).isEqualTo(testData.data().getCurrentDate());
         assertThat(weeklyRow.getDictionaryReports()).containsExactly(testData.expectedDictionaryGoalReport());
     }
 
@@ -106,8 +106,8 @@ public class WeeklyWordAdditionGoalReportRowServiceTest {
                 new DictionaryWordAdditionGoalReport(1L, 5L, 70.0, 10, 7);
         WeeklyWordAdditionGoalReportRow weeklyRowForToday = WeeklyWordAdditionGoalReportRow.builder()
                 .id(1L)
-                .startPeriod(testData.data().currentDate())
-                .endPeriod(testData.data().currentDate())
+                .startPeriod(testData.data().getCurrentDate())
+                .endPeriod(testData.data().getCurrentDate())
                 .workingDays(1)
                 .dictionaryReports(Set.of(dictionaryGoalReport))
                 .build();
@@ -117,8 +117,8 @@ public class WeeklyWordAdditionGoalReportRowServiceTest {
 
         assertThat(weeklyRow.getWorkingDays()).isEqualTo(1);
         assertThat(weeklyRow.getRowPeriod()).isEqualTo(ReportPeriodUtil.WEEK);
-        assertThat(weeklyRow.getStartPeriod()).isEqualTo(testData.data().currentDate());
-        assertThat(weeklyRow.getEndPeriod()).isEqualTo(testData.data().currentDate());
+        assertThat(weeklyRow.getStartPeriod()).isEqualTo(testData.data().getCurrentDate());
+        assertThat(weeklyRow.getEndPeriod()).isEqualTo(testData.data().getCurrentDate());
         assertThat(weeklyRow.getDictionaryReports())
                 .containsExactlyInAnyOrder(dictionaryGoalReport, testData.expectedDictionaryGoalReport());
     }
@@ -131,8 +131,8 @@ public class WeeklyWordAdditionGoalReportRowServiceTest {
                 new DictionaryWordAdditionGoalReport(1L, 10L, 70.0, 10, 7);
         WeeklyWordAdditionGoalReportRow weeklyRowForToday = WeeklyWordAdditionGoalReportRow.builder()
                 .id(1L)
-                .startPeriod(testData.data().currentDate())
-                .endPeriod(testData.data().currentDate())
+                .startPeriod(testData.data().getCurrentDate())
+                .endPeriod(testData.data().getCurrentDate())
                 .workingDays(1)
                 .dictionaryReports(Set.of(dictionaryGoalReport))
                 .build();
@@ -143,8 +143,8 @@ public class WeeklyWordAdditionGoalReportRowServiceTest {
         assertThat(weeklyRow.getWorkingDays()).isEqualTo(2);
         assertThat(weeklyRow.getRowPeriod()).isEqualTo(ReportPeriodUtil.WEEK);
         assertThat(weeklyRow.getStartPeriod())
-                .isEqualTo(testData.data().currentDate().minusDays(1));
-        assertThat(weeklyRow.getEndPeriod()).isEqualTo(testData.data().currentDate());
+                .isEqualTo(testData.data().getCurrentDate().minusDays(1));
+        assertThat(weeklyRow.getEndPeriod()).isEqualTo(testData.data().getCurrentDate());
         assertThat(weeklyRow.getDictionaryReports()).containsExactlyInAnyOrder(testData.expectedDictionaryGoalReport());
     }
 
@@ -157,8 +157,8 @@ public class WeeklyWordAdditionGoalReportRowServiceTest {
                 new DictionaryWordAdditionGoalReport(1L, 5L, 70.0, 10, 7);
         WeeklyWordAdditionGoalReportRow weeklyRowForToday = WeeklyWordAdditionGoalReportRow.builder()
                 .id(1L)
-                .startPeriod(testData.data().currentDate().minusDays(1))
-                .endPeriod(testData.data().currentDate().minusDays(1))
+                .startPeriod(testData.data().getCurrentDate().minusDays(1))
+                .endPeriod(testData.data().getCurrentDate().minusDays(1))
                 .workingDays(1)
                 .dictionaryReports(Set.of(dictionaryGoalReport))
                 .build();
@@ -172,8 +172,8 @@ public class WeeklyWordAdditionGoalReportRowServiceTest {
         assertThat(weeklyRow.getWorkingDays()).isEqualTo(2);
         assertThat(weeklyRow.getRowPeriod()).isEqualTo(ReportPeriodUtil.WEEK);
         assertThat(weeklyRow.getStartPeriod())
-                .isEqualTo(testData.data().currentDate().minusDays(1));
-        assertThat(weeklyRow.getEndPeriod()).isEqualTo(testData.data().currentDate());
+                .isEqualTo(testData.data().getCurrentDate().minusDays(1));
+        assertThat(weeklyRow.getEndPeriod()).isEqualTo(testData.data().getCurrentDate());
         assertThat(weeklyRow.getDictionaryReports())
                 .containsExactlyInAnyOrder(
                         recalculatedExistingDictionaryReport, testData.expectedDictionaryGoalReport());
@@ -186,8 +186,8 @@ public class WeeklyWordAdditionGoalReportRowServiceTest {
                 new DictionaryWordAdditionGoalReport(1L, 10L, 70.0, 50, 35);
         WeeklyWordAdditionGoalReportRow weeklyRowForToday = WeeklyWordAdditionGoalReportRow.builder()
                 .id(1L)
-                .startPeriod(testData.data().currentDate().minusDays(5))
-                .endPeriod(testData.data().currentDate().minusDays(1))
+                .startPeriod(testData.data().getCurrentDate().minusDays(5))
+                .endPeriod(testData.data().getCurrentDate().minusDays(1))
                 .workingDays(5)
                 .dictionaryReports(Set.of(dictionaryGoalReport))
                 .build();
@@ -198,8 +198,8 @@ public class WeeklyWordAdditionGoalReportRowServiceTest {
         assertThat(weeklyRow.getWorkingDays()).isEqualTo(5);
         assertThat(weeklyRow.getRowPeriod()).isEqualTo(ReportPeriodUtil.WEEK);
         assertThat(weeklyRow.getStartPeriod())
-                .isEqualTo(testData.data().currentDate().minusDays(5));
-        assertThat(weeklyRow.getEndPeriod()).isEqualTo(testData.data().currentDate());
+                .isEqualTo(testData.data().getCurrentDate().minusDays(5));
+        assertThat(weeklyRow.getEndPeriod()).isEqualTo(testData.data().getCurrentDate());
         assertThat(weeklyRow.getDictionaryReports()).containsExactlyInAnyOrder(testData.expectedDictionaryGoalReport());
     }
 
@@ -210,8 +210,8 @@ public class WeeklyWordAdditionGoalReportRowServiceTest {
                 new DictionaryWordAdditionGoalReport(1L, 10L, 70.0, 50, 35);
         WeeklyWordAdditionGoalReportRow weeklyRowForToday = WeeklyWordAdditionGoalReportRow.builder()
                 .id(1L)
-                .startPeriod(testData.data().currentDate().minusDays(7))
-                .endPeriod(testData.data().currentDate().minusDays(1))
+                .startPeriod(testData.data().getCurrentDate().minusDays(7))
+                .endPeriod(testData.data().getCurrentDate().minusDays(1))
                 .workingDays(5)
                 .dictionaryReports(Set.of(dictionaryGoalReport))
                 .build();
@@ -221,8 +221,8 @@ public class WeeklyWordAdditionGoalReportRowServiceTest {
 
         assertThat(weeklyRow.getWorkingDays()).isEqualTo(1);
         assertThat(weeklyRow.getRowPeriod()).isEqualTo(ReportPeriodUtil.WEEK);
-        assertThat(weeklyRow.getStartPeriod()).isEqualTo(testData.data().currentDate());
-        assertThat(weeklyRow.getEndPeriod()).isEqualTo(testData.data().currentDate());
+        assertThat(weeklyRow.getStartPeriod()).isEqualTo(testData.data().getCurrentDate());
+        assertThat(weeklyRow.getEndPeriod()).isEqualTo(testData.data().getCurrentDate());
         assertThat(weeklyRow.getDictionaryReports()).containsExactlyInAnyOrder(testData.expectedDictionaryGoalReport());
     }
 

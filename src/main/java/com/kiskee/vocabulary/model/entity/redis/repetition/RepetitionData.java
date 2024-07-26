@@ -5,6 +5,7 @@ import com.kiskee.vocabulary.model.dto.report.RepetitionResultDataDto;
 import com.kiskee.vocabulary.model.dto.vocabulary.word.WordDto;
 import jakarta.persistence.Id;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -33,10 +34,11 @@ public class RepetitionData extends RepetitionResultDataDto {
     private List<WordDto> passedWords = new ArrayList<>();
     private WordDto currentWord;
 
-    public RepetitionData(List<WordDto> repetitionWords, long dictionaryId, UUID userId) {
+    public RepetitionData(List<WordDto> repetitionWords, long dictionaryId, UUID userId, ZoneId userTimeZone) {
         this.setId(userId.toString());
         this.repetitionWords = new ArrayList<>(repetitionWords);
         this.currentWord = this.repetitionWords.removeLast();
+        super.setUserTimeZone(userTimeZone);
         super.setStartTime(Instant.now());
         super.setTotalElements(repetitionWords.size());
         super.setDictionaryId(dictionaryId);
@@ -44,9 +46,13 @@ public class RepetitionData extends RepetitionResultDataDto {
     }
 
     public RepetitionResultDataDto toResult() {
+        if (this.isPaused()) {
+            this.endPause();
+        }
         return RepetitionResultDataDto.builder()
                 .userId(UUID.fromString(this.getId()))
                 .dictionaryId(this.getDictionaryId())
+                .userTimeZone(this.getUserTimeZone())
                 .startTime(this.getStartTime())
                 .endTime(Instant.now())
                 .pauses(this.getPauses())

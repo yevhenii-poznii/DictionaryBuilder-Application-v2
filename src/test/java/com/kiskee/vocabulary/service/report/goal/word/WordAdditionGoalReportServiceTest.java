@@ -27,6 +27,7 @@ import com.kiskee.vocabulary.service.report.goal.word.row.impl.YearlyWordAdditio
 import com.kiskee.vocabulary.service.user.preference.WordPreferenceService;
 import com.kiskee.vocabulary.service.user.profile.UserProfileInfoProvider;
 import com.kiskee.vocabulary.util.report.ReportPeriodUtil;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -92,7 +93,7 @@ public class WordAdditionGoalReportServiceTest {
         Instant userCreatedAtField = Instant.parse("2024-07-09T12:48:23Z");
         when(userProfileInfoProvider.getCreatedAtField(USER_ID)).thenReturn(userCreatedAtField);
 
-        WordPreference wordPreference = new WordPreference(10, 10);
+        WordPreference wordPreference = new WordPreference(10, 10, Duration.ofHours(1));
         when(wordPreferenceService.getWordPreference(USER_ID)).thenReturn(wordPreference);
 
         setupCreateFromScratch();
@@ -126,7 +127,7 @@ public class WordAdditionGoalReportServiceTest {
         Instant userCreatedAtField = Instant.parse("2024-07-09T12:48:23Z");
         when(userProfileInfoProvider.getCreatedAtField(USER_ID)).thenReturn(userCreatedAtField);
 
-        WordPreference wordPreference = new WordPreference(10, 10);
+        WordPreference wordPreference = new WordPreference(10, 10, Duration.ofHours(1));
         when(wordPreferenceService.getWordPreference(USER_ID)).thenReturn(wordPreference);
 
         setupUpdateExistingReport();

@@ -40,8 +40,8 @@ public class YearlyWordAdditionGoalReportRowServiceTest {
 
         assertThat(yearlyRow.getWorkingDays()).isEqualTo(1);
         assertThat(yearlyRow.getRowPeriod()).isEqualTo(ReportPeriodUtil.YEAR);
-        assertThat(yearlyRow.getStartPeriod()).isEqualTo(testData.data().currentDate());
-        assertThat(yearlyRow.getEndPeriod()).isEqualTo(testData.data().currentDate());
+        assertThat(yearlyRow.getStartPeriod()).isEqualTo(testData.data().getCurrentDate());
+        assertThat(yearlyRow.getEndPeriod()).isEqualTo(testData.data().getCurrentDate());
         assertThat(yearlyRow.getDictionaryReports()).containsExactly(testData.expectedDictionaryGoalReport());
     }
 
@@ -56,8 +56,8 @@ public class YearlyWordAdditionGoalReportRowServiceTest {
         assertThat(yearlyRow.getWorkingDays()).isEqualTo(14);
         assertThat(yearlyRow.getRowPeriod()).isEqualTo(ReportPeriodUtil.YEAR);
         assertThat(yearlyRow.getStartPeriod())
-                .isEqualTo(testData.data().currentDate().minusDays(17));
-        assertThat(yearlyRow.getEndPeriod()).isEqualTo(testData.data().currentDate());
+                .isEqualTo(testData.data().getCurrentDate().minusDays(17));
+        assertThat(yearlyRow.getEndPeriod()).isEqualTo(testData.data().getCurrentDate());
         assertThat(yearlyRow.getDictionaryReports()).containsExactly(testData.expectedDictionaryGoalReport());
     }
 
@@ -68,8 +68,8 @@ public class YearlyWordAdditionGoalReportRowServiceTest {
                 new DictionaryWordAdditionGoalReport(1L, 10L, 5.0, 140, 7);
         YearlyWordAdditionGoalReportRow yearlyRowForToday = YearlyWordAdditionGoalReportRow.builder()
                 .id(1L)
-                .startPeriod(testData.data().currentDate().minusDays(17))
-                .endPeriod(testData.data().currentDate())
+                .startPeriod(testData.data().getCurrentDate().minusDays(17))
+                .endPeriod(testData.data().getCurrentDate())
                 .workingDays(14)
                 .dictionaryReports(Set.of(dictionaryGoalReport))
                 .build();
@@ -80,8 +80,8 @@ public class YearlyWordAdditionGoalReportRowServiceTest {
         assertThat(yearlyRow.getWorkingDays()).isEqualTo(14);
         assertThat(yearlyRow.getRowPeriod()).isEqualTo(ReportPeriodUtil.YEAR);
         assertThat(yearlyRow.getStartPeriod())
-                .isEqualTo(testData.data().currentDate().minusDays(17));
-        assertThat(yearlyRow.getEndPeriod()).isEqualTo(testData.data().currentDate());
+                .isEqualTo(testData.data().getCurrentDate().minusDays(17));
+        assertThat(yearlyRow.getEndPeriod()).isEqualTo(testData.data().getCurrentDate());
         assertThat(yearlyRow.getDictionaryReports()).containsExactly(testData.expectedDictionaryGoalReport());
     }
 
@@ -94,8 +94,8 @@ public class YearlyWordAdditionGoalReportRowServiceTest {
                 new DictionaryWordAdditionGoalReport(1L, 5L, 5.0, 140, 7);
         YearlyWordAdditionGoalReportRow yearlyRowForToday = YearlyWordAdditionGoalReportRow.builder()
                 .id(1L)
-                .startPeriod(testData.data().currentDate().minusDays(17))
-                .endPeriod(testData.data().currentDate())
+                .startPeriod(testData.data().getCurrentDate().minusDays(17))
+                .endPeriod(testData.data().getCurrentDate())
                 .workingDays(14)
                 .dictionaryReports(Set.of(dictionaryGoalReport))
                 .build();
@@ -106,8 +106,8 @@ public class YearlyWordAdditionGoalReportRowServiceTest {
         assertThat(yearlyRow.getWorkingDays()).isEqualTo(14);
         assertThat(yearlyRow.getRowPeriod()).isEqualTo(ReportPeriodUtil.YEAR);
         assertThat(yearlyRow.getStartPeriod())
-                .isEqualTo(testData.data().currentDate().minusDays(17));
-        assertThat(yearlyRow.getEndPeriod()).isEqualTo(testData.data().currentDate());
+                .isEqualTo(testData.data().getCurrentDate().minusDays(17));
+        assertThat(yearlyRow.getEndPeriod()).isEqualTo(testData.data().getCurrentDate());
         assertThat(yearlyRow.getDictionaryReports())
                 .containsExactlyInAnyOrder(dictionaryGoalReport, testData.expectedDictionaryGoalReport());
     }
@@ -120,8 +120,8 @@ public class YearlyWordAdditionGoalReportRowServiceTest {
                 new DictionaryWordAdditionGoalReport(1L, 10L, 70.0, 10, 7);
         YearlyWordAdditionGoalReportRow yearlyRowForToday = YearlyWordAdditionGoalReportRow.builder()
                 .id(1L)
-                .startPeriod(testData.data().currentDate().minusDays(1))
-                .endPeriod(testData.data().currentDate().minusDays(1))
+                .startPeriod(testData.data().getCurrentDate().minusDays(1))
+                .endPeriod(testData.data().getCurrentDate().minusDays(1))
                 .workingDays(1)
                 .dictionaryReports(Set.of(dictionaryGoalReport))
                 .build();
@@ -132,8 +132,8 @@ public class YearlyWordAdditionGoalReportRowServiceTest {
         assertThat(yearlyRow.getWorkingDays()).isEqualTo(2);
         assertThat(yearlyRow.getRowPeriod()).isEqualTo(ReportPeriodUtil.YEAR);
         assertThat(yearlyRow.getStartPeriod())
-                .isEqualTo(testData.data().currentDate().minusDays(1));
-        assertThat(yearlyRow.getEndPeriod()).isEqualTo(testData.data().currentDate());
+                .isEqualTo(testData.data().getCurrentDate().minusDays(1));
+        assertThat(yearlyRow.getEndPeriod()).isEqualTo(testData.data().getCurrentDate());
         assertThat(yearlyRow.getDictionaryReports()).containsExactlyInAnyOrder(testData.expectedDictionaryGoalReport());
     }
 
@@ -146,8 +146,8 @@ public class YearlyWordAdditionGoalReportRowServiceTest {
                 new DictionaryWordAdditionGoalReport(1L, 5L, 70.0, 10, 7);
         YearlyWordAdditionGoalReportRow yearlyRowForToday = YearlyWordAdditionGoalReportRow.builder()
                 .id(1L)
-                .startPeriod(testData.data().currentDate().minusDays(1))
-                .endPeriod(testData.data().currentDate().minusDays(1))
+                .startPeriod(testData.data().getCurrentDate().minusDays(1))
+                .endPeriod(testData.data().getCurrentDate().minusDays(1))
                 .workingDays(1)
                 .dictionaryReports(Set.of(dictionaryGoalReport))
                 .build();
@@ -161,8 +161,8 @@ public class YearlyWordAdditionGoalReportRowServiceTest {
         assertThat(yearlyRow.getWorkingDays()).isEqualTo(2);
         assertThat(yearlyRow.getRowPeriod()).isEqualTo(ReportPeriodUtil.YEAR);
         assertThat(yearlyRow.getStartPeriod())
-                .isEqualTo(testData.data().currentDate().minusDays(1));
-        assertThat(yearlyRow.getEndPeriod()).isEqualTo(testData.data().currentDate());
+                .isEqualTo(testData.data().getCurrentDate().minusDays(1));
+        assertThat(yearlyRow.getEndPeriod()).isEqualTo(testData.data().getCurrentDate());
         assertThat(yearlyRow.getDictionaryReports())
                 .containsExactlyInAnyOrder(
                         recalculatedExistingDictionaryReport, testData.expectedDictionaryGoalReport());
@@ -175,8 +175,8 @@ public class YearlyWordAdditionGoalReportRowServiceTest {
                 new DictionaryWordAdditionGoalReport(1L, 10L, 70.0, 50, 35);
         YearlyWordAdditionGoalReportRow yearlyRowForToday = YearlyWordAdditionGoalReportRow.builder()
                 .id(1L)
-                .startPeriod(testData.data().currentDate().minusDays(5))
-                .endPeriod(testData.data().currentDate().minusDays(1))
+                .startPeriod(testData.data().getCurrentDate().minusDays(5))
+                .endPeriod(testData.data().getCurrentDate().minusDays(1))
                 .workingDays(5)
                 .dictionaryReports(Set.of(dictionaryGoalReport))
                 .build();
@@ -187,8 +187,8 @@ public class YearlyWordAdditionGoalReportRowServiceTest {
         assertThat(yearlyRow.getWorkingDays()).isEqualTo(5);
         assertThat(yearlyRow.getRowPeriod()).isEqualTo(ReportPeriodUtil.YEAR);
         assertThat(yearlyRow.getStartPeriod())
-                .isEqualTo(testData.data().currentDate().minusDays(6));
-        assertThat(yearlyRow.getEndPeriod()).isEqualTo(testData.data().currentDate());
+                .isEqualTo(testData.data().getCurrentDate().minusDays(6));
+        assertThat(yearlyRow.getEndPeriod()).isEqualTo(testData.data().getCurrentDate());
         assertThat(yearlyRow.getDictionaryReports()).containsExactlyInAnyOrder(testData.expectedDictionaryGoalReport());
     }
 
@@ -197,8 +197,8 @@ public class YearlyWordAdditionGoalReportRowServiceTest {
     void testUpdateRow_WhenCurrentDayIsAfterLastDayOfPreviousPeriod_ThenBuildRowFromScratch(TestData testData) {
         YearlyWordAdditionGoalReportRow yearlyRowForToday = YearlyWordAdditionGoalReportRow.builder()
                 .id(1L)
-                .startPeriod(testData.data().currentDate().minusDays(7))
-                .endPeriod(testData.data().currentDate().minusDays(1))
+                .startPeriod(testData.data().getCurrentDate().minusDays(7))
+                .endPeriod(testData.data().getCurrentDate().minusDays(1))
                 .workingDays(5)
                 .build();
 
@@ -207,8 +207,8 @@ public class YearlyWordAdditionGoalReportRowServiceTest {
 
         assertThat(yearlyRow.getWorkingDays()).isEqualTo(1);
         assertThat(yearlyRow.getRowPeriod()).isEqualTo(ReportPeriodUtil.YEAR);
-        assertThat(yearlyRow.getStartPeriod()).isEqualTo(testData.data().currentDate());
-        assertThat(yearlyRow.getEndPeriod()).isEqualTo(testData.data().currentDate());
+        assertThat(yearlyRow.getStartPeriod()).isEqualTo(testData.data().getCurrentDate());
+        assertThat(yearlyRow.getEndPeriod()).isEqualTo(testData.data().getCurrentDate());
         assertThat(yearlyRow.getDictionaryReports()).containsExactlyInAnyOrder(testData.expectedDictionaryGoalReport());
     }
 

@@ -1,5 +1,6 @@
 package com.kiskee.vocabulary.model.entity.report.word;
 
+import com.kiskee.vocabulary.model.entity.report.DictionaryReport;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -14,7 +15,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class DictionaryWordAdditionGoalReport {
+public class DictionaryWordAdditionGoalReport implements DictionaryReport<Integer> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,18 +41,21 @@ public class DictionaryWordAdditionGoalReport {
         this.newWordsActual = newWordsActual;
     }
 
-    public DictionaryWordAdditionGoalReport buildFrom(
-            Double goalCompletionPercentage, int newWordsGoalForPeriod, int addedWords) {
-        return new DictionaryWordAdditionGoalReport(
-                this.id,
-                this.dictionaryId,
-                goalCompletionPercentage,
-                newWordsGoalForPeriod,
-                this.newWordsActual + addedWords);
+    @Override
+    public Integer getGoalForPeriod() {
+        return this.getNewWordsGoal();
     }
 
-    public DictionaryWordAdditionGoalReport buildFrom(Double goalCompletionPercentage, int newWordsGoalForPeriod) {
+    @Override
+    public DictionaryWordAdditionGoalReport buildFrom(
+            Double goalCompletionPercentage, Integer goalForPeriod, Integer value) {
         return new DictionaryWordAdditionGoalReport(
-                this.id, this.dictionaryId, goalCompletionPercentage, newWordsGoalForPeriod, this.newWordsActual);
+                this.id, this.dictionaryId, goalCompletionPercentage, goalForPeriod, this.newWordsActual + value);
+    }
+
+    @Override
+    public DictionaryWordAdditionGoalReport buildFrom(Double goalCompletionPercentage, Integer goalForPeriod) {
+        return new DictionaryWordAdditionGoalReport(
+                this.id, this.dictionaryId, goalCompletionPercentage, goalForPeriod, this.newWordsActual);
     }
 }

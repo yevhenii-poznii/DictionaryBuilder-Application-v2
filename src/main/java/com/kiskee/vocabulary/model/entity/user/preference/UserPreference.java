@@ -53,10 +53,10 @@ public class UserPreference implements UserProfilePreferenceType {
     @Column(nullable = false)
     private int rightAnswersToDisableInRepetition;
 
+    // goal preference
     @Column(nullable = false)
     private int newWordsPerDayGoal;
 
-    // repetition preference
     @Column(nullable = false)
     @Convert(converter = DurationStringConverter.class)
     private Duration dailyRepetitionDurationGoal;
