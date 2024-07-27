@@ -1,11 +1,11 @@
-package com.kiskee.vocabulary.service.report.progress.repetition.time.row.impl;
+package com.kiskee.vocabulary.service.report.goal.time.row.impl;
 
 import com.kiskee.vocabulary.model.dto.report.PeriodRange;
 import com.kiskee.vocabulary.model.entity.report.goal.time.DictionaryRepetitionTimeSpendGoalReport;
 import com.kiskee.vocabulary.model.entity.report.goal.time.RepetitionTimeSpendGoalReportRow;
 import com.kiskee.vocabulary.model.entity.report.goal.time.period.YearlyRepetitionTimeSpendGoalReportRow;
-import com.kiskee.vocabulary.service.report.progress.repetition.time.row.AbstractRepetitionTimeSpendGoalReportRowService;
-import com.kiskee.vocabulary.service.report.progress.repetition.time.row.RepetitionTimeSpendGoalReportRowService;
+import com.kiskee.vocabulary.service.report.goal.time.row.AbstractRepetitionTimeSpendGoalReportRowService;
+import com.kiskee.vocabulary.service.report.goal.time.row.RepetitionTimeSpendGoalReportRowService;
 import com.kiskee.vocabulary.util.report.ReportPeriodUtil;
 import java.util.Set;
 import org.springframework.core.annotation.Order;

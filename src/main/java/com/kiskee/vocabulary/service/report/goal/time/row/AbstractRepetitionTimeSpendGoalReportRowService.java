@@ -1,4 +1,4 @@
-package com.kiskee.vocabulary.service.report.progress.repetition.time.row;
+package com.kiskee.vocabulary.service.report.goal.time.row;
 
 import com.kiskee.vocabulary.model.dto.report.PeriodRange;
 import com.kiskee.vocabulary.model.dto.report.goal.RepetitionTimeSpendData;
@@ -44,12 +44,12 @@ public abstract class AbstractRepetitionTimeSpendGoalReportRowService
     protected DictionaryRepetitionTimeSpendGoalReport buildReportByDictionary(
             Long dictionaryId, Double goalCompletionPercentage, Duration goalForPeriod, Duration value) {
         return new DictionaryRepetitionTimeSpendGoalReport(
-                dictionaryId, goalCompletionPercentage, goalForPeriod, value);
+                dictionaryId, goalCompletionPercentage, goalForPeriod, value, 1);
     }
 
     @Override
     protected DictionaryRepetitionTimeSpendGoalReport buildReportByDictionary(Long dictionaryId) {
-        return new DictionaryRepetitionTimeSpendGoalReport(dictionaryId, 0.0, Duration.ZERO, Duration.ZERO);
+        return new DictionaryRepetitionTimeSpendGoalReport(dictionaryId, 0.0, Duration.ZERO, Duration.ZERO, 0);
     }
 
     @Override

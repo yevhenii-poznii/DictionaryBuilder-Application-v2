@@ -3,9 +3,9 @@ package com.kiskee.vocabulary.service.report.goal.word.row.impl;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.kiskee.vocabulary.model.dto.report.goal.WordAdditionData;
-import com.kiskee.vocabulary.model.entity.report.word.DictionaryWordAdditionGoalReport;
-import com.kiskee.vocabulary.model.entity.report.word.WordAdditionGoalReportRow;
-import com.kiskee.vocabulary.model.entity.report.word.period.YearlyWordAdditionGoalReportRow;
+import com.kiskee.vocabulary.model.entity.report.goal.word.DictionaryWordAdditionGoalReport;
+import com.kiskee.vocabulary.model.entity.report.goal.word.WordAdditionGoalReportRow;
+import com.kiskee.vocabulary.model.entity.report.goal.word.period.YearlyWordAdditionGoalReportRow;
 import com.kiskee.vocabulary.util.report.ReportPeriodUtil;
 import java.text.DecimalFormat;
 import java.time.LocalDate;

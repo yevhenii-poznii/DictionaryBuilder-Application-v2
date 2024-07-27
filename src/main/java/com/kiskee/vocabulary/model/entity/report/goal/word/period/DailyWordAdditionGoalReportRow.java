@@ -1,8 +1,8 @@
-package com.kiskee.vocabulary.model.entity.report.word.period;
+package com.kiskee.vocabulary.model.entity.report.goal.word.period;
 
 import com.kiskee.vocabulary.model.dto.report.PeriodRange;
-import com.kiskee.vocabulary.model.entity.report.word.DictionaryWordAdditionGoalReport;
-import com.kiskee.vocabulary.model.entity.report.word.WordAdditionGoalReportRow;
+import com.kiskee.vocabulary.model.entity.report.goal.word.DictionaryWordAdditionGoalReport;
+import com.kiskee.vocabulary.model.entity.report.goal.word.WordAdditionGoalReportRow;
 import com.kiskee.vocabulary.util.report.ReportPeriodUtil;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
@@ -13,11 +13,11 @@ import lombok.experimental.SuperBuilder;
 
 @Entity
 @SuperBuilder(toBuilder = true)
+@DiscriminatorValue(value = ReportPeriodUtil.DAY)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@DiscriminatorValue(value = ReportPeriodUtil.MONTH)
-public class MonthlyWordAdditionGoalReportRow extends WordAdditionGoalReportRow {
+public class DailyWordAdditionGoalReportRow extends WordAdditionGoalReportRow {
 
-    public MonthlyWordAdditionGoalReportRow(
+    public DailyWordAdditionGoalReportRow(
             PeriodRange currentPeriodRange, int workingDays, Set<DictionaryWordAdditionGoalReport> dictionaryReports) {
         super(currentPeriodRange, workingDays, dictionaryReports);
     }

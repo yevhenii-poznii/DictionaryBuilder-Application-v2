@@ -1,4 +1,4 @@
-package com.kiskee.vocabulary.model.entity.report.word;
+package com.kiskee.vocabulary.model.entity.report.goal.word;
 
 import com.kiskee.vocabulary.model.entity.report.Report;
 import jakarta.persistence.CascadeType;

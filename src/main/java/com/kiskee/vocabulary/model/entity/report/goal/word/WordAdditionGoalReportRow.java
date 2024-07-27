@@ -1,4 +1,4 @@
-package com.kiskee.vocabulary.model.entity.report.word;
+package com.kiskee.vocabulary.model.entity.report.goal.word;
 
 import com.kiskee.vocabulary.model.dto.report.PeriodRange;
 import com.kiskee.vocabulary.model.entity.report.ReportRow;

@@ -1,9 +1,9 @@
 package com.kiskee.vocabulary.service.report.goal.word.row.impl;
 
 import com.kiskee.vocabulary.model.dto.report.PeriodRange;
-import com.kiskee.vocabulary.model.entity.report.word.DictionaryWordAdditionGoalReport;
-import com.kiskee.vocabulary.model.entity.report.word.WordAdditionGoalReportRow;
-import com.kiskee.vocabulary.model.entity.report.word.period.MonthlyWordAdditionGoalReportRow;
+import com.kiskee.vocabulary.model.entity.report.goal.word.DictionaryWordAdditionGoalReport;
+import com.kiskee.vocabulary.model.entity.report.goal.word.WordAdditionGoalReportRow;
+import com.kiskee.vocabulary.model.entity.report.goal.word.period.MonthlyWordAdditionGoalReportRow;
 import com.kiskee.vocabulary.service.report.goal.word.row.AbstractWordAdditionGoalReportRowService;
 import com.kiskee.vocabulary.service.report.goal.word.row.WordAdditionGoalReportRowService;
 import com.kiskee.vocabulary.util.report.ReportPeriodUtil;

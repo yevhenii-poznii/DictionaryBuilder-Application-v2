@@ -41,11 +41,13 @@ public class DictionaryRepetitionTimeSpendGoalReport implements DictionaryReport
             Long dictionaryId,
             Double goalCompletionPercentage,
             Duration repetitionTimeGoal,
-            Duration timeSpentDuration) {
+            Duration timeSpentDuration,
+            int completedRepetitions) {
         this.dictionaryId = dictionaryId;
         this.goalCompletionPercentage = goalCompletionPercentage;
         this.repetitionTimeGoal = repetitionTimeGoal;
         this.timeSpentDuration = timeSpentDuration;
+        this.completedRepetitions = completedRepetitions;
     }
 
     @Override

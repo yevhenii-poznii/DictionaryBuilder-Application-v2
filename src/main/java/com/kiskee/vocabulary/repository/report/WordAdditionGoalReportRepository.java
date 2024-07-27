@@ -1,6 +1,6 @@
 package com.kiskee.vocabulary.repository.report;
 
-import com.kiskee.vocabulary.model.entity.report.word.WordAdditionGoalReport;
+import com.kiskee.vocabulary.model.entity.report.goal.word.WordAdditionGoalReport;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.EntityGraph;

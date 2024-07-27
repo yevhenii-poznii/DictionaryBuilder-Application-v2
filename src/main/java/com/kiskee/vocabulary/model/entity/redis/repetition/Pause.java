@@ -1,9 +1,11 @@
 package com.kiskee.vocabulary.model.entity.redis.repetition;
 
 import java.time.Instant;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
+@AllArgsConstructor
 public class Pause {
 
     private Instant startTime;
