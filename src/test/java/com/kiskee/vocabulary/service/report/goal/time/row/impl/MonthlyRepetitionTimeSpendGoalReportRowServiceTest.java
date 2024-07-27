@@ -225,7 +225,6 @@ public class MonthlyRepetitionTimeSpendGoalReportRowServiceTest {
         RepetitionTimeSpendGoalReportRow monthlyRow =
                 monthlyRepetitionTimeSpendGoalReportRowService.updateRow(monthlyRowForToday, testData.data());
 
-        System.out.println(monthlyRow);
         assertThat(monthlyRow.getWorkingDays()).isEqualTo(1);
         assertThat(monthlyRow.getRowPeriod()).isEqualTo(ReportPeriodUtil.MONTH);
         assertThat(monthlyRow.getStartPeriod()).isEqualTo(testData.data().getCurrentDate());

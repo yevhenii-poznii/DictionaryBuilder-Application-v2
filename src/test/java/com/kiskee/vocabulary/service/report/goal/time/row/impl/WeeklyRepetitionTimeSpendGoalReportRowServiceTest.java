@@ -223,7 +223,6 @@ public class WeeklyRepetitionTimeSpendGoalReportRowServiceTest {
         RepetitionTimeSpendGoalReportRow weeklyRow =
                 weeklyRepetitionTimeSpendGoalReportRowService.updateRow(weeklyRowForToday, testData.data());
 
-        System.out.println(weeklyRow);
         assertThat(weeklyRow.getWorkingDays()).isEqualTo(1);
         assertThat(weeklyRow.getRowPeriod()).isEqualTo(ReportPeriodUtil.WEEK);
         assertThat(weeklyRow.getStartPeriod()).isEqualTo(testData.data().getCurrentDate());

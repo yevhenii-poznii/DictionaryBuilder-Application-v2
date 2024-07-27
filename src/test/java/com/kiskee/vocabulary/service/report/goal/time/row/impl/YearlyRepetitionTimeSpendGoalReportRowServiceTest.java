@@ -210,7 +210,6 @@ public class YearlyRepetitionTimeSpendGoalReportRowServiceTest {
         RepetitionTimeSpendGoalReportRow yearlyRow =
                 yearlyRepetitionTimeSpendGoalReportRowService.updateRow(yearlyRowForToday, testData.data());
 
-        System.out.println(yearlyRow);
         assertThat(yearlyRow.getWorkingDays()).isEqualTo(1);
         assertThat(yearlyRow.getRowPeriod()).isEqualTo(ReportPeriodUtil.YEAR);
         assertThat(yearlyRow.getStartPeriod()).isEqualTo(testData.data().getCurrentDate());
