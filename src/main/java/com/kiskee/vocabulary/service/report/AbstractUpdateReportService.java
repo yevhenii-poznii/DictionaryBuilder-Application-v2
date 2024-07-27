@@ -4,7 +4,6 @@ import com.kiskee.vocabulary.model.dto.report.UpdateReportResult;
 import com.kiskee.vocabulary.model.dto.report.goal.ReportData;
 import com.kiskee.vocabulary.model.entity.report.Report;
 import com.kiskee.vocabulary.model.entity.report.ReportRow;
-import com.kiskee.vocabulary.model.entity.report.word.WordAdditionGoalReport;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -54,8 +53,7 @@ public abstract class AbstractUpdateReportService<RD extends ReportData, R exten
         Report<RR> updatedReport = report.buildFrom(updatedRows);
         saveReport(updatedReport);
 
-        log.info(
-                "{} report updated for user: {}", WordAdditionGoalReport.class.getSimpleName(), reportData.getUserId());
+        log.info("{} report updated for user: {}", report.getClass().getSimpleName(), reportData.getUserId());
     }
 
     private Set<RR> buildRows(RD reportData) {

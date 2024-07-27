@@ -1,4 +1,4 @@
-package com.kiskee.vocabulary.service.report.progress.repetition.time;
+package com.kiskee.vocabulary.service.report.goal.time;
 
 import com.kiskee.vocabulary.model.dto.report.RepetitionResultData;
 import com.kiskee.vocabulary.model.dto.report.UpdateReportResult;
@@ -9,8 +9,8 @@ import com.kiskee.vocabulary.model.entity.report.goal.time.RepetitionTimeSpendGo
 import com.kiskee.vocabulary.model.entity.report.goal.time.RepetitionTimeSpendGoalReportRow;
 import com.kiskee.vocabulary.repository.report.RepetitionTimeSpendGoalReportRepository;
 import com.kiskee.vocabulary.service.report.AbstractUpdateReportService;
+import com.kiskee.vocabulary.service.report.goal.time.row.RepetitionTimeSpendGoalReportRowService;
 import com.kiskee.vocabulary.service.report.progress.repetition.RepetitionProgressUpdateReportService;
-import com.kiskee.vocabulary.service.report.progress.repetition.time.row.RepetitionTimeSpendGoalReportRowService;
 import com.kiskee.vocabulary.service.user.preference.WordPreferenceService;
 import com.kiskee.vocabulary.service.user.profile.UserProfileInfoProvider;
 import java.time.Duration;

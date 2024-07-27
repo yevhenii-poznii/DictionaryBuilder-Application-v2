@@ -1,8 +1,8 @@
-package com.kiskee.vocabulary.model.entity.report.word.period;
+package com.kiskee.vocabulary.model.entity.report.goal.word.period;
 
 import com.kiskee.vocabulary.model.dto.report.PeriodRange;
-import com.kiskee.vocabulary.model.entity.report.word.DictionaryWordAdditionGoalReport;
-import com.kiskee.vocabulary.model.entity.report.word.WordAdditionGoalReportRow;
+import com.kiskee.vocabulary.model.entity.report.goal.word.DictionaryWordAdditionGoalReport;
+import com.kiskee.vocabulary.model.entity.report.goal.word.WordAdditionGoalReportRow;
 import com.kiskee.vocabulary.util.report.ReportPeriodUtil;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
