@@ -66,13 +66,13 @@ public abstract class AbstractReportRowService<
         return rebuildRow(row, currentPeriodRange, workingDaysForPeriod, recalculatedDictionaryReports);
     }
 
-    private PeriodRange buildPeriodRange(LocalDate getCurrentDate, LocalDate userCreatedAt) {
+    private PeriodRange buildPeriodRange(LocalDate currentDate, LocalDate userCreatedAt) {
         String rowPeriod = getRowPeriod();
-        PeriodRange currentPeriodRange = ReportPeriodUtil.getCurrentPeriodRange(getCurrentDate, rowPeriod);
+        PeriodRange currentPeriodRange = ReportPeriodUtil.getCurrentPeriodRange(currentDate, rowPeriod);
 
         return userWasCreatedBeforeStartPeriod(currentPeriodRange.startPeriod(), userCreatedAt)
                 ? currentPeriodRange
-                : new PeriodRange(userCreatedAt, getCurrentDate);
+                : new PeriodRange(userCreatedAt, currentDate);
     }
 
     private boolean userWasCreatedBeforeStartPeriod(LocalDate startPeriod, LocalDate userCreatedAt) {

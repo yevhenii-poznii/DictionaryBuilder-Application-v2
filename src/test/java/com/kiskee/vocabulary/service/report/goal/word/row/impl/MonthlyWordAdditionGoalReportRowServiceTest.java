@@ -127,7 +127,7 @@ public class MonthlyWordAdditionGoalReportRowServiceTest {
 
     @ParameterizedTest
     @MethodSource("updateRowForNextDayInTheSamePeriod")
-    void testUpdateRow_WhenRowExistsForPreviousDayAndgetCurrentDateInTheSamePeriod_ThenRecalculateRowForNewDay(
+    void testUpdateRow_WhenRowExistsForPreviousDayAndCurrentDateInTheSamePeriod_ThenRecalculateRowForNewDay(
             TestData testData) {
         DictionaryWordAdditionGoalReport dictionaryGoalReport =
                 new DictionaryWordAdditionGoalReport(1L, 10L, 70.0, 10, 7);
@@ -154,7 +154,7 @@ public class MonthlyWordAdditionGoalReportRowServiceTest {
     @ParameterizedTest
     @MethodSource("updateRowForNextDayInTheSamePeriodAndForNewDictionaryId")
     void
-            testUpdateRow_WhenRowExistsForPreviousDayAndgetCurrentDateInTheSamePeriodButGivenNewDictionaryId_ThenRecalculateRowForNewDay(
+            testUpdateRow_WhenRowExistsForPreviousDayAndCurrentDateInTheSamePeriodButGivenNewDictionaryId_ThenRecalculateRowForNewDay(
                     TestData testData) {
         DictionaryWordAdditionGoalReport dictionaryGoalReport =
                 new DictionaryWordAdditionGoalReport(1L, 5L, 70.0, 10, 7);
@@ -235,10 +235,10 @@ public class MonthlyWordAdditionGoalReportRowServiceTest {
         Long dictionaryId = 10L;
         int newWordsGoal = 10;
         LocalDate userCreatedAt = LocalDate.of(2024, 6, 9);
-        LocalDate getCurrentDate = LocalDate.of(2024, 7, 1);
+        LocalDate currentDate = LocalDate.of(2024, 7, 1);
         List<TestData> testDataList = IntStream.range(1, 12)
                 .mapToObj(i -> new TestData(
-                        new WordAdditionData(USER_ID, dictionaryId, i, newWordsGoal, userCreatedAt, getCurrentDate),
+                        new WordAdditionData(USER_ID, dictionaryId, i, newWordsGoal, userCreatedAt, currentDate),
                         new DictionaryWordAdditionGoalReport(
                                 null, dictionaryId, (double) i * newWordsGoal, newWordsGoal, i)))
                 .toList();
@@ -250,10 +250,10 @@ public class MonthlyWordAdditionGoalReportRowServiceTest {
         Long dictionaryId = 10L;
         int newWordsGoal = 10;
         LocalDate userCreatedAt = LocalDate.of(2024, 7, 16);
-        LocalDate getCurrentDate = LocalDate.of(2024, 7, 16);
+        LocalDate currentDate = LocalDate.of(2024, 7, 16);
         List<TestData> testDataList = IntStream.range(1, 12)
                 .mapToObj(i -> new TestData(
-                        new WordAdditionData(USER_ID, dictionaryId, i, newWordsGoal, userCreatedAt, getCurrentDate),
+                        new WordAdditionData(USER_ID, dictionaryId, i, newWordsGoal, userCreatedAt, currentDate),
                         new DictionaryWordAdditionGoalReport(
                                 null, dictionaryId, (double) i * newWordsGoal, newWordsGoal, i)))
                 .toList();
@@ -265,10 +265,10 @@ public class MonthlyWordAdditionGoalReportRowServiceTest {
         Long dictionaryId = 10L;
         int newWordsGoal = 10;
         LocalDate userCreatedAt = LocalDate.of(2024, 7, 8);
-        LocalDate getCurrentDate = LocalDate.of(2024, 7, 11);
+        LocalDate currentDate = LocalDate.of(2024, 7, 11);
         List<TestData> testDataList = IntStream.range(1, 12)
                 .mapToObj(i -> new TestData(
-                        new WordAdditionData(USER_ID, dictionaryId, i, newWordsGoal, userCreatedAt, getCurrentDate),
+                        new WordAdditionData(USER_ID, dictionaryId, i, newWordsGoal, userCreatedAt, currentDate),
                         new DictionaryWordAdditionGoalReport(
                                 null,
                                 dictionaryId,
@@ -284,11 +284,11 @@ public class MonthlyWordAdditionGoalReportRowServiceTest {
         Long dictionaryId = 10L;
         int newWordsGoal = 10;
         LocalDate userCreatedAt = LocalDate.of(2024, 6, 9);
-        LocalDate getCurrentDate = LocalDate.of(2024, 7, 1);
+        LocalDate currentDate = LocalDate.of(2024, 7, 1);
         DecimalFormat decimalFormat = new DecimalFormat("#.###");
         List<TestData> testDataList = IntStream.range(1, 12)
                 .mapToObj(i -> new TestData(
-                        new WordAdditionData(USER_ID, dictionaryId, i, newWordsGoal, userCreatedAt, getCurrentDate),
+                        new WordAdditionData(USER_ID, dictionaryId, i, newWordsGoal, userCreatedAt, currentDate),
                         new DictionaryWordAdditionGoalReport(
                                 1L,
                                 dictionaryId,
@@ -304,11 +304,11 @@ public class MonthlyWordAdditionGoalReportRowServiceTest {
         Long dictionaryId = 10L;
         int newWordsGoal = 10;
         LocalDate userCreatedAt = LocalDate.of(2024, 6, 9);
-        LocalDate getCurrentDate = LocalDate.of(2024, 7, 2);
+        LocalDate currentDate = LocalDate.of(2024, 7, 2);
         DecimalFormat decimalFormat = new DecimalFormat("#.###");
         List<TestData> testDataList = IntStream.range(1, 12)
                 .mapToObj(i -> new TestData(
-                        new WordAdditionData(USER_ID, dictionaryId, i, newWordsGoal, userCreatedAt, getCurrentDate),
+                        new WordAdditionData(USER_ID, dictionaryId, i, newWordsGoal, userCreatedAt, currentDate),
                         new DictionaryWordAdditionGoalReport(
                                 1L,
                                 dictionaryId,
@@ -324,11 +324,11 @@ public class MonthlyWordAdditionGoalReportRowServiceTest {
         Long dictionaryId = 10L;
         int newWordsGoal = 10;
         LocalDate userCreatedAt = LocalDate.of(2024, 6, 9);
-        LocalDate getCurrentDate = LocalDate.of(2024, 7, 2);
+        LocalDate currentDate = LocalDate.of(2024, 7, 2);
         DecimalFormat decimalFormat = new DecimalFormat("#.###");
         List<TestData> testDataList = IntStream.range(1, 12)
                 .mapToObj(i -> new TestData(
-                        new WordAdditionData(USER_ID, dictionaryId, i, newWordsGoal, userCreatedAt, getCurrentDate),
+                        new WordAdditionData(USER_ID, dictionaryId, i, newWordsGoal, userCreatedAt, currentDate),
                         new DictionaryWordAdditionGoalReport(
                                 null,
                                 dictionaryId,
@@ -344,11 +344,11 @@ public class MonthlyWordAdditionGoalReportRowServiceTest {
         Long dictionaryId = 10L;
         int newWordsGoal = 10;
         LocalDate userCreatedAt = LocalDate.of(2024, 6, 9);
-        LocalDate getCurrentDate = LocalDate.of(2024, 7, 7);
+        LocalDate currentDate = LocalDate.of(2024, 7, 7);
         DecimalFormat decimalFormat = new DecimalFormat("#.###");
         List<TestData> testDataList = IntStream.range(1, 12)
                 .mapToObj(i -> new TestData(
-                        new WordAdditionData(USER_ID, dictionaryId, i, newWordsGoal, userCreatedAt, getCurrentDate),
+                        new WordAdditionData(USER_ID, dictionaryId, i, newWordsGoal, userCreatedAt, currentDate),
                         new DictionaryWordAdditionGoalReport(
                                 1L,
                                 dictionaryId,
@@ -364,10 +364,10 @@ public class MonthlyWordAdditionGoalReportRowServiceTest {
         Long dictionaryId = 10L;
         int newWordsGoal = 10;
         LocalDate userCreatedAt = LocalDate.of(2024, 6, 9);
-        LocalDate getCurrentDate = LocalDate.of(2024, 8, 1);
+        LocalDate currentDate = LocalDate.of(2024, 8, 1);
         List<TestData> testDataList = IntStream.range(1, 12)
                 .mapToObj(i -> new TestData(
-                        new WordAdditionData(USER_ID, dictionaryId, i, newWordsGoal, userCreatedAt, getCurrentDate),
+                        new WordAdditionData(USER_ID, dictionaryId, i, newWordsGoal, userCreatedAt, currentDate),
                         new DictionaryWordAdditionGoalReport(
                                 null, dictionaryId, (double) i * newWordsGoal, newWordsGoal, i)))
                 .toList();

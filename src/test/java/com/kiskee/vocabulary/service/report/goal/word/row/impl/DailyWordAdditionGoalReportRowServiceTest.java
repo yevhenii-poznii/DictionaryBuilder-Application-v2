@@ -86,7 +86,7 @@ public class DailyWordAdditionGoalReportRowServiceTest {
 
     @ParameterizedTest
     @MethodSource("buildRowFromScratchTestData")
-    void testUpdateRow_WhenDailyRowExistsAndgetCurrentDateIsAfterPreviousDailyRow_ThenBuildRowFromScratch(
+    void testUpdateRow_WhenDailyRowExistsAndCurrentDateIsAfterPreviousDailyRow_ThenBuildRowFromScratch(
             TestData testData) {
         DictionaryWordAdditionGoalReport dictionaryGoalReport =
                 new DictionaryWordAdditionGoalReport(1L, 5L, 70.0, 10, 7);
@@ -112,10 +112,10 @@ public class DailyWordAdditionGoalReportRowServiceTest {
         Long dictionaryId = 10L;
         int newWordsGoal = 10;
         LocalDate userCreatedAt = LocalDate.of(2024, 7, 9);
-        LocalDate getCurrentDate = LocalDate.of(2024, 7, 12);
+        LocalDate currentDate = LocalDate.of(2024, 7, 12);
         List<TestData> testDataList = IntStream.range(1, 12)
                 .mapToObj(i -> new TestData(
-                        new WordAdditionData(USER_ID, dictionaryId, i, newWordsGoal, userCreatedAt, getCurrentDate),
+                        new WordAdditionData(USER_ID, dictionaryId, i, newWordsGoal, userCreatedAt, currentDate),
                         new DictionaryWordAdditionGoalReport(
                                 null, dictionaryId, (double) i * newWordsGoal, newWordsGoal, i)))
                 .toList();
@@ -127,10 +127,10 @@ public class DailyWordAdditionGoalReportRowServiceTest {
         Long dictionaryId = 10L;
         int newWordsGoal = 10;
         LocalDate userCreatedAt = LocalDate.of(2024, 7, 9);
-        LocalDate getCurrentDate = LocalDate.of(2024, 7, 12);
+        LocalDate currentDate = LocalDate.of(2024, 7, 12);
         List<TestData> testDataList = IntStream.range(1, 12)
                 .mapToObj(i -> new TestData(
-                        new WordAdditionData(USER_ID, dictionaryId, i, newWordsGoal, userCreatedAt, getCurrentDate),
+                        new WordAdditionData(USER_ID, dictionaryId, i, newWordsGoal, userCreatedAt, currentDate),
                         new DictionaryWordAdditionGoalReport(
                                 1L, dictionaryId, (double) (i + 1) * newWordsGoal, newWordsGoal, i + 1)))
                 .toList();
