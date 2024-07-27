@@ -86,7 +86,7 @@ public class UserPreferenceServiceTest {
         int rightAnswersToDisableInRepetition = 10;
         int newWordsPerDayGoal = 10;
         WordPreference expectedWordPreference =
-                new WordPreference(rightAnswersToDisableInRepetition, newWordsPerDayGoal);
+                new WordPreference(rightAnswersToDisableInRepetition, newWordsPerDayGoal, Duration.ofHours(1));
         when(userPreferenceRepository.findWordPreferenceByUserId(userId)).thenReturn(expectedWordPreference);
 
         WordPreference actualWordPreference = userPreferenceService.getWordPreference(userId);

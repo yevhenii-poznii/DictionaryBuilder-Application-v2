@@ -28,6 +28,7 @@ import com.kiskee.vocabulary.service.cache.TemporaryWordAdditionCacheService;
 import com.kiskee.vocabulary.service.user.preference.WordPreferenceService;
 import com.kiskee.vocabulary.service.vocabulary.dictionary.DictionaryAccessValidator;
 import com.kiskee.vocabulary.service.vocabulary.word.translation.WordTranslationService;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
@@ -446,7 +447,7 @@ public class WordServiceImplTest {
         List<Word> existingWords = prepareExistingWordsToUpdateCounters(true, 0);
         when(wordRepository.findByIdIn(wordIds)).thenReturn(existingWords);
 
-        WordPreference wordPreference = new WordPreference(10, 10);
+        WordPreference wordPreference = new WordPreference(10, 10, Duration.ofHours(1));
         when(wordPreferenceService.getWordPreference(USER_ID)).thenReturn(wordPreference);
 
         wordService.updateRightAnswersCounters(USER_ID, wordsToUpdate);
@@ -466,7 +467,7 @@ public class WordServiceImplTest {
         List<Word> existingWords = prepareExistingWordsToUpdateCounters(true, 9);
         when(wordRepository.findByIdIn(wordIds)).thenReturn(existingWords);
 
-        WordPreference wordPreference = new WordPreference(10, 10);
+        WordPreference wordPreference = new WordPreference(10, 10, Duration.ofHours(1));
         when(wordPreferenceService.getWordPreference(USER_ID)).thenReturn(wordPreference);
 
         wordService.updateRightAnswersCounters(USER_ID, wordsToUpdate);

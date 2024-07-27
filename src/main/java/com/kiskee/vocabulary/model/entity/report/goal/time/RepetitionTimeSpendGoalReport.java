@@ -1,4 +1,4 @@
-package com.kiskee.vocabulary.model.entity.report.word;
+package com.kiskee.vocabulary.model.entity.report.goal.time;
 
 import com.kiskee.vocabulary.model.entity.report.Report;
 import jakarta.persistence.CascadeType;
@@ -21,7 +21,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class WordAdditionGoalReport implements Report<WordAdditionGoalReportRow> {
+public class RepetitionTimeSpendGoalReport implements Report<RepetitionTimeSpendGoalReportRow> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,15 +32,14 @@ public class WordAdditionGoalReport implements Report<WordAdditionGoalReportRow>
 
     @JoinColumn(name = "reportId")
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    private Set<WordAdditionGoalReportRow> reportRows;
+    private Set<RepetitionTimeSpendGoalReportRow> reportRows;
 
-    public WordAdditionGoalReport(UUID userId, Set<WordAdditionGoalReportRow> reportRows) {
+    public RepetitionTimeSpendGoalReport(UUID userId, Set<RepetitionTimeSpendGoalReportRow> reportRows) {
         this.userId = userId;
         this.reportRows = reportRows;
     }
 
-    @Override
-    public Report<WordAdditionGoalReportRow> buildFrom(Set<WordAdditionGoalReportRow> updatedReportRows) {
-        return new WordAdditionGoalReport(this.id, this.userId, updatedReportRows);
+    public RepetitionTimeSpendGoalReport buildFrom(Set<RepetitionTimeSpendGoalReportRow> updatedReportRows) {
+        return new RepetitionTimeSpendGoalReport(this.id, this.userId, updatedReportRows);
     }
 }

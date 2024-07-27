@@ -1,5 +1,6 @@
 package com.kiskee.vocabulary.model.dto.report.goal;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -7,22 +8,22 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class WordAdditionData implements ReportData<Integer> {
+public class RepetitionTimeSpendData implements ReportData<Duration> {
 
     private UUID userId;
     private Long dictionaryId;
-    private int addedWords;
-    private int newWordsPerDayGoal;
+    private Duration repetitionDuration;
+    private Duration repetitionDurationGoal;
     private LocalDate userCreatedAt;
     private LocalDate currentDate;
 
     @Override
-    public Integer getValue() {
-        return this.addedWords;
+    public Duration getValue() {
+        return this.repetitionDuration;
     }
 
     @Override
-    public Integer getDailyGoal() {
-        return this.newWordsPerDayGoal;
+    public Duration getDailyGoal() {
+        return this.repetitionDurationGoal;
     }
 }

@@ -1,3 +1,6 @@
 package com.kiskee.vocabulary.model.dto.user.preference;
 
-public record WordPreference(int rightAnswersToDisableInRepetition, int newWordsPerDayGoal) {}
+import java.time.Duration;
+
+public record WordPreference(
+        int rightAnswersToDisableInRepetition, int newWordsPerDayGoal, Duration dailyRepetitionDurationGoal) {}

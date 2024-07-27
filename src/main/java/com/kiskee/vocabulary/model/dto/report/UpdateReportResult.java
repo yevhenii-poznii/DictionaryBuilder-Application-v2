@@ -12,4 +12,8 @@ public class UpdateReportResult {
 
     @Nullable
     private String causedBy;
+
+    public UpdateReportResult(Boolean updated) {
+        this.updated = updated;
+    }
 }

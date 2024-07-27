@@ -33,6 +33,8 @@ import com.kiskee.vocabulary.service.vocabulary.dictionary.DictionaryAccessValid
 import com.kiskee.vocabulary.service.vocabulary.repetition.loader.RepetitionWordLoaderFactory;
 import com.kiskee.vocabulary.service.vocabulary.repetition.loader.criteria.RepetitionWordCriteriaLoader;
 import com.kiskee.vocabulary.service.vocabulary.word.WordCounterUpdateService;
+import com.kiskee.vocabulary.util.TimeZoneContextHolder;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -137,6 +139,7 @@ public class InputRepetitionServiceTest {
     void
             testStart_WhenRepetitionIsNotRunning_ThenPrepareRepetitionDataAndReturnIsRunningTrueAndPausedFalseRepetitionRunningStatus() {
         setAuth();
+        TimeZoneContextHolder.setTimeZone("Asia/Tokyo");
 
         long dictionaryId = 1L;
         RepetitionStartFilterRequest startFilterRequest = new RepetitionStartFilterRequest(
@@ -169,6 +172,8 @@ public class InputRepetitionServiceTest {
         assertThat(repetitionData.getPauses()).isEmpty();
         assertThat(repetitionData.getTotalElements()).isEqualTo(loadedWords.size());
         assertThat(repetitionData.getId()).isEqualTo(USER_ID.toString());
+
+        TimeZoneContextHolder.clear();
     }
 
     @Test
@@ -455,7 +460,7 @@ public class InputRepetitionServiceTest {
 
         List<WordDto> repetitionWords = prepareRepetitionWords();
         WordDto currentWord = repetitionWords.getLast();
-        RepetitionData repetitionData = new RepetitionData(repetitionWords, 1L, USER_ID);
+        RepetitionData repetitionData = new RepetitionData(repetitionWords, 1L, USER_ID, ZoneId.of("Asia/Tokyo"));
         when(repository.findById(USER_ID.toString())).thenReturn(Optional.of(repetitionData));
 
         inputRepetitionService.handleRepetitionMessage(authentication, wsRequest);

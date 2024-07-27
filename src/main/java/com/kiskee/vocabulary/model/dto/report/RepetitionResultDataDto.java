@@ -2,6 +2,7 @@ package com.kiskee.vocabulary.model.dto.report;
 
 import com.kiskee.vocabulary.model.entity.redis.repetition.Pause;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -19,6 +20,7 @@ public class RepetitionResultDataDto implements RepetitionResultData {
 
     private UUID userId;
     private long dictionaryId;
+    private ZoneId userTimeZone;
     private Instant startTime;
     private Instant endTime;
     private List<Pause> pauses = new ArrayList<>();
