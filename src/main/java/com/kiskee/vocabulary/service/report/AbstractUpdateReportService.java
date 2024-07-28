@@ -1,7 +1,7 @@
 package com.kiskee.vocabulary.service.report;
 
+import com.kiskee.vocabulary.model.dto.report.ReportData;
 import com.kiskee.vocabulary.model.dto.report.UpdateReportResult;
-import com.kiskee.vocabulary.model.dto.report.goal.ReportData;
 import com.kiskee.vocabulary.model.entity.report.Report;
 import com.kiskee.vocabulary.model.entity.report.ReportRow;
 import java.util.List;

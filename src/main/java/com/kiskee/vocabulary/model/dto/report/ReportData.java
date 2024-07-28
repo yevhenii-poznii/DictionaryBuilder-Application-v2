@@ -1,17 +1,13 @@
-package com.kiskee.vocabulary.model.dto.report.goal;
+package com.kiskee.vocabulary.model.dto.report;
 
 import java.time.LocalDate;
 import java.util.UUID;
 
-public interface ReportData<V> {
+public interface ReportData {
 
     UUID getUserId();
 
     Long getDictionaryId();
-
-    V getValue();
-
-    V getDailyGoal();
 
     LocalDate getUserCreatedAt();
 

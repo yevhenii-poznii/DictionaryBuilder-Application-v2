@@ -1,6 +1,6 @@
 package com.kiskee.vocabulary.model.entity.report.goal.time;
 
-import com.kiskee.vocabulary.model.entity.report.DictionaryReport;
+import com.kiskee.vocabulary.model.entity.report.DictionaryGoalReport;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class DictionaryRepetitionTimeSpendGoalReport implements DictionaryReport<Duration> {
+public class DictionaryRepetitionTimeSpendGoalReport implements DictionaryGoalReport<Duration> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 
 import com.kiskee.vocabulary.model.entity.redis.TemporaryWordAdditionData;
 import com.kiskee.vocabulary.repository.redis.TemporaryWordAdditionCacheRepository;
-import com.kiskee.vocabulary.service.report.UpdateGoalReportService;
+import com.kiskee.vocabulary.service.report.goal.word.UpdateGoalReportService;
 import com.kiskee.vocabulary.service.time.CurrentDateTimeService;
 import java.time.Duration;
 import java.time.Instant;

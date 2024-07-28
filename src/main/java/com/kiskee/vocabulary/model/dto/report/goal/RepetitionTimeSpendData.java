@@ -8,7 +8,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class RepetitionTimeSpendData implements ReportData<Duration> {
+public class RepetitionTimeSpendData implements GoalReportData<Duration> {
 
     private UUID userId;
     private Long dictionaryId;
@@ -23,7 +23,7 @@ public class RepetitionTimeSpendData implements ReportData<Duration> {
     }
 
     @Override
-    public Duration getDailyGoal() {
+    public Duration getGoal() {
         return this.repetitionDurationGoal;
     }
 }

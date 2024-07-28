@@ -4,11 +4,11 @@ import com.kiskee.vocabulary.model.dto.report.PeriodRange;
 import com.kiskee.vocabulary.model.dto.report.goal.WordAdditionData;
 import com.kiskee.vocabulary.model.entity.report.goal.word.DictionaryWordAdditionGoalReport;
 import com.kiskee.vocabulary.model.entity.report.goal.word.WordAdditionGoalReportRow;
-import com.kiskee.vocabulary.service.report.AbstractReportRowService;
+import com.kiskee.vocabulary.service.report.goal.AbstractGoalReportRowService;
 import java.util.Set;
 
 public abstract class AbstractWordAdditionGoalReportRowService
-        extends AbstractReportRowService<
+        extends AbstractGoalReportRowService<
                 WordAdditionData, WordAdditionGoalReportRow, DictionaryWordAdditionGoalReport, Integer> {
 
     @Override

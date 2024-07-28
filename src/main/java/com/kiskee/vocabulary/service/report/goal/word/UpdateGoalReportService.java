@@ -1,4 +1,4 @@
-package com.kiskee.vocabulary.service.report;
+package com.kiskee.vocabulary.service.report.goal.word;
 
 public interface UpdateGoalReportService {
 

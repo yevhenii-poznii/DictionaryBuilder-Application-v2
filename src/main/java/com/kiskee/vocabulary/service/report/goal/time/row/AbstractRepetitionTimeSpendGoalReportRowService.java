@@ -4,12 +4,12 @@ import com.kiskee.vocabulary.model.dto.report.PeriodRange;
 import com.kiskee.vocabulary.model.dto.report.goal.RepetitionTimeSpendData;
 import com.kiskee.vocabulary.model.entity.report.goal.time.DictionaryRepetitionTimeSpendGoalReport;
 import com.kiskee.vocabulary.model.entity.report.goal.time.RepetitionTimeSpendGoalReportRow;
-import com.kiskee.vocabulary.service.report.AbstractReportRowService;
+import com.kiskee.vocabulary.service.report.goal.AbstractGoalReportRowService;
 import java.time.Duration;
 import java.util.Set;
 
 public abstract class AbstractRepetitionTimeSpendGoalReportRowService
-        extends AbstractReportRowService<
+        extends AbstractGoalReportRowService<
                 RepetitionTimeSpendData,
                 RepetitionTimeSpendGoalReportRow,
                 DictionaryRepetitionTimeSpendGoalReport,

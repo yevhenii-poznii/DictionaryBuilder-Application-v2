@@ -8,7 +8,6 @@ import com.kiskee.vocabulary.model.entity.report.goal.word.WordAdditionGoalRepor
 import com.kiskee.vocabulary.repository.redis.TemporaryWordAdditionCacheRepository;
 import com.kiskee.vocabulary.repository.report.WordAdditionGoalReportRepository;
 import com.kiskee.vocabulary.service.report.AbstractUpdateReportService;
-import com.kiskee.vocabulary.service.report.UpdateGoalReportService;
 import com.kiskee.vocabulary.service.report.goal.word.row.WordAdditionGoalReportRowService;
 import com.kiskee.vocabulary.service.user.preference.WordPreferenceService;
 import com.kiskee.vocabulary.service.user.profile.UserProfileInfoProvider;
