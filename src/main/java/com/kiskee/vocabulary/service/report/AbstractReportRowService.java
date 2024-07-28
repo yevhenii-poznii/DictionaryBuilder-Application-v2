@@ -1,7 +1,7 @@
 package com.kiskee.vocabulary.service.report;
 
 import com.kiskee.vocabulary.model.dto.report.PeriodRange;
-import com.kiskee.vocabulary.model.dto.report.goal.ReportData;
+import com.kiskee.vocabulary.model.dto.report.ReportData;
 import com.kiskee.vocabulary.model.entity.report.DictionaryReport;
 import com.kiskee.vocabulary.model.entity.report.ReportRow;
 import com.kiskee.vocabulary.util.report.ReportPeriodUtil;
@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public abstract class AbstractReportRowService<
-        D extends ReportData<V>, RR extends ReportRow<DR>, DR extends DictionaryReport<V>, V> {
+        D extends ReportData, RR extends ReportRow<DR>, DR extends DictionaryReport> {
 
     private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#.###");
 
@@ -24,31 +24,20 @@ public abstract class AbstractReportRowService<
     protected abstract RR buildPeriodRow(
             PeriodRange currentPeriodRange, int workingDaysForPeriod, Set<DR> dictionaryReports);
 
-    protected abstract V calculateGoalForPeriod(V dailyGoal, int workingDaysForPeriod);
-
-    protected abstract V calculateGoalForPeriod(
-            int currentWorkingDays, int previousWorkingDays, V previousGoal, V goalForToday);
-
-    protected abstract Double calculateGoalCompletionPercentage(V value, V goalForPeriod);
-
-    protected abstract DR buildReportByDictionary(
-            Long dictionaryId, Double goalCompletionPercentage, V goalForPeriod, V value);
-
     protected abstract DR buildReportByDictionary(Long dictionaryId);
 
     protected abstract RR rebuildRow(
             RR row, PeriodRange currentPeriodRange, int workingDaysForPeriod, Set<DR> recalculatedDictionaryReports);
 
+    protected abstract DR calculateDictionaryReport(D reportData, int workingDays);
+
+    protected abstract DR recalculateDictionaryReport(
+            RR row, int currentWorkingDays, DR dictionaryReport, D reportData);
+
     public RR buildRowFromScratch(D reportData) {
         PeriodRange currentPeriodRange = buildPeriodRange(reportData.getCurrentDate(), reportData.getUserCreatedAt());
         int workingDaysForPeriod = calculateWorkingDaysForPeriod(currentPeriodRange);
-        V goalForPeriod = calculateGoalForPeriod(reportData.getDailyGoal(), workingDaysForPeriod);
-        Double goalCompletionPercentage = calculateGoalCompletionPercentage(reportData.getValue(), goalForPeriod);
-        goalCompletionPercentage = roundToThreeDigitAfterComma(goalCompletionPercentage);
-
-        DR reportByDictionary = buildReportByDictionary(
-                reportData.getDictionaryId(), goalCompletionPercentage, goalForPeriod, reportData.getValue());
-
+        DR reportByDictionary = calculateDictionaryReport(reportData, workingDaysForPeriod);
         return buildPeriodRow(currentPeriodRange, workingDaysForPeriod, Set.of(reportByDictionary));
     }
 
@@ -111,52 +100,7 @@ public abstract class AbstractReportRowService<
                 .collect(Collectors.toSet());
     }
 
-    private DR recalculateDictionaryReport(RR row, int currentWorkingDays, DR dictionaryReport, D reportData) {
-        Double goalCompletionPercentage = recalculateGoalCompletionPercentageForDictionaryReport(
-                row, dictionaryReport, reportData, currentWorkingDays);
-        goalCompletionPercentage = roundToThreeDigitAfterComma(goalCompletionPercentage);
-        V goalForPeriod = calculateGoalForPeriod(
-                currentWorkingDays,
-                row.getWorkingDays(),
-                dictionaryReport.getGoalForPeriod(),
-                reportData.getDailyGoal());
-
-        return !dictionaryReport.getDictionaryId().equals(reportData.getDictionaryId())
-                ? dictionaryReport.buildFrom(goalCompletionPercentage, goalForPeriod)
-                : dictionaryReport.buildFrom(goalCompletionPercentage, goalForPeriod, reportData.getValue());
-    }
-
-    private Double recalculateGoalCompletionPercentageForDictionaryReport(
-            RR row, DR dictionaryReport, D reportData, int currentWorkingDays) {
-        if (!dictionaryReport.getDictionaryId().equals(reportData.getDictionaryId())) {
-            return calculateGoalCompletionPercentageWithoutNewWords(
-                    dictionaryReport.getGoalCompletionPercentage(), row.getWorkingDays(), currentWorkingDays);
-        }
-        return calculateGoalCompletionPercentage(
-                reportData.getValue(),
-                reportData.getDailyGoal(),
-                dictionaryReport.getGoalCompletionPercentage(),
-                row.getWorkingDays(),
-                currentWorkingDays);
-    }
-
-    private Double calculateGoalCompletionPercentage(
-            V value,
-            V goalForToday,
-            Double previousGoalCompletionPercentage,
-            int previousWorkingDays,
-            int currentWorkingDays) {
-        Double goalCompletionPercentage = calculateGoalCompletionPercentage(value, goalForToday);
-        return ((previousGoalCompletionPercentage * previousWorkingDays) + goalCompletionPercentage)
-                / currentWorkingDays;
-    }
-
-    private Double calculateGoalCompletionPercentageWithoutNewWords(
-            Double previousGoalCompletionPercentage, int previousWorkingDays, int currentWorkingDays) {
-        return (previousGoalCompletionPercentage * previousWorkingDays) / currentWorkingDays;
-    }
-
-    private double roundToThreeDigitAfterComma(Double value) {
+    protected double roundToThreeDigitAfterComma(Double value) {
         String formatted = DECIMAL_FORMAT.format(value);
         return Double.parseDouble(formatted);
     }

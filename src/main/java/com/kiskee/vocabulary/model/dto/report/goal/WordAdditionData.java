@@ -7,7 +7,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class WordAdditionData implements ReportData<Integer> {
+public class WordAdditionData implements GoalReportData<Integer> {
 
     private UUID userId;
     private Long dictionaryId;
@@ -22,7 +22,7 @@ public class WordAdditionData implements ReportData<Integer> {
     }
 
     @Override
-    public Integer getDailyGoal() {
+    public Integer getGoal() {
         return this.newWordsPerDayGoal;
     }
 }

@@ -1,4 +1,4 @@
-package com.kiskee.vocabulary.model.entity.report.goal.word;
+package com.kiskee.vocabulary.model.entity.report.progress.repetition;
 
 import com.kiskee.vocabulary.model.dto.report.PeriodRange;
 import com.kiskee.vocabulary.model.entity.report.ReportRow;
@@ -32,7 +32,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "report_period", discriminatorType = DiscriminatorType.STRING)
-public class WordAdditionGoalReportRow implements ReportRow<DictionaryWordAdditionGoalReport> {
+public class RepetitionStatisticReportRow implements ReportRow<DictionaryRepetitionStatisticReport> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,13 +49,15 @@ public class WordAdditionGoalReportRow implements ReportRow<DictionaryWordAdditi
 
     @JoinColumn(name = "reportRowId")
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    private Set<DictionaryWordAdditionGoalReport> dictionaryReports;
+    private Set<DictionaryRepetitionStatisticReport> dictionaryReports;
 
     @Transient
     private String reportPeriod;
 
-    public WordAdditionGoalReportRow(
-            PeriodRange currentPeriodRange, int workingDays, Set<DictionaryWordAdditionGoalReport> dictionaryReports) {
+    public RepetitionStatisticReportRow(
+            PeriodRange currentPeriodRange,
+            int workingDays,
+            Set<DictionaryRepetitionStatisticReport> dictionaryReports) {
         this.reportPeriod = this.getRowPeriod();
         this.startPeriod = currentPeriodRange.startPeriod();
         this.endPeriod = currentPeriodRange.endPeriod();
