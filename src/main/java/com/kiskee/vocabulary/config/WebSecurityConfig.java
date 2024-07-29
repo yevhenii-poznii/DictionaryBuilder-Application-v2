@@ -80,7 +80,7 @@ public class WebSecurityConfig {
                         .anonymous()
                         .requestMatchers("/actuator/**")
                         .hasRole("METRICS")
-                        .requestMatchers("/error", "/auth/access")
+                        .requestMatchers("/error", "/auth/access", "/swagger-ui**", "/swagger-ui/**", "/v3/api-docs/**")
                         .permitAll()
                         .anyRequest()
                         .authenticated())
