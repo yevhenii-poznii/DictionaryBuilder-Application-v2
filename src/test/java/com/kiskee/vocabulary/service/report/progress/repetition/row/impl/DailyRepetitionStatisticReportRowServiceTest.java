@@ -35,20 +35,20 @@ public class DailyRepetitionStatisticReportRowServiceTest {
         assertThat(dailyRow.getRowPeriod()).isEqualTo(ReportPeriodUtil.DAY);
         assertThat(dailyRow.getStartPeriod()).isEqualTo(testData.data().getCurrentDate());
         assertThat(dailyRow.getEndPeriod()).isEqualTo(testData.data().getCurrentDate());
-        assertThat(dailyRow.getDictionaryReports()).containsExactly(testData.expectedDictionaryGoalReport());
+        assertThat(dailyRow.getDictionaryReports()).containsExactly(testData.expectedDictionaryReport());
     }
 
     @ParameterizedTest
     @MethodSource("updateRowTestData")
     void testUpdateRow_WhenDailyRowExistsForToday_ThenRecalculateRow(TestData testData) {
-        DictionaryRepetitionStatisticReport dictionaryGoalReport =
+        DictionaryRepetitionStatisticReport dictionaryReport =
                 new DictionaryRepetitionStatisticReport(1L, 10L, 96.429, 56, 79.63, 43, 20.37, 11, 3.571, 2, 54, 1);
         DailyRepetitionStatisticReportRow dailyRowForToday = DailyRepetitionStatisticReportRow.builder()
                 .id(1L)
                 .startPeriod(testData.data().getCurrentDate())
                 .endPeriod(testData.data().getCurrentDate())
                 .workingDays(1)
-                .dictionaryReports(Set.of(dictionaryGoalReport))
+                .dictionaryReports(Set.of(dictionaryReport))
                 .build();
 
         RepetitionStatisticReportRow updatedDailyRow =
@@ -58,20 +58,20 @@ public class DailyRepetitionStatisticReportRowServiceTest {
         assertThat(updatedDailyRow.getRowPeriod()).isEqualTo(ReportPeriodUtil.DAY);
         assertThat(updatedDailyRow.getStartPeriod()).isEqualTo(testData.data().getCurrentDate());
         assertThat(updatedDailyRow.getEndPeriod()).isEqualTo(testData.data().getCurrentDate());
-        assertThat(updatedDailyRow.getDictionaryReports()).containsExactly(testData.expectedDictionaryGoalReport());
+        assertThat(updatedDailyRow.getDictionaryReports()).containsExactly(testData.expectedDictionaryReport());
     }
 
     @ParameterizedTest
     @MethodSource("buildRowFromScratchTestData")
     void testUpdateRow_WhenDailyRowExistsForTodayAndGivenNewDictionary_ThenRecalculateRow(TestData testData) {
-        DictionaryRepetitionStatisticReport dictionaryGoalReport =
+        DictionaryRepetitionStatisticReport dictionaryReport =
                 new DictionaryRepetitionStatisticReport(1L, 5L, 96.429, 56, 79.63, 43, 20.37, 11, 3.571, 2, 54, 1);
         DailyRepetitionStatisticReportRow dailyRowForToday = DailyRepetitionStatisticReportRow.builder()
                 .id(1L)
                 .startPeriod(testData.data().getCurrentDate())
                 .endPeriod(testData.data().getCurrentDate())
                 .workingDays(1)
-                .dictionaryReports(Set.of(dictionaryGoalReport))
+                .dictionaryReports(Set.of(dictionaryReport))
                 .build();
 
         RepetitionStatisticReportRow updatedDailyRow =
@@ -82,21 +82,21 @@ public class DailyRepetitionStatisticReportRowServiceTest {
         assertThat(updatedDailyRow.getStartPeriod()).isEqualTo(testData.data().getCurrentDate());
         assertThat(updatedDailyRow.getEndPeriod()).isEqualTo(testData.data().getCurrentDate());
         assertThat(updatedDailyRow.getDictionaryReports())
-                .containsExactlyInAnyOrder(dictionaryGoalReport, testData.expectedDictionaryGoalReport());
+                .containsExactlyInAnyOrder(dictionaryReport, testData.expectedDictionaryReport());
     }
 
     @ParameterizedTest
     @MethodSource("buildRowFromScratchTestData")
     void testUpdateRow_WhenDailyRowExistsAndCurrentDateIsAfterPreviousDailyRow_ThenBuildRowFromScratch(
             TestData testData) {
-        DictionaryRepetitionStatisticReport dictionaryGoalReport =
+        DictionaryRepetitionStatisticReport dictionaryReport =
                 new DictionaryRepetitionStatisticReport(1L, 10L, 92.81, 153, 77.465, 110, 22.535, 32, 7.19, 11, 142, 2);
         DailyRepetitionStatisticReportRow dailyRowForToday = DailyRepetitionStatisticReportRow.builder()
                 .id(1L)
                 .startPeriod(testData.data().getCurrentDate().minusDays(1))
                 .endPeriod(testData.data().getCurrentDate().minusDays(1))
                 .workingDays(1)
-                .dictionaryReports(Set.of(dictionaryGoalReport))
+                .dictionaryReports(Set.of(dictionaryReport))
                 .build();
 
         RepetitionStatisticReportRow updatedDailyRow =
@@ -107,7 +107,7 @@ public class DailyRepetitionStatisticReportRowServiceTest {
         assertThat(updatedDailyRow.getStartPeriod()).isEqualTo(testData.data().getCurrentDate());
         assertThat(updatedDailyRow.getEndPeriod()).isEqualTo(testData.data().getCurrentDate());
         assertThat(updatedDailyRow.getDictionaryReports())
-                .containsExactlyInAnyOrder(testData.expectedDictionaryGoalReport());
+                .containsExactlyInAnyOrder(testData.expectedDictionaryReport());
     }
 
     private static Stream<TestData> buildRowFromScratchTestData() {
@@ -145,5 +145,5 @@ public class DailyRepetitionStatisticReportRowServiceTest {
     }
 
     private record TestData(
-            RepetitionStatisticData data, DictionaryRepetitionStatisticReport expectedDictionaryGoalReport) {}
+            RepetitionStatisticData data, DictionaryRepetitionStatisticReport expectedDictionaryReport) {}
 }
