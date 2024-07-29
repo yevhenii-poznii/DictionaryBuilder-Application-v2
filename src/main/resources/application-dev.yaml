@@ -21,7 +21,7 @@ spring:
   security.oauth2.client.registration.google:
     client-id: ${OAUTH2_CLIENT_ID}
     client-secret: ${OAUTH2_CLIENT_SECRET}
-    redirectUri: https://localhost:8443/api/v1/login/oauth2/code/google
+    redirectUri: ${SERVER_URL:https://localhost:8443}/api/v1/login/oauth2/code/google
     scope:
       - profile
       - email
@@ -77,3 +77,4 @@ scheduler:
   thread-name-prefix: ${SCHEDULER_THREAD_NAME_PREFIX:scheduler-}
   start-task-delay: ${SCHEDULER_START_TASK_DELAY:PT100S}
   initial-delay: ${SCHEDULER_START_TASK_DELAY:PT10S}
+swagger.server.url: ${SERVER_URL:https://localhost:8443}
