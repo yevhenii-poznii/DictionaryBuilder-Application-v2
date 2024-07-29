@@ -128,7 +128,7 @@ public class RepetitionTimeSpendGoalReportServiceTest {
     }
 
     @Test
-    void testUpdateReport_WhenWordAdditionGoalReportExists_ThenUpdateExistingReport() {
+    void testUpdateReport_WhenRepetitionTimeSpendGoalReportExists_ThenUpdateExistingReport() {
         RepetitionResultData repetitionResultData = buildRepetitionResultData(List.of());
 
         RepetitionTimeSpendGoalReport existingReport = mock(RepetitionTimeSpendGoalReport.class);
@@ -163,7 +163,7 @@ public class RepetitionTimeSpendGoalReportServiceTest {
     }
 
     @Test
-    void testUpdateReport_WhenWordAdditionGoalReportExistsAndThereArePauses_ThenUpdateExistingReport() {
+    void testUpdateReport_WhenRepetitionTimeSpendGoalReportExistsAndThereArePauses_ThenUpdateExistingReport() {
         RepetitionResultData repetitionResultData = buildRepetitionResultData(List.of(
                 new Pause(Instant.parse("2024-07-09T12:50:23Z"), Instant.parse("2024-07-09T12:55:23Z")),
                 new Pause(Instant.parse("2024-07-09T13:00:23Z"), Instant.parse("2024-07-09T13:05:23Z"))));
