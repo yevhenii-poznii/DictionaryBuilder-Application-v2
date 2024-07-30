@@ -1,4 +1,4 @@
-package com.kiskee.vocabulary.model.dto.report;
+package com.kiskee.vocabulary.model.dto.repetition;
 
 import com.kiskee.vocabulary.model.entity.redis.repetition.Pause;
 import java.time.Instant;

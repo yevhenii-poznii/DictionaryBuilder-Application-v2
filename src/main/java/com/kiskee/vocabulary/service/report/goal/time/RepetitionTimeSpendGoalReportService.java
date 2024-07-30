@@ -1,16 +1,20 @@
 package com.kiskee.vocabulary.service.report.goal.time;
 
-import com.kiskee.vocabulary.model.dto.report.RepetitionResultData;
-import com.kiskee.vocabulary.model.dto.report.UpdateReportResult;
-import com.kiskee.vocabulary.model.dto.report.goal.RepetitionTimeSpendData;
+import com.kiskee.vocabulary.mapper.report.RepetitionTimeSpendGoalReportMapper;
+import com.kiskee.vocabulary.model.dto.repetition.RepetitionResultData;
+import com.kiskee.vocabulary.model.dto.report.ReportDto;
+import com.kiskee.vocabulary.model.dto.report.update.UpdateReportResult;
+import com.kiskee.vocabulary.model.dto.report.update.goal.RepetitionTimeSpendData;
 import com.kiskee.vocabulary.model.entity.redis.repetition.Pause;
 import com.kiskee.vocabulary.model.entity.report.Report;
 import com.kiskee.vocabulary.model.entity.report.goal.time.RepetitionTimeSpendGoalReport;
 import com.kiskee.vocabulary.model.entity.report.goal.time.RepetitionTimeSpendGoalReportRow;
 import com.kiskee.vocabulary.repository.report.RepetitionTimeSpendGoalReportRepository;
 import com.kiskee.vocabulary.service.report.AbstractUpdateReportService;
+import com.kiskee.vocabulary.service.report.ReportService;
 import com.kiskee.vocabulary.service.report.goal.time.row.RepetitionTimeSpendGoalReportRowService;
 import com.kiskee.vocabulary.service.report.progress.repetition.RepetitionProgressUpdateReportService;
+import com.kiskee.vocabulary.service.time.CurrentDateTimeService;
 import com.kiskee.vocabulary.service.user.preference.WordPreferenceService;
 import com.kiskee.vocabulary.service.user.profile.UserProfileInfoProvider;
 import java.time.Duration;
@@ -36,13 +40,20 @@ import org.springframework.transaction.annotation.Transactional;
 public class RepetitionTimeSpendGoalReportService
         extends AbstractUpdateReportService<
                 RepetitionTimeSpendData, RepetitionTimeSpendGoalReport, RepetitionTimeSpendGoalReportRow>
-        implements RepetitionProgressUpdateReportService {
+        implements ReportService, RepetitionProgressUpdateReportService {
 
     private final RepetitionTimeSpendGoalReportRepository repository;
+    private final RepetitionTimeSpendGoalReportMapper mapper;
     private final UserProfileInfoProvider userProfileInfoProvider;
     private final WordPreferenceService wordPreferenceService;
+    private final CurrentDateTimeService currentDateTimeService;
 
     private final List<RepetitionTimeSpendGoalReportRowService> rowServices;
+
+    @Override
+    public ReportDto getReport() {
+        return super.getReport();
+    }
 
     @Async
     @Override
@@ -59,6 +70,11 @@ public class RepetitionTimeSpendGoalReportService
     @Override
     protected Optional<RepetitionTimeSpendGoalReport> getReport(UUID userId) {
         return repository.findByUserId(userId);
+    }
+
+    @Override
+    protected ReportDto mapToDto(UUID userId, Set<RepetitionTimeSpendGoalReportRow> reportRows) {
+        return mapper.toDto(new RepetitionTimeSpendGoalReport(userId, reportRows));
     }
 
     @Override

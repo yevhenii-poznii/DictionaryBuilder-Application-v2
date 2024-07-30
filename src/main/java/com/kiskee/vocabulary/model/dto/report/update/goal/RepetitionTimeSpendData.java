@@ -1,4 +1,4 @@
-package com.kiskee.vocabulary.model.dto.report.goal;
+package com.kiskee.vocabulary.model.dto.report.update.goal;
 
 import java.time.Duration;
 import java.time.LocalDate;

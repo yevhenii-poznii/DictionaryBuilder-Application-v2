@@ -1,7 +1,7 @@
 package com.kiskee.vocabulary.service.report;
 
-import com.kiskee.vocabulary.model.dto.report.PeriodRange;
-import com.kiskee.vocabulary.model.dto.report.ReportData;
+import com.kiskee.vocabulary.model.dto.report.update.PeriodRange;
+import com.kiskee.vocabulary.model.dto.report.update.ReportData;
 import com.kiskee.vocabulary.model.entity.report.DictionaryReport;
 import com.kiskee.vocabulary.model.entity.report.ReportRow;
 import com.kiskee.vocabulary.util.report.ReportPeriodUtil;

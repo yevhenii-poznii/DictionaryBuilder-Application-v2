@@ -1,6 +1,6 @@
 package com.kiskee.vocabulary.model.entity.report.progress.repetition;
 
-import com.kiskee.vocabulary.model.dto.report.progress.repetition.RepetitionStatisticData;
+import com.kiskee.vocabulary.model.dto.report.update.progress.repetition.RepetitionStatisticData;
 import com.kiskee.vocabulary.model.entity.report.DictionaryReport;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

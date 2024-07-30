@@ -1,14 +1,18 @@
 package com.kiskee.vocabulary.service.report.progress.repetition;
 
-import com.kiskee.vocabulary.model.dto.report.RepetitionResultData;
-import com.kiskee.vocabulary.model.dto.report.UpdateReportResult;
-import com.kiskee.vocabulary.model.dto.report.progress.repetition.RepetitionStatisticData;
+import com.kiskee.vocabulary.mapper.report.RepetitionStatisticReportMapper;
+import com.kiskee.vocabulary.model.dto.repetition.RepetitionResultData;
+import com.kiskee.vocabulary.model.dto.report.ReportDto;
+import com.kiskee.vocabulary.model.dto.report.update.UpdateReportResult;
+import com.kiskee.vocabulary.model.dto.report.update.progress.repetition.RepetitionStatisticData;
 import com.kiskee.vocabulary.model.entity.report.Report;
 import com.kiskee.vocabulary.model.entity.report.progress.repetition.RepetitionStatisticReport;
 import com.kiskee.vocabulary.model.entity.report.progress.repetition.RepetitionStatisticReportRow;
 import com.kiskee.vocabulary.repository.report.RepetitionStatisticReportRepository;
 import com.kiskee.vocabulary.service.report.AbstractUpdateReportService;
+import com.kiskee.vocabulary.service.report.ReportService;
 import com.kiskee.vocabulary.service.report.progress.repetition.row.RepetitionStatisticReportRowService;
+import com.kiskee.vocabulary.service.time.CurrentDateTimeService;
 import com.kiskee.vocabulary.service.user.profile.UserProfileInfoProvider;
 import java.time.LocalDate;
 import java.util.List;
@@ -31,12 +35,19 @@ import org.springframework.transaction.annotation.Transactional;
 public class RepetitionStatisticReportService
         extends AbstractUpdateReportService<
                 RepetitionStatisticData, RepetitionStatisticReport, RepetitionStatisticReportRow>
-        implements RepetitionProgressUpdateReportService {
+        implements ReportService, RepetitionProgressUpdateReportService {
 
     private final RepetitionStatisticReportRepository repository;
+    private final RepetitionStatisticReportMapper mapper;
     private final UserProfileInfoProvider userProfileInfoProvider;
+    private final CurrentDateTimeService currentDateTimeService;
 
     private final List<RepetitionStatisticReportRowService> rowServices;
+
+    @Override
+    public ReportDto getReport() {
+        return super.getReport();
+    }
 
     @Async
     @Override
@@ -77,6 +88,11 @@ public class RepetitionStatisticReportService
     @Override
     protected Optional<RepetitionStatisticReport> getReport(UUID userId) {
         return repository.findByUserId(userId);
+    }
+
+    @Override
+    protected ReportDto mapToDto(UUID userId, Set<RepetitionStatisticReportRow> reportRows) {
+        return mapper.toDto(new RepetitionStatisticReport(userId, reportRows));
     }
 
     @Override

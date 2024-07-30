@@ -1,6 +1,6 @@
 package com.kiskee.vocabulary.service.report.goal.time.row.impl;
 
-import com.kiskee.vocabulary.model.dto.report.PeriodRange;
+import com.kiskee.vocabulary.model.dto.report.update.PeriodRange;
 import com.kiskee.vocabulary.model.entity.report.goal.time.DictionaryRepetitionTimeSpendGoalReport;
 import com.kiskee.vocabulary.model.entity.report.goal.time.RepetitionTimeSpendGoalReportRow;
 import com.kiskee.vocabulary.model.entity.report.goal.time.period.TotalRepetitionTimeSpendGoalReportRow;

@@ -2,7 +2,7 @@ package com.kiskee.vocabulary.service.report.progress.repetition.row.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.kiskee.vocabulary.model.dto.report.progress.repetition.RepetitionStatisticData;
+import com.kiskee.vocabulary.model.dto.report.update.progress.repetition.RepetitionStatisticData;
 import com.kiskee.vocabulary.model.entity.report.progress.repetition.DictionaryRepetitionStatisticReport;
 import com.kiskee.vocabulary.model.entity.report.progress.repetition.RepetitionStatisticReportRow;
 import com.kiskee.vocabulary.model.entity.report.progress.repetition.period.MonthlyRepetitionStatisticReportRow;

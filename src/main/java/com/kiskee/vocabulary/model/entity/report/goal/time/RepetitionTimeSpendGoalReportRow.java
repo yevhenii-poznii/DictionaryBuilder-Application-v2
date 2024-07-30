@@ -1,6 +1,6 @@
 package com.kiskee.vocabulary.model.entity.report.goal.time;
 
-import com.kiskee.vocabulary.model.dto.report.PeriodRange;
+import com.kiskee.vocabulary.model.dto.report.update.PeriodRange;
 import com.kiskee.vocabulary.model.entity.report.ReportRow;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
