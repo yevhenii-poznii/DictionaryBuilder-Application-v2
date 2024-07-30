@@ -2,11 +2,11 @@ package com.kiskee.vocabulary.service.vocabulary.repetition;
 
 import com.kiskee.vocabulary.exception.repetition.RepetitionException;
 import com.kiskee.vocabulary.mapper.repetition.RepetitionWordMapper;
+import com.kiskee.vocabulary.model.dto.repetition.RepetitionResultDataDto;
 import com.kiskee.vocabulary.model.dto.repetition.RepetitionRunningStatus;
 import com.kiskee.vocabulary.model.dto.repetition.RepetitionStartFilterRequest;
 import com.kiskee.vocabulary.model.dto.repetition.message.WSRequest;
 import com.kiskee.vocabulary.model.dto.repetition.message.WSResponse;
-import com.kiskee.vocabulary.model.dto.report.RepetitionResultDataDto;
 import com.kiskee.vocabulary.model.dto.vocabulary.word.WordDto;
 import com.kiskee.vocabulary.model.dto.vocabulary.word.WordTranslationDto;
 import com.kiskee.vocabulary.model.entity.redis.repetition.RepetitionData;

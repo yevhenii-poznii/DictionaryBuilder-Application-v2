@@ -1,6 +1,6 @@
 package com.kiskee.vocabulary.service.report.goal;
 
-import com.kiskee.vocabulary.model.dto.report.goal.GoalReportData;
+import com.kiskee.vocabulary.model.dto.report.update.goal.GoalReportData;
 import com.kiskee.vocabulary.model.entity.report.DictionaryGoalReport;
 import com.kiskee.vocabulary.model.entity.report.ReportRow;
 import com.kiskee.vocabulary.service.report.AbstractReportRowService;

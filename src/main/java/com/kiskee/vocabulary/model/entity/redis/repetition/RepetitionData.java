@@ -1,7 +1,7 @@
 package com.kiskee.vocabulary.model.entity.redis.repetition;
 
 import com.kiskee.vocabulary.exception.repetition.RepetitionException;
-import com.kiskee.vocabulary.model.dto.report.RepetitionResultDataDto;
+import com.kiskee.vocabulary.model.dto.repetition.RepetitionResultDataDto;
 import com.kiskee.vocabulary.model.dto.vocabulary.word.WordDto;
 import jakarta.persistence.Id;
 import java.time.Instant;

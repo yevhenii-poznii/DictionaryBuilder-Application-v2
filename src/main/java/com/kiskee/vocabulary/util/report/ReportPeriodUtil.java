@@ -1,6 +1,6 @@
 package com.kiskee.vocabulary.util.report;
 
-import com.kiskee.vocabulary.model.dto.report.PeriodRange;
+import com.kiskee.vocabulary.model.dto.report.update.PeriodRange;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;

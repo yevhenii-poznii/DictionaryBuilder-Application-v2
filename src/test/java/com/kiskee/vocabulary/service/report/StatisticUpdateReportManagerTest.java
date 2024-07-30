@@ -4,9 +4,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.kiskee.vocabulary.model.dto.report.RepetitionResultData;
-import com.kiskee.vocabulary.model.dto.report.RepetitionResultDataDto;
-import com.kiskee.vocabulary.model.dto.report.UpdateReportResult;
+import com.kiskee.vocabulary.model.dto.repetition.RepetitionResultData;
+import com.kiskee.vocabulary.model.dto.repetition.RepetitionResultDataDto;
+import com.kiskee.vocabulary.model.dto.report.update.UpdateReportResult;
 import com.kiskee.vocabulary.service.report.goal.time.RepetitionTimeSpendGoalReportService;
 import com.kiskee.vocabulary.service.report.progress.repetition.RepetitionProgressUpdateReportService;
 import com.kiskee.vocabulary.service.report.progress.repetition.RepetitionStatisticReportService;

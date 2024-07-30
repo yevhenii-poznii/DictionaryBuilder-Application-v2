@@ -2,7 +2,7 @@ package com.kiskee.vocabulary.service.report.goal.time.row.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.kiskee.vocabulary.model.dto.report.goal.RepetitionTimeSpendData;
+import com.kiskee.vocabulary.model.dto.report.update.goal.RepetitionTimeSpendData;
 import com.kiskee.vocabulary.model.entity.report.goal.time.DictionaryRepetitionTimeSpendGoalReport;
 import com.kiskee.vocabulary.model.entity.report.goal.time.RepetitionTimeSpendGoalReportRow;
 import com.kiskee.vocabulary.model.entity.report.goal.time.period.DailyRepetitionTimeSpendGoalReportRow;

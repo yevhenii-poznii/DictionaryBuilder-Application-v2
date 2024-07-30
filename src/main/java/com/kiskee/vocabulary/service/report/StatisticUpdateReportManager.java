@@ -1,7 +1,7 @@
 package com.kiskee.vocabulary.service.report;
 
-import com.kiskee.vocabulary.model.dto.report.RepetitionResultData;
-import com.kiskee.vocabulary.model.dto.report.UpdateReportResult;
+import com.kiskee.vocabulary.model.dto.repetition.RepetitionResultData;
+import com.kiskee.vocabulary.model.dto.report.update.UpdateReportResult;
 import com.kiskee.vocabulary.service.report.progress.repetition.RepetitionProgressUpdateReportService;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;

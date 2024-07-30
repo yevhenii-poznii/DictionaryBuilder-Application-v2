@@ -1,7 +1,7 @@
 package com.kiskee.vocabulary.service.report.progress.repetition.row;
 
-import com.kiskee.vocabulary.model.dto.report.PeriodRange;
-import com.kiskee.vocabulary.model.dto.report.progress.repetition.RepetitionStatisticData;
+import com.kiskee.vocabulary.model.dto.report.update.PeriodRange;
+import com.kiskee.vocabulary.model.dto.report.update.progress.repetition.RepetitionStatisticData;
 import com.kiskee.vocabulary.model.entity.report.progress.repetition.DictionaryRepetitionStatisticReport;
 import com.kiskee.vocabulary.model.entity.report.progress.repetition.RepetitionStatisticReportRow;
 import com.kiskee.vocabulary.service.report.AbstractReportRowService;

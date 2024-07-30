@@ -1,7 +1,7 @@
 package com.kiskee.vocabulary.service.report;
 
-import com.kiskee.vocabulary.model.dto.report.ReportData;
-import com.kiskee.vocabulary.model.dto.report.UpdateReportResult;
+import com.kiskee.vocabulary.model.dto.report.update.ReportData;
+import com.kiskee.vocabulary.model.dto.report.update.UpdateReportResult;
 import com.kiskee.vocabulary.model.entity.report.Report;
 import com.kiskee.vocabulary.model.entity.report.ReportRow;
 import java.util.List;
@@ -16,13 +16,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.retry.annotation.Recover;
 
 @Slf4j
-public abstract class AbstractUpdateReportService<RD extends ReportData, R extends Report<RR>, RR extends ReportRow> {
+public abstract class AbstractUpdateReportService<RD extends ReportData, R extends Report<RR>, RR extends ReportRow>
+        extends AbstractReportService<R, RR> {
 
     protected abstract List<? extends ReportRowService<RR, RD>> getRowServices();
 
     protected abstract <D> RD buildReportData(UUID userId, D data);
-
-    protected abstract Optional<R> getReport(UUID userId);
 
     protected abstract R buildReport(UUID userId, Set<RR> reportRows);
 

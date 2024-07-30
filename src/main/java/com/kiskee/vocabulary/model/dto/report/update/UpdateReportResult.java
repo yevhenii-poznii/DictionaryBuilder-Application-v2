@@ -1,4 +1,4 @@
-package com.kiskee.vocabulary.model.dto.report;
+package com.kiskee.vocabulary.model.dto.report.update;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -6,8 +6,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.kiskee.vocabulary.model.dto.report.RepetitionResultData;
-import com.kiskee.vocabulary.model.dto.report.RepetitionResultDataDto;
+import com.kiskee.vocabulary.model.dto.repetition.RepetitionResultData;
+import com.kiskee.vocabulary.model.dto.repetition.RepetitionResultDataDto;
 import com.kiskee.vocabulary.model.entity.report.progress.repetition.RepetitionStatisticReport;
 import com.kiskee.vocabulary.model.entity.report.progress.repetition.RepetitionStatisticReportRow;
 import com.kiskee.vocabulary.model.entity.report.progress.repetition.period.DailyRepetitionStatisticReportRow;

@@ -1,6 +1,8 @@
 package com.kiskee.vocabulary.service.report.goal.word;
 
-import com.kiskee.vocabulary.model.dto.report.goal.WordAdditionData;
+import com.kiskee.vocabulary.mapper.report.WordAdditionGoalReportMapper;
+import com.kiskee.vocabulary.model.dto.report.ReportDto;
+import com.kiskee.vocabulary.model.dto.report.update.goal.WordAdditionData;
 import com.kiskee.vocabulary.model.entity.redis.TemporaryWordAdditionData;
 import com.kiskee.vocabulary.model.entity.report.Report;
 import com.kiskee.vocabulary.model.entity.report.goal.word.WordAdditionGoalReport;
@@ -8,7 +10,9 @@ import com.kiskee.vocabulary.model.entity.report.goal.word.WordAdditionGoalRepor
 import com.kiskee.vocabulary.repository.redis.TemporaryWordAdditionCacheRepository;
 import com.kiskee.vocabulary.repository.report.WordAdditionGoalReportRepository;
 import com.kiskee.vocabulary.service.report.AbstractUpdateReportService;
+import com.kiskee.vocabulary.service.report.ReportService;
 import com.kiskee.vocabulary.service.report.goal.word.row.WordAdditionGoalReportRowService;
+import com.kiskee.vocabulary.service.time.CurrentDateTimeService;
 import com.kiskee.vocabulary.service.user.preference.WordPreferenceService;
 import com.kiskee.vocabulary.service.user.profile.UserProfileInfoProvider;
 import java.time.LocalDate;
@@ -30,14 +34,21 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class WordAdditionGoalReportService
         extends AbstractUpdateReportService<WordAdditionData, WordAdditionGoalReport, WordAdditionGoalReportRow>
-        implements UpdateGoalReportService {
+        implements ReportService, UpdateGoalReportService {
 
     private final TemporaryWordAdditionCacheRepository temporaryWordAdditionCacheRepository;
     private final WordAdditionGoalReportRepository repository;
+    private final WordAdditionGoalReportMapper mapper;
     private final UserProfileInfoProvider userProfileInfoProvider;
     private final WordPreferenceService wordPreferenceService;
+    private final CurrentDateTimeService currentDateTimeService;
 
     private final List<WordAdditionGoalReportRowService> rowServices;
+
+    @Override
+    public ReportDto getReport() {
+        return super.getReport();
+    }
 
     @Override
     @Retryable
@@ -77,6 +88,11 @@ public class WordAdditionGoalReportService
     @Override
     protected Optional<WordAdditionGoalReport> getReport(UUID userId) {
         return repository.findByUserId(userId);
+    }
+
+    @Override
+    protected ReportDto mapToDto(UUID userId, Set<WordAdditionGoalReportRow> reportRows) {
+        return mapper.toDto(new WordAdditionGoalReport(userId, reportRows));
     }
 
     @Override

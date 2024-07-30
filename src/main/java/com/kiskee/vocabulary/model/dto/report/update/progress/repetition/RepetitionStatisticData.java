@@ -1,6 +1,6 @@
-package com.kiskee.vocabulary.model.dto.report.progress.repetition;
+package com.kiskee.vocabulary.model.dto.report.update.progress.repetition;
 
-import com.kiskee.vocabulary.model.dto.report.ReportData;
+import com.kiskee.vocabulary.model.dto.report.update.ReportData;
 import java.time.LocalDate;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
