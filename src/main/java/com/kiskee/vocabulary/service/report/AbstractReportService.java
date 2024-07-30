@@ -1,11 +1,11 @@
 package com.kiskee.vocabulary.service.report;
 
+import com.kiskee.vocabulary.exception.ResourceNotFoundException;
 import com.kiskee.vocabulary.model.dto.report.ReportDto;
 import com.kiskee.vocabulary.model.entity.report.Report;
 import com.kiskee.vocabulary.model.entity.report.ReportRow;
 import com.kiskee.vocabulary.service.time.CurrentDateTimeService;
 import com.kiskee.vocabulary.util.IdentityUtil;
-import com.kiskee.vocabulary.util.ThrowUtil;
 import com.kiskee.vocabulary.util.TimeZoneContextHolder;
 import com.kiskee.vocabulary.util.report.ReportPeriodUtil;
 import java.time.LocalDate;
@@ -24,7 +24,7 @@ public abstract class AbstractReportService<R extends Report<RR>, RR extends Rep
 
     protected ReportDto getReport() {
         UUID userId = IdentityUtil.getUserId();
-        R report = getReport(userId).orElseThrow(ThrowUtil.throwNotFoundException("Statistic", "report"));
+        R report = getReport(userId).orElseThrow(() -> new ResourceNotFoundException("There is no report yet"));
 
         Set<RR> reportRows =
                 report.getReportRows().stream().filter(this::rowInCurrentPeriod).collect(Collectors.toSet());
