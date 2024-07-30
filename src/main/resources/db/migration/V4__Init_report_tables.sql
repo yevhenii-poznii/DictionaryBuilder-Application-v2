@@ -23,6 +23,7 @@ create table dictionary_word_addition_goal_report
 (
     id                         bigserial        not null primary key,
     dictionary_id              bigint           not null,
+    dictionary_name            varchar(50)      not null,
     goal_completion_percentage double precision not null,
     new_words_goal             integer          not null,
     new_words_actual           integer          not null,
@@ -61,6 +62,7 @@ create table dictionary_repetition_time_spend_goal_report
 (
     id                         bigserial        not null primary key,
     dictionary_id              bigint           not null,
+    dictionary_name            varchar(50)      not null,
     goal_completion_percentage double precision not null,
     repetition_time_goal       varchar(255)     not null,
     time_spent_duration        varchar(255)     not null,
@@ -100,6 +102,7 @@ create table dictionary_repetition_statistic_report
 (
     id                    bigserial        not null primary key,
     dictionary_id         bigint           not null,
+    dictionary_name       varchar(50)      not null,
     completion_rate       double precision not null,
     total_words_count     integer          not null,
     right_answers_rate    double precision not null,

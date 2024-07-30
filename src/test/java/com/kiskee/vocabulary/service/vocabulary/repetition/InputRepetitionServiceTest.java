@@ -22,6 +22,7 @@ import com.kiskee.vocabulary.model.dto.repetition.RepetitionStartFilterRequest;
 import com.kiskee.vocabulary.model.dto.repetition.filter.DefaultCriteriaFilter;
 import com.kiskee.vocabulary.model.dto.repetition.message.WSRequest;
 import com.kiskee.vocabulary.model.dto.repetition.message.WSResponse;
+import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionaryDto;
 import com.kiskee.vocabulary.model.dto.vocabulary.word.WordDto;
 import com.kiskee.vocabulary.model.dto.vocabulary.word.WordTranslationDto;
 import com.kiskee.vocabulary.model.entity.redis.repetition.Pause;
@@ -147,7 +148,9 @@ public class InputRepetitionServiceTest {
                 new DefaultCriteriaFilter(DefaultCriteriaFilter.CriteriaFilterType.ALL));
 
         when(repository.existsById(USER_ID.toString())).thenReturn(false);
-        doNothing().when(dictionaryAccessValidator).verifyUserHasDictionary(dictionaryId);
+        DictionaryDto dictionaryDto = new DictionaryDto(dictionaryId, "SomeDictionaryName");
+        when(dictionaryAccessValidator.getDictionaryByIdAndUserId(dictionaryId, USER_ID))
+                .thenReturn(dictionaryDto);
 
         RepetitionWordCriteriaLoader repetitionWordCriteriaLoader = mock(RepetitionWordCriteriaLoader.class);
         when(repetitionWordLoaderFactory.getLoader(
@@ -207,7 +210,7 @@ public class InputRepetitionServiceTest {
                         Dictionary.class.getSimpleName(),
                         dictionaryId)))
                 .when(dictionaryAccessValidator)
-                .verifyUserHasDictionary(dictionaryId);
+                .getDictionaryByIdAndUserId(dictionaryId, USER_ID);
 
         assertThatExceptionOfType(ResourceNotFoundException.class)
                 .isThrownBy(() -> inputRepetitionService.start(dictionaryId, startFilterRequest))
@@ -227,7 +230,10 @@ public class InputRepetitionServiceTest {
                 new DefaultCriteriaFilter(DefaultCriteriaFilter.CriteriaFilterType.ALL));
 
         when(repository.existsById(USER_ID.toString())).thenReturn(false);
-        doNothing().when(dictionaryAccessValidator).verifyUserHasDictionary(dictionaryId);
+
+        DictionaryDto dictionaryDto = new DictionaryDto(dictionaryId, "SomeDictionaryName");
+        when(dictionaryAccessValidator.getDictionaryByIdAndUserId(dictionaryId, USER_ID))
+                .thenReturn(dictionaryDto);
 
         RepetitionWordCriteriaLoader repetitionWordCriteriaLoader = mock(RepetitionWordCriteriaLoader.class);
         when(repetitionWordLoaderFactory.getLoader(
@@ -460,7 +466,8 @@ public class InputRepetitionServiceTest {
 
         List<WordDto> repetitionWords = prepareRepetitionWords();
         WordDto currentWord = repetitionWords.getLast();
-        RepetitionData repetitionData = new RepetitionData(repetitionWords, 1L, USER_ID, ZoneId.of("Asia/Tokyo"));
+        RepetitionData repetitionData =
+                new RepetitionData(repetitionWords, 1L, "SomeDictionaryName", USER_ID, ZoneId.of("Asia/Tokyo"));
         when(repository.findById(USER_ID.toString())).thenReturn(Optional.of(repetitionData));
 
         inputRepetitionService.handleRepetitionMessage(authentication, wsRequest);

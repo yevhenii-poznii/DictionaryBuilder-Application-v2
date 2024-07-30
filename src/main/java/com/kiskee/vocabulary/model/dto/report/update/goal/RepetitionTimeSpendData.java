@@ -12,6 +12,7 @@ public class RepetitionTimeSpendData implements GoalReportData<Duration> {
 
     private UUID userId;
     private Long dictionaryId;
+    private String dictionaryName;
     private Duration repetitionDuration;
     private Duration repetitionDurationGoal;
     private LocalDate userCreatedAt;

@@ -25,6 +25,9 @@ public class DictionaryWordAdditionGoalReport implements DictionaryGoalReport<In
     private Long dictionaryId;
 
     @Column(nullable = false)
+    private String dictionaryName;
+
+    @Column(nullable = false)
     private Double goalCompletionPercentage;
 
     @Column(nullable = false)
@@ -33,9 +36,19 @@ public class DictionaryWordAdditionGoalReport implements DictionaryGoalReport<In
     @Column(nullable = false)
     private int newWordsActual;
 
-    public DictionaryWordAdditionGoalReport(
-            Long dictionaryId, Double goalCompletionPercentage, int newWordsGoal, int newWordsActual) {
+    public DictionaryWordAdditionGoalReport(Long dictionaryId) {
         this.dictionaryId = dictionaryId;
+        this.goalCompletionPercentage = 0.0;
+    }
+
+    public DictionaryWordAdditionGoalReport(
+            Long dictionaryId,
+            String dictionaryName,
+            Double goalCompletionPercentage,
+            int newWordsGoal,
+            int newWordsActual) {
+        this.dictionaryId = dictionaryId;
+        this.dictionaryName = dictionaryName;
         this.goalCompletionPercentage = goalCompletionPercentage;
         this.newWordsGoal = newWordsGoal;
         this.newWordsActual = newWordsActual;
@@ -48,14 +61,24 @@ public class DictionaryWordAdditionGoalReport implements DictionaryGoalReport<In
 
     @Override
     public DictionaryWordAdditionGoalReport buildFrom(
-            Double goalCompletionPercentage, Integer goalForPeriod, Integer value) {
+            String dictionaryName, Double goalCompletionPercentage, Integer goalForPeriod, Integer value) {
         return new DictionaryWordAdditionGoalReport(
-                this.id, this.dictionaryId, goalCompletionPercentage, goalForPeriod, this.newWordsActual + value);
+                this.id,
+                this.dictionaryId,
+                dictionaryName,
+                goalCompletionPercentage,
+                goalForPeriod,
+                this.newWordsActual + value);
     }
 
     @Override
     public DictionaryWordAdditionGoalReport buildFrom(Double goalCompletionPercentage, Integer goalForPeriod) {
         return new DictionaryWordAdditionGoalReport(
-                this.id, this.dictionaryId, goalCompletionPercentage, goalForPeriod, this.newWordsActual);
+                this.id,
+                this.dictionaryId,
+                this.dictionaryName,
+                goalCompletionPercentage,
+                goalForPeriod,
+                this.newWordsActual);
     }
 }

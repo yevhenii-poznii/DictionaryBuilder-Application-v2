@@ -26,6 +26,9 @@ public class DictionaryRepetitionTimeSpendGoalReport implements DictionaryGoalRe
     private Long dictionaryId;
 
     @Column(nullable = false)
+    private String dictionaryName;
+
+    @Column(nullable = false)
     private Double goalCompletionPercentage;
 
     @Column(nullable = false)
@@ -37,13 +40,22 @@ public class DictionaryRepetitionTimeSpendGoalReport implements DictionaryGoalRe
     @Column(nullable = false)
     private int completedRepetitions;
 
+    public DictionaryRepetitionTimeSpendGoalReport(Long dictionaryId) {
+        this.dictionaryId = dictionaryId;
+        this.goalCompletionPercentage = 0.0;
+        this.repetitionTimeGoal = Duration.ZERO;
+        this.timeSpentDuration = Duration.ZERO;
+    }
+
     public DictionaryRepetitionTimeSpendGoalReport(
             Long dictionaryId,
+            String dictionaryName,
             Double goalCompletionPercentage,
             Duration repetitionTimeGoal,
             Duration timeSpentDuration,
             int completedRepetitions) {
         this.dictionaryId = dictionaryId;
+        this.dictionaryName = dictionaryName;
         this.goalCompletionPercentage = goalCompletionPercentage;
         this.repetitionTimeGoal = repetitionTimeGoal;
         this.timeSpentDuration = timeSpentDuration;
@@ -57,10 +69,11 @@ public class DictionaryRepetitionTimeSpendGoalReport implements DictionaryGoalRe
 
     @Override
     public DictionaryRepetitionTimeSpendGoalReport buildFrom(
-            Double goalCompletionPercentage, Duration goalForPeriod, Duration value) {
+            String dictionaryName, Double goalCompletionPercentage, Duration goalForPeriod, Duration value) {
         return new DictionaryRepetitionTimeSpendGoalReport(
                 this.id,
                 this.dictionaryId,
+                dictionaryName,
                 goalCompletionPercentage,
                 goalForPeriod,
                 this.timeSpentDuration.plus(value),
@@ -72,6 +85,7 @@ public class DictionaryRepetitionTimeSpendGoalReport implements DictionaryGoalRe
         return new DictionaryRepetitionTimeSpendGoalReport(
                 this.id,
                 this.dictionaryId,
+                this.dictionaryName,
                 goalCompletionPercentage,
                 goalForPeriod,
                 this.timeSpentDuration,

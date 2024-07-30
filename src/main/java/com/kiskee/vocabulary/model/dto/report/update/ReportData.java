@@ -9,6 +9,8 @@ public interface ReportData {
 
     Long getDictionaryId();
 
+    String getDictionaryName();
+
     LocalDate getUserCreatedAt();
 
     LocalDate getCurrentDate();

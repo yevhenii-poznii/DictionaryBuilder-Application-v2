@@ -24,6 +24,7 @@ public class YearlyRepetitionStatisticReportRowServiceTest {
     private YearlyRepetitionStatisticReportRowService yearlyRepetitionStatisticReportRowService;
 
     private static final UUID USER_ID = UUID.fromString("78c87bb3-01b6-41ca-8329-247a72162868");
+    private static final String DICTIONARY_NAME = "SomeDictionaryName";
 
     @ParameterizedTest
     @MethodSource("buildRowFromScratchTestData")
@@ -59,8 +60,8 @@ public class YearlyRepetitionStatisticReportRowServiceTest {
     @ParameterizedTest
     @MethodSource("updateRowForTodayAndExistingDictionaryReport")
     void testUpdateRow_WhenRowExistsForTodayAndGivenDictionaryReportExists_ThenRecalculateRow(TestData testData) {
-        DictionaryRepetitionStatisticReport dictionaryReport =
-                new DictionaryRepetitionStatisticReport(1L, 10L, 96.429, 56, 79.63, 43, 20.37, 11, 3.571, 2, 54, 1);
+        DictionaryRepetitionStatisticReport dictionaryReport = new DictionaryRepetitionStatisticReport(
+                1L, 10L, DICTIONARY_NAME, 96.429, 56, 79.63, 43, 20.37, 11, 3.571, 2, 54, 1);
         YearlyRepetitionStatisticReportRow yearlyRowForToday = YearlyRepetitionStatisticReportRow.builder()
                 .id(1L)
                 .startPeriod(testData.data().getCurrentDate())
@@ -85,8 +86,8 @@ public class YearlyRepetitionStatisticReportRowServiceTest {
     void
             testUpdateRow_WhenRowExistsForTodayAndGivenDictionaryReportDoesNotExist_ThenRecalculateRowWithNewDictionaryReport(
                     TestData testData) {
-        DictionaryRepetitionStatisticReport dictionaryReport =
-                new DictionaryRepetitionStatisticReport(1L, 5L, 96.429, 56, 79.63, 43, 20.37, 11, 3.571, 2, 54, 1);
+        DictionaryRepetitionStatisticReport dictionaryReport = new DictionaryRepetitionStatisticReport(
+                1L, 5L, DICTIONARY_NAME, 96.429, 56, 79.63, 43, 20.37, 11, 3.571, 2, 54, 1);
         YearlyRepetitionStatisticReportRow yearlyRowForToday = YearlyRepetitionStatisticReportRow.builder()
                 .id(1L)
                 .startPeriod(testData.data().getCurrentDate())
@@ -110,8 +111,8 @@ public class YearlyRepetitionStatisticReportRowServiceTest {
     @MethodSource("updateRowForNextDayInTheSamePeriod")
     void testUpdateRow_WhenRowExistsForPreviousDayAndCurrentDateInTheSamePeriod_ThenRecalculateRowForNewDay(
             TestData testData) {
-        DictionaryRepetitionStatisticReport dictionaryReport =
-                new DictionaryRepetitionStatisticReport(1L, 10L, 96.429, 56, 79.63, 43, 20.37, 11, 3.571, 2, 54, 1);
+        DictionaryRepetitionStatisticReport dictionaryReport = new DictionaryRepetitionStatisticReport(
+                1L, 10L, DICTIONARY_NAME, 96.429, 56, 79.63, 43, 20.37, 11, 3.571, 2, 54, 1);
         YearlyRepetitionStatisticReportRow yearlyRowForToday = YearlyRepetitionStatisticReportRow.builder()
                 .id(1L)
                 .startPeriod(testData.data().getCurrentDate().minusDays(1))
@@ -136,8 +137,8 @@ public class YearlyRepetitionStatisticReportRowServiceTest {
     void
             testUpdateRow_WhenRowExistsForPreviousDayAndCurrentDateInTheSamePeriodButGivenNewDictionaryId_ThenRecalculateRowForNewDay(
                     TestData testData) {
-        DictionaryRepetitionStatisticReport dictionaryReport =
-                new DictionaryRepetitionStatisticReport(1L, 5L, 96.429, 56, 79.63, 43, 20.37, 11, 3.571, 2, 54, 1);
+        DictionaryRepetitionStatisticReport dictionaryReport = new DictionaryRepetitionStatisticReport(
+                1L, 5L, DICTIONARY_NAME, 96.429, 56, 79.63, 43, 20.37, 11, 3.571, 2, 54, 1);
         YearlyRepetitionStatisticReportRow yearlyRowForToday = YearlyRepetitionStatisticReportRow.builder()
                 .id(1L)
                 .startPeriod(testData.data().getCurrentDate().minusDays(1))
@@ -161,8 +162,8 @@ public class YearlyRepetitionStatisticReportRowServiceTest {
     @ParameterizedTest
     @MethodSource("updateRowWhenCurrentDayIsAfterLastDayOfPreviousPeriod")
     void testUpdateRow_WhenCurrentDayIsAfterLastDayOfPreviousPeriod_ThenBuildRowFromScratch(TestData testData) {
-        DictionaryRepetitionStatisticReport dictionaryReport =
-                new DictionaryRepetitionStatisticReport(1L, 10L, 96.429, 56, 79.63, 43, 20.37, 11, 3.571, 2, 54, 1);
+        DictionaryRepetitionStatisticReport dictionaryReport = new DictionaryRepetitionStatisticReport(
+                1L, 10L, DICTIONARY_NAME, 96.429, 56, 79.63, 43, 20.37, 11, 3.571, 2, 54, 1);
         YearlyRepetitionStatisticReportRow yearlyRowForToday = YearlyRepetitionStatisticReportRow.builder()
                 .id(1L)
                 .startPeriod(testData.data().getCurrentDate().minusDays(7))
@@ -220,25 +221,29 @@ public class YearlyRepetitionStatisticReportRowServiceTest {
     private static Stream<TestData> buildTestDataFromScratch(LocalDate userCreatedAt, LocalDate currentDate) {
         return Stream.of(
                 new TestData(
-                        new RepetitionStatisticData(USER_ID, 10L, userCreatedAt, currentDate, 43, 11, 2, 56, 54),
+                        new RepetitionStatisticData(
+                                USER_ID, 10L, DICTIONARY_NAME, userCreatedAt, currentDate, 43, 11, 2, 56, 54),
                         new DictionaryRepetitionStatisticReport(
-                                null, 10L, 96.429, 56, 79.63, 43, 20.37, 11, 3.571, 2, 54, 1)),
+                                null, 10L, DICTIONARY_NAME, 96.429, 56, 79.63, 43, 20.37, 11, 3.571, 2, 54, 1)),
                 new TestData(
-                        new RepetitionStatisticData(USER_ID, 10L, userCreatedAt, currentDate, 13, 15, 6, 34, 28),
+                        new RepetitionStatisticData(
+                                USER_ID, 10L, DICTIONARY_NAME, userCreatedAt, currentDate, 13, 15, 6, 34, 28),
                         new DictionaryRepetitionStatisticReport(
-                                null, 10L, 82.353, 34, 46.429, 13, 53.571, 15, 17.647, 6, 28, 1)));
+                                null, 10L, DICTIONARY_NAME, 82.353, 34, 46.429, 13, 53.571, 15, 17.647, 6, 28, 1)));
     }
 
     private static Stream<TestData> buildTestDataForUpdate(LocalDate userCreatedAt, LocalDate currentDate) {
         return Stream.of(
                 new TestData(
-                        new RepetitionStatisticData(USER_ID, 10L, userCreatedAt, currentDate, 67, 21, 9, 97, 88),
+                        new RepetitionStatisticData(
+                                USER_ID, 10L, DICTIONARY_NAME, userCreatedAt, currentDate, 67, 21, 9, 97, 88),
                         new DictionaryRepetitionStatisticReport(
-                                1L, 10L, 92.81, 153, 77.465, 110, 22.535, 32, 7.19, 11, 142, 2)),
+                                1L, 10L, DICTIONARY_NAME, 92.81, 153, 77.465, 110, 22.535, 32, 7.19, 11, 142, 2)),
                 new TestData(
-                        new RepetitionStatisticData(USER_ID, 10L, userCreatedAt, currentDate, 10, 23, 5, 38, 33),
+                        new RepetitionStatisticData(
+                                USER_ID, 10L, DICTIONARY_NAME, userCreatedAt, currentDate, 10, 23, 5, 38, 33),
                         new DictionaryRepetitionStatisticReport(
-                                1L, 10L, 92.553, 94, 60.92, 53, 39.08, 34, 7.447, 7, 87, 2)));
+                                1L, 10L, DICTIONARY_NAME, 92.553, 94, 60.92, 53, 39.08, 34, 7.447, 7, 87, 2)));
     }
 
     private record TestData(

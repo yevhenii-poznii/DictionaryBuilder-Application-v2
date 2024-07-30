@@ -12,6 +12,8 @@ public interface RepetitionResultData {
 
     long getDictionaryId();
 
+    String getDictionaryName();
+
     ZoneId getUserTimeZone();
 
     Instant getStartTime();

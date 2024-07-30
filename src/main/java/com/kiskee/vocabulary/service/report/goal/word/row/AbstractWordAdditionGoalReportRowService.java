@@ -35,13 +35,18 @@ public abstract class AbstractWordAdditionGoalReportRowService
 
     @Override
     protected DictionaryWordAdditionGoalReport buildReportByDictionary(
-            Long dictionaryId, Double goalCompletionPercentage, Integer goalForPeriod, Integer value) {
-        return new DictionaryWordAdditionGoalReport(dictionaryId, goalCompletionPercentage, goalForPeriod, value);
+            WordAdditionData wordAdditionData, Double goalCompletionPercentage, Integer goalForPeriod) {
+        return new DictionaryWordAdditionGoalReport(
+                wordAdditionData.getDictionaryId(),
+                wordAdditionData.getDictionaryName(),
+                goalCompletionPercentage,
+                goalForPeriod,
+                wordAdditionData.getValue());
     }
 
     @Override
     protected DictionaryWordAdditionGoalReport buildReportByDictionary(Long dictionaryId) {
-        return new DictionaryWordAdditionGoalReport(dictionaryId, 0.0, 0, 0);
+        return new DictionaryWordAdditionGoalReport(dictionaryId);
     }
 
     @Override

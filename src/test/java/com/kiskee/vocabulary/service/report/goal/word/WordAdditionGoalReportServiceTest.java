@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.kiskee.vocabulary.model.dto.user.preference.WordPreference;
+import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionaryDto;
 import com.kiskee.vocabulary.model.entity.redis.TemporaryWordAdditionData;
 import com.kiskee.vocabulary.model.entity.report.goal.word.WordAdditionGoalReport;
 import com.kiskee.vocabulary.model.entity.report.goal.word.WordAdditionGoalReportRow;
@@ -26,6 +27,7 @@ import com.kiskee.vocabulary.service.report.goal.word.row.impl.WeeklyWordAdditio
 import com.kiskee.vocabulary.service.report.goal.word.row.impl.YearlyWordAdditionGoalReportRowService;
 import com.kiskee.vocabulary.service.user.preference.WordPreferenceService;
 import com.kiskee.vocabulary.service.user.profile.UserProfileInfoProvider;
+import com.kiskee.vocabulary.service.vocabulary.dictionary.DictionaryAccessValidator;
 import com.kiskee.vocabulary.util.report.ReportPeriodUtil;
 import java.time.Duration;
 import java.time.Instant;
@@ -63,6 +65,9 @@ public class WordAdditionGoalReportServiceTest {
     private WordPreferenceService wordPreferenceService;
 
     @Mock
+    private DictionaryAccessValidator dictionaryAccessValidator;
+
+    @Mock
     private List<WordAdditionGoalReportRowService> rowServices;
 
     @Captor
@@ -95,6 +100,10 @@ public class WordAdditionGoalReportServiceTest {
 
         WordPreference wordPreference = new WordPreference(10, 10, Duration.ofHours(1));
         when(wordPreferenceService.getWordPreference(USER_ID)).thenReturn(wordPreference);
+        DictionaryDto dictionaryDto =
+                new DictionaryDto(temporaryWordAdditionData.getDictionaryId(), "SomeDictionaryName");
+        when(dictionaryAccessValidator.getDictionaryByIdAndUserId(temporaryWordAdditionData.getDictionaryId(), USER_ID))
+                .thenReturn(dictionaryDto);
 
         setupCreateFromScratch();
 
@@ -129,6 +138,10 @@ public class WordAdditionGoalReportServiceTest {
 
         WordPreference wordPreference = new WordPreference(10, 10, Duration.ofHours(1));
         when(wordPreferenceService.getWordPreference(USER_ID)).thenReturn(wordPreference);
+        DictionaryDto dictionaryDto =
+                new DictionaryDto(temporaryWordAdditionData.getDictionaryId(), "SomeDictionaryName");
+        when(dictionaryAccessValidator.getDictionaryByIdAndUserId(temporaryWordAdditionData.getDictionaryId(), USER_ID))
+                .thenReturn(dictionaryDto);
 
         setupUpdateExistingReport();
 

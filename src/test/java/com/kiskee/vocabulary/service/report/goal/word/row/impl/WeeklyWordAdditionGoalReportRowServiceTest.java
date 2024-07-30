@@ -27,6 +27,7 @@ public class WeeklyWordAdditionGoalReportRowServiceTest {
     private WeeklyWordAdditionGoalReportRowService weeklyWordAdditionGoalReportRowService;
 
     private static final UUID USER_ID = UUID.fromString("78c87bb3-01b6-41ca-8329-247a72162868");
+    private static final String DICTIONARY_NAME = "SomeDictionaryName";
 
     @ParameterizedTest
     @MethodSource("buildRowFromScratchTestData")
@@ -78,7 +79,7 @@ public class WeeklyWordAdditionGoalReportRowServiceTest {
     @MethodSource("updateRowForTodayAndExistingDictionaryReport")
     void testUpdateRow_WhenRowExistsForTodayAndGivenDictionaryReportExists_ThenRecalculateRow(TestData testData) {
         DictionaryWordAdditionGoalReport dictionaryGoalReport =
-                new DictionaryWordAdditionGoalReport(1L, 10L, 70.0, 10, 7);
+                new DictionaryWordAdditionGoalReport(1L, 10L, DICTIONARY_NAME, 70.0, 10, 7);
         WeeklyWordAdditionGoalReportRow weeklyRowForToday = WeeklyWordAdditionGoalReportRow.builder()
                 .id(1L)
                 .startPeriod(testData.data().getCurrentDate())
@@ -103,7 +104,7 @@ public class WeeklyWordAdditionGoalReportRowServiceTest {
             testUpdateRow_WhenRowExistsForTodayAndGivenDictionaryReportDoesNotExist_ThenRecalculateRowWithNewDictionaryReport(
                     TestData testData) {
         DictionaryWordAdditionGoalReport dictionaryGoalReport =
-                new DictionaryWordAdditionGoalReport(1L, 5L, 70.0, 10, 7);
+                new DictionaryWordAdditionGoalReport(1L, 5L, DICTIONARY_NAME, 70.0, 10, 7);
         WeeklyWordAdditionGoalReportRow weeklyRowForToday = WeeklyWordAdditionGoalReportRow.builder()
                 .id(1L)
                 .startPeriod(testData.data().getCurrentDate())
@@ -128,7 +129,7 @@ public class WeeklyWordAdditionGoalReportRowServiceTest {
     void testUpdateRow_WhenRowExistsForPreviousDayAndCurrentDateInTheSamePeriod_ThenRecalculateRowForNewDay(
             TestData testData) {
         DictionaryWordAdditionGoalReport dictionaryGoalReport =
-                new DictionaryWordAdditionGoalReport(1L, 10L, 70.0, 10, 7);
+                new DictionaryWordAdditionGoalReport(1L, 10L, DICTIONARY_NAME, 70.0, 10, 7);
         WeeklyWordAdditionGoalReportRow weeklyRowForToday = WeeklyWordAdditionGoalReportRow.builder()
                 .id(1L)
                 .startPeriod(testData.data().getCurrentDate())
@@ -154,7 +155,7 @@ public class WeeklyWordAdditionGoalReportRowServiceTest {
             testUpdateRow_WhenRowExistsForPreviousDayAndCurrentDateInTheSamePeriodButGivenNewDictionaryId_ThenRecalculateRowForNewDay(
                     TestData testData) {
         DictionaryWordAdditionGoalReport dictionaryGoalReport =
-                new DictionaryWordAdditionGoalReport(1L, 5L, 70.0, 10, 7);
+                new DictionaryWordAdditionGoalReport(1L, 5L, DICTIONARY_NAME, 70.0, 10, 7);
         WeeklyWordAdditionGoalReportRow weeklyRowForToday = WeeklyWordAdditionGoalReportRow.builder()
                 .id(1L)
                 .startPeriod(testData.data().getCurrentDate().minusDays(1))
@@ -183,7 +184,7 @@ public class WeeklyWordAdditionGoalReportRowServiceTest {
     @MethodSource("updateRowForNotWorkingDay")
     void testUpdateRow_WhenCurrentDayIsNotWorkingDay_ThenRecalculateRow(TestData testData) {
         DictionaryWordAdditionGoalReport dictionaryGoalReport =
-                new DictionaryWordAdditionGoalReport(1L, 10L, 70.0, 50, 35);
+                new DictionaryWordAdditionGoalReport(1L, 10L, DICTIONARY_NAME, 70.0, 50, 35);
         WeeklyWordAdditionGoalReportRow weeklyRowForToday = WeeklyWordAdditionGoalReportRow.builder()
                 .id(1L)
                 .startPeriod(testData.data().getCurrentDate().minusDays(5))
@@ -207,7 +208,7 @@ public class WeeklyWordAdditionGoalReportRowServiceTest {
     @MethodSource("updateRowWhenCurrentDayIsAfterLastDayOfPreviousPeriod")
     void testUpdateRow_WhenCurrentDayIsAfterLastDayOfPreviousPeriod_ThenBuildRowFromScratch(TestData testData) {
         DictionaryWordAdditionGoalReport dictionaryGoalReport =
-                new DictionaryWordAdditionGoalReport(1L, 10L, 70.0, 50, 35);
+                new DictionaryWordAdditionGoalReport(1L, 10L, DICTIONARY_NAME, 70.0, 50, 35);
         WeeklyWordAdditionGoalReportRow weeklyRowForToday = WeeklyWordAdditionGoalReportRow.builder()
                 .id(1L)
                 .startPeriod(testData.data().getCurrentDate().minusDays(7))
@@ -233,9 +234,10 @@ public class WeeklyWordAdditionGoalReportRowServiceTest {
         LocalDate currentDate = LocalDate.of(2024, 7, 15);
         List<TestData> testDataList = IntStream.range(1, 12)
                 .mapToObj(i -> new TestData(
-                        new WordAdditionData(USER_ID, dictionaryId, i, newWordsGoal, userCreatedAt, currentDate),
+                        new WordAdditionData(
+                                USER_ID, dictionaryId, DICTIONARY_NAME, i, newWordsGoal, userCreatedAt, currentDate),
                         new DictionaryWordAdditionGoalReport(
-                                null, dictionaryId, (double) i * newWordsGoal, newWordsGoal, i)))
+                                null, dictionaryId, DICTIONARY_NAME, (double) i * newWordsGoal, newWordsGoal, i)))
                 .toList();
 
         return testDataList.stream();
@@ -248,9 +250,10 @@ public class WeeklyWordAdditionGoalReportRowServiceTest {
         LocalDate currentDate = LocalDate.of(2024, 7, 16);
         List<TestData> testDataList = IntStream.range(1, 12)
                 .mapToObj(i -> new TestData(
-                        new WordAdditionData(USER_ID, dictionaryId, i, newWordsGoal, userCreatedAt, currentDate),
+                        new WordAdditionData(
+                                USER_ID, dictionaryId, DICTIONARY_NAME, i, newWordsGoal, userCreatedAt, currentDate),
                         new DictionaryWordAdditionGoalReport(
-                                null, dictionaryId, (double) i * newWordsGoal, newWordsGoal, i)))
+                                null, dictionaryId, DICTIONARY_NAME, (double) i * newWordsGoal, newWordsGoal, i)))
                 .toList();
 
         return testDataList.stream();
@@ -264,10 +267,12 @@ public class WeeklyWordAdditionGoalReportRowServiceTest {
         DecimalFormat decimalFormat = new DecimalFormat("#.###");
         List<TestData> testDataList = IntStream.range(1, 12)
                 .mapToObj(i -> new TestData(
-                        new WordAdditionData(USER_ID, dictionaryId, i, newWordsGoal, userCreatedAt, currentDate),
+                        new WordAdditionData(
+                                USER_ID, dictionaryId, DICTIONARY_NAME, i, newWordsGoal, userCreatedAt, currentDate),
                         new DictionaryWordAdditionGoalReport(
                                 null,
                                 dictionaryId,
+                                DICTIONARY_NAME,
                                 Double.parseDouble(decimalFormat.format(((double) i / (newWordsGoal * 3)) * 100)),
                                 newWordsGoal * 3,
                                 i)))
@@ -284,10 +289,12 @@ public class WeeklyWordAdditionGoalReportRowServiceTest {
         DecimalFormat decimalFormat = new DecimalFormat("#.###");
         List<TestData> testDataList = IntStream.range(1, 12)
                 .mapToObj(i -> new TestData(
-                        new WordAdditionData(USER_ID, dictionaryId, i, newWordsGoal, userCreatedAt, currentDate),
+                        new WordAdditionData(
+                                USER_ID, dictionaryId, DICTIONARY_NAME, i, newWordsGoal, userCreatedAt, currentDate),
                         new DictionaryWordAdditionGoalReport(
                                 1L,
                                 dictionaryId,
+                                DICTIONARY_NAME,
                                 Double.parseDouble(decimalFormat.format(((double) (i + 7) / newWordsGoal) * 100)),
                                 newWordsGoal,
                                 i + 7)))
@@ -304,10 +311,12 @@ public class WeeklyWordAdditionGoalReportRowServiceTest {
         DecimalFormat decimalFormat = new DecimalFormat("#.###");
         List<TestData> testDataList = IntStream.range(1, 12)
                 .mapToObj(i -> new TestData(
-                        new WordAdditionData(USER_ID, dictionaryId, i, newWordsGoal, userCreatedAt, currentDate),
+                        new WordAdditionData(
+                                USER_ID, dictionaryId, DICTIONARY_NAME, i, newWordsGoal, userCreatedAt, currentDate),
                         new DictionaryWordAdditionGoalReport(
                                 1L,
                                 dictionaryId,
+                                DICTIONARY_NAME,
                                 Double.parseDouble(decimalFormat.format(((double) (i + 7) / (newWordsGoal * 2)) * 100)),
                                 newWordsGoal * 2,
                                 i + 7)))
@@ -324,10 +333,12 @@ public class WeeklyWordAdditionGoalReportRowServiceTest {
         DecimalFormat decimalFormat = new DecimalFormat("#.###");
         List<TestData> testDataList = IntStream.range(1, 12)
                 .mapToObj(i -> new TestData(
-                        new WordAdditionData(USER_ID, dictionaryId, i, newWordsGoal, userCreatedAt, currentDate),
+                        new WordAdditionData(
+                                USER_ID, dictionaryId, DICTIONARY_NAME, i, newWordsGoal, userCreatedAt, currentDate),
                         new DictionaryWordAdditionGoalReport(
                                 null,
                                 dictionaryId,
+                                DICTIONARY_NAME,
                                 Double.parseDouble(decimalFormat.format((double) i / (newWordsGoal * 2) * 100)),
                                 newWordsGoal * 2,
                                 i)))
@@ -344,10 +355,12 @@ public class WeeklyWordAdditionGoalReportRowServiceTest {
         DecimalFormat decimalFormat = new DecimalFormat("#.###");
         List<TestData> testDataList = IntStream.range(1, 12)
                 .mapToObj(i -> new TestData(
-                        new WordAdditionData(USER_ID, dictionaryId, i, newWordsGoal, userCreatedAt, currentDate),
+                        new WordAdditionData(
+                                USER_ID, dictionaryId, DICTIONARY_NAME, i, newWordsGoal, userCreatedAt, currentDate),
                         new DictionaryWordAdditionGoalReport(
                                 1L,
                                 dictionaryId,
+                                DICTIONARY_NAME,
                                 Double.parseDouble(decimalFormat.format((double) (i + 35) / (newWordsGoal * 5) * 100)),
                                 newWordsGoal * 5,
                                 i + 35)))
@@ -363,9 +376,10 @@ public class WeeklyWordAdditionGoalReportRowServiceTest {
         LocalDate currentDate = LocalDate.of(2024, 7, 22);
         List<TestData> testDataList = IntStream.range(1, 12)
                 .mapToObj(i -> new TestData(
-                        new WordAdditionData(USER_ID, dictionaryId, i, newWordsGoal, userCreatedAt, currentDate),
+                        new WordAdditionData(
+                                USER_ID, dictionaryId, DICTIONARY_NAME, i, newWordsGoal, userCreatedAt, currentDate),
                         new DictionaryWordAdditionGoalReport(
-                                null, dictionaryId, (double) i * newWordsGoal, newWordsGoal, i)))
+                                null, dictionaryId, DICTIONARY_NAME, (double) i * newWordsGoal, newWordsGoal, i)))
                 .toList();
 
         return testDataList.stream();

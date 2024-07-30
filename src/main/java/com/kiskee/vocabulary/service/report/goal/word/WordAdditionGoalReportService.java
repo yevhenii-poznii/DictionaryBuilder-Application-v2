@@ -15,6 +15,7 @@ import com.kiskee.vocabulary.service.report.goal.word.row.WordAdditionGoalReport
 import com.kiskee.vocabulary.service.time.CurrentDateTimeService;
 import com.kiskee.vocabulary.service.user.preference.WordPreferenceService;
 import com.kiskee.vocabulary.service.user.profile.UserProfileInfoProvider;
+import com.kiskee.vocabulary.service.vocabulary.dictionary.DictionaryAccessValidator;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -23,6 +24,7 @@ import java.util.UUID;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -41,6 +43,7 @@ public class WordAdditionGoalReportService
     private final WordAdditionGoalReportMapper mapper;
     private final UserProfileInfoProvider userProfileInfoProvider;
     private final WordPreferenceService wordPreferenceService;
+    private final DictionaryAccessValidator dictionaryAccessValidator;
     private final CurrentDateTimeService currentDateTimeService;
 
     private final List<WordAdditionGoalReportRowService> rowServices;
@@ -51,20 +54,27 @@ public class WordAdditionGoalReportService
     }
 
     @Override
-    @Retryable
     @Transactional(isolation = Isolation.READ_COMMITTED)
+    @Retryable(
+            maxAttemptsExpression = "${retry.max-attempts}",
+            backoff = @Backoff(delayExpression = "${retry.delay}", multiplier = 2.0))
     public void updateReport(String temporaryWordAdditionDataKey) {
-        Optional<TemporaryWordAdditionData> temporaryWordAdditionDataOptional =
-                temporaryWordAdditionCacheRepository.findById(temporaryWordAdditionDataKey);
-        if (temporaryWordAdditionDataOptional.isEmpty()) {
-            log.warn("Temporary word addition data not found for key: {}", temporaryWordAdditionDataKey);
-            return;
-        }
-        TemporaryWordAdditionData temporaryWordAdditionData = temporaryWordAdditionDataOptional.get();
-        UUID userId = temporaryWordAdditionData.getUserId();
-        WordAdditionData wordAdditionData = buildReportData(userId, temporaryWordAdditionData);
+        try {
+            Optional<TemporaryWordAdditionData> temporaryWordAdditionDataOptional =
+                    temporaryWordAdditionCacheRepository.findById(temporaryWordAdditionDataKey);
+            if (temporaryWordAdditionDataOptional.isEmpty()) {
+                log.warn("Temporary word addition data not found for key: {}", temporaryWordAdditionDataKey);
+                return;
+            }
+            TemporaryWordAdditionData temporaryWordAdditionData = temporaryWordAdditionDataOptional.get();
+            UUID userId = temporaryWordAdditionData.getUserId();
+            WordAdditionData wordAdditionData = buildReportData(userId, temporaryWordAdditionData);
 
-        super.updateReport(userId, wordAdditionData);
+            super.updateReport(userId, wordAdditionData);
+        } catch (Exception e) {
+            log.error("Failed to update word addition goal report for user: {}", temporaryWordAdditionDataKey);
+            throw e;
+        }
     }
 
     @Override
@@ -75,10 +85,14 @@ public class WordAdditionGoalReportService
                 .atZone(temporaryWordAdditionData.getUserTimeZone())
                 .toLocalDate();
         int newWordsPerDayGoal = wordPreferenceService.getWordPreference(userId).newWordsPerDayGoal();
+        String dictionaryName = dictionaryAccessValidator
+                .getDictionaryByIdAndUserId(temporaryWordAdditionData.getDictionaryId(), userId)
+                .getDictionaryName();
 
         return new WordAdditionData(
                 userId,
                 temporaryWordAdditionData.getDictionaryId(),
+                dictionaryName,
                 temporaryWordAdditionData.getAddedWords(),
                 newWordsPerDayGoal,
                 userCreatedAt,

@@ -74,7 +74,7 @@ public abstract class AbstractUpdateReportService<RD extends ReportData, R exten
     }
 
     @Recover
-    private CompletableFuture<UpdateReportResult> recoverUpdateReport(Exception exception) {
+    protected CompletableFuture<UpdateReportResult> recoverUpdateReport(Exception exception) {
         log.error("Max attempts of retries has been run out with error", exception);
 
         String causedBy = String.format(

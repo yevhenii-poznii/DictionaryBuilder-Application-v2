@@ -28,6 +28,7 @@ public class DailyRepetitionTimeSpendGoalReportRowServiceTest {
     private DailyRepetitionTimeSpendGoalReportRowService dailyRepetitionTimeSpendGoalReportRowService;
 
     private static final UUID USER_ID = UUID.fromString("78c87bb3-01b6-41ca-8329-247a72162868");
+    private static final String DICTIONARY_NAME = "SomeDictionaryName";
 
     private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#.###");
 
@@ -48,7 +49,7 @@ public class DailyRepetitionTimeSpendGoalReportRowServiceTest {
     @MethodSource("updateRowTestData")
     void testUpdateRow_WhenDailyRowExistsForToday_ThenRecalculateRow(TestData testData) {
         DictionaryRepetitionTimeSpendGoalReport dictionaryGoalReport = new DictionaryRepetitionTimeSpendGoalReport(
-                1L, 10L, 16.667, Duration.ofHours(1), Duration.ofMinutes(10), 1);
+                1L, 10L, DICTIONARY_NAME, 16.667, Duration.ofHours(1), Duration.ofMinutes(10), 1);
         DailyRepetitionTimeSpendGoalReportRow dailyRowForToday = DailyRepetitionTimeSpendGoalReportRow.builder()
                 .id(1L)
                 .startPeriod(testData.data().getCurrentDate())
@@ -71,7 +72,7 @@ public class DailyRepetitionTimeSpendGoalReportRowServiceTest {
     @MethodSource("buildRowFromScratchTestData")
     void testUpdateRow_WhenDailyRowExistsForTodayAndGivenNewDictionary_ThenRecalculateRow(TestData testData) {
         DictionaryRepetitionTimeSpendGoalReport dictionaryGoalReport = new DictionaryRepetitionTimeSpendGoalReport(
-                1L, 5L, 16.667, Duration.ofHours(1), Duration.ofMinutes(10), 1);
+                1L, 5L, DICTIONARY_NAME, 16.667, Duration.ofHours(1), Duration.ofMinutes(10), 1);
         DailyRepetitionTimeSpendGoalReportRow dailyRowForToday = DailyRepetitionTimeSpendGoalReportRow.builder()
                 .id(1L)
                 .startPeriod(testData.data().getCurrentDate())
@@ -96,7 +97,7 @@ public class DailyRepetitionTimeSpendGoalReportRowServiceTest {
     void testUpdateRow_WhenDailyRowExistsAndCurrentDateIsAfterPreviousDailyRow_ThenBuildRowFromScratch(
             TestData testData) {
         DictionaryRepetitionTimeSpendGoalReport dictionaryGoalReport = new DictionaryRepetitionTimeSpendGoalReport(
-                1L, 5L, 16.667, Duration.ofHours(1), Duration.ofMinutes(10), 1);
+                1L, 5L, DICTIONARY_NAME, 16.667, Duration.ofHours(1), Duration.ofMinutes(10), 1);
         DailyRepetitionTimeSpendGoalReportRow dailyRowForToday = DailyRepetitionTimeSpendGoalReportRow.builder()
                 .id(1L)
                 .startPeriod(testData.data().getCurrentDate().minusDays(1))
@@ -134,6 +135,7 @@ public class DailyRepetitionTimeSpendGoalReportRowServiceTest {
                             new RepetitionTimeSpendData(
                                     USER_ID,
                                     dictionaryId,
+                                    DICTIONARY_NAME,
                                     repetitionDuration.multipliedBy(i),
                                     repetitionDurationGoal,
                                     userCreatedAt,
@@ -141,6 +143,7 @@ public class DailyRepetitionTimeSpendGoalReportRowServiceTest {
                             new DictionaryRepetitionTimeSpendGoalReport(
                                     null,
                                     dictionaryId,
+                                    DICTIONARY_NAME,
                                     goalCompletionPercentage,
                                     repetitionDurationGoal,
                                     repetitionDuration.multipliedBy(i),
@@ -170,6 +173,7 @@ public class DailyRepetitionTimeSpendGoalReportRowServiceTest {
                             new RepetitionTimeSpendData(
                                     USER_ID,
                                     dictionaryId,
+                                    DICTIONARY_NAME,
                                     repetitionDuration.multipliedBy(i),
                                     repetitionDurationGoal,
                                     userCreatedAt,
@@ -177,6 +181,7 @@ public class DailyRepetitionTimeSpendGoalReportRowServiceTest {
                             new DictionaryRepetitionTimeSpendGoalReport(
                                     1L,
                                     dictionaryId,
+                                    DICTIONARY_NAME,
                                     goalCompletionPercentage,
                                     repetitionDurationGoal,
                                     repetitionDuration.multipliedBy(i + 10),
