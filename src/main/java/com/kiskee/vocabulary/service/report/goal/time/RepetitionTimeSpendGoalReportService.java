@@ -28,6 +28,7 @@ import java.util.concurrent.CompletableFuture;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -57,14 +58,24 @@ public class RepetitionTimeSpendGoalReportService
 
     @Async
     @Override
-    @Retryable
     @Transactional
+    @Retryable(
+            recover = "recoverUpdateReport",
+            maxAttemptsExpression = "${retry.max-attempts}",
+            backoff = @Backoff(delayExpression = "${retry.delay}", multiplier = 2.0))
     public CompletableFuture<UpdateReportResult> updateReport(RepetitionResultData repetitionResultData) {
-        UUID userId = repetitionResultData.getUserId();
-        RepetitionTimeSpendData repetitionTimeSpendData = buildReportData(userId, repetitionResultData);
+        try {
+            UUID userId = repetitionResultData.getUserId();
+            RepetitionTimeSpendData repetitionTimeSpendData = buildReportData(userId, repetitionResultData);
 
-        super.updateReport(userId, repetitionTimeSpendData);
-        return CompletableFuture.completedFuture(new UpdateReportResult(Boolean.TRUE));
+            super.updateReport(userId, repetitionTimeSpendData);
+            return CompletableFuture.completedFuture(new UpdateReportResult(Boolean.TRUE));
+        } catch (Exception e) {
+            log.error(
+                    "Failed to update repetition time spend goal report for user: {}",
+                    repetitionResultData.getUserId());
+            throw e;
+        }
     }
 
     @Override
@@ -99,6 +110,7 @@ public class RepetitionTimeSpendGoalReportService
         return new RepetitionTimeSpendData(
                 userId,
                 repetitionResultData.getDictionaryId(),
+                repetitionResultData.getDictionaryName(),
                 currentRepetitionDuration,
                 repetitionDurationGoal,
                 userCreatedAt,

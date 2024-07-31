@@ -26,6 +26,9 @@ public class DictionaryRepetitionStatisticReport implements DictionaryReport {
     private Long dictionaryId;
 
     @Column(nullable = false)
+    private String dictionaryName;
+
+    @Column(nullable = false)
     private double completionRate;
 
     @Column(nullable = false)
@@ -67,6 +70,7 @@ public class DictionaryRepetitionStatisticReport implements DictionaryReport {
             double skippedWordsRate,
             int completedRepetitions) {
         this.dictionaryId = reportData.getDictionaryId();
+        this.dictionaryName = reportData.getDictionaryName();
         this.completionRate = completionRate;
         this.totalWordsCount = reportData.getTotalElements();
         this.rightAnswersRate = rightAnswersRate;
@@ -88,6 +92,7 @@ public class DictionaryRepetitionStatisticReport implements DictionaryReport {
         return new DictionaryRepetitionStatisticReport(
                 this.id,
                 this.dictionaryId,
+                reportData.getDictionaryName(),
                 completionRate,
                 reportData.getTotalElements() + this.totalWordsCount,
                 rightAnswersRate,

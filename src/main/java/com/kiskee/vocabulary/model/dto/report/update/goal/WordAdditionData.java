@@ -11,6 +11,7 @@ public class WordAdditionData implements GoalReportData<Integer> {
 
     private UUID userId;
     private Long dictionaryId;
+    private String dictionaryName;
     private int addedWords;
     private int newWordsPerDayGoal;
     private LocalDate userCreatedAt;

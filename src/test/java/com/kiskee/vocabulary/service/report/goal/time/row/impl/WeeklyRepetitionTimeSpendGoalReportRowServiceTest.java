@@ -28,6 +28,7 @@ public class WeeklyRepetitionTimeSpendGoalReportRowServiceTest {
     private WeeklyRepetitionTimeSpendGoalReportRowService weeklyRepetitionTimeSpendGoalReportRowService;
 
     private static final UUID USER_ID = UUID.fromString("78c87bb3-01b6-41ca-8329-247a72162868");
+    private static final String DICTIONARY_NAME = "SomeDictionaryName";
 
     private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#.###");
 
@@ -81,7 +82,7 @@ public class WeeklyRepetitionTimeSpendGoalReportRowServiceTest {
     @MethodSource("updateRowForTodayAndExistingDictionaryReport")
     void testUpdateRow_WhenRowExistsForTodayAndGivenDictionaryReportExists_ThenRecalculateRow(TestData testData) {
         DictionaryRepetitionTimeSpendGoalReport dictionaryGoalReport = new DictionaryRepetitionTimeSpendGoalReport(
-                1L, 10L, 16.667, Duration.ofHours(1), Duration.ofMinutes(10), 1);
+                1L, 10L, DICTIONARY_NAME, 16.667, Duration.ofHours(1), Duration.ofMinutes(10), 1);
         WeeklyRepetitionTimeSpendGoalReportRow weeklyRowForToday = WeeklyRepetitionTimeSpendGoalReportRow.builder()
                 .id(1L)
                 .startPeriod(testData.data().getCurrentDate())
@@ -106,7 +107,7 @@ public class WeeklyRepetitionTimeSpendGoalReportRowServiceTest {
             testUpdateRow_WhenRowExistsForTodayAndGivenDictionaryReportDoesNotExist_ThenRecalculateRowWithNewDictionaryReport(
                     TestData testData) {
         DictionaryRepetitionTimeSpendGoalReport dictionaryGoalReport = new DictionaryRepetitionTimeSpendGoalReport(
-                1L, 5L, 16.667, Duration.ofHours(1), Duration.ofMinutes(10), 1);
+                1L, 5L, DICTIONARY_NAME, 16.667, Duration.ofHours(1), Duration.ofMinutes(10), 1);
         WeeklyRepetitionTimeSpendGoalReportRow weeklyRowForToday = WeeklyRepetitionTimeSpendGoalReportRow.builder()
                 .id(1L)
                 .startPeriod(testData.data().getCurrentDate())
@@ -131,7 +132,7 @@ public class WeeklyRepetitionTimeSpendGoalReportRowServiceTest {
     void testUpdateRow_WhenRowExistsForPreviousDayAndCurrentDateInTheSamePeriod_ThenRecalculateRowForNewDay(
             TestData testData) {
         DictionaryRepetitionTimeSpendGoalReport dictionaryGoalReport = new DictionaryRepetitionTimeSpendGoalReport(
-                1L, 10L, 16.667, Duration.ofHours(1), Duration.ofMinutes(10), 1);
+                1L, 10L, DICTIONARY_NAME, 16.667, Duration.ofHours(1), Duration.ofMinutes(10), 1);
         WeeklyRepetitionTimeSpendGoalReportRow weeklyRowForToday = WeeklyRepetitionTimeSpendGoalReportRow.builder()
                 .id(1L)
                 .startPeriod(testData.data().getCurrentDate())
@@ -157,7 +158,7 @@ public class WeeklyRepetitionTimeSpendGoalReportRowServiceTest {
             testUpdateRow_WhenRowExistsForPreviousDayAndCurrentDateInTheSamePeriodButGivenNewDictionaryId_ThenRecalculateRowForNewDay(
                     TestData testData) {
         DictionaryRepetitionTimeSpendGoalReport dictionaryGoalReport = new DictionaryRepetitionTimeSpendGoalReport(
-                1L, 5L, 16.667, Duration.ofHours(1), Duration.ofMinutes(10), 1);
+                1L, 5L, DICTIONARY_NAME, 16.667, Duration.ofHours(1), Duration.ofMinutes(10), 1);
         WeeklyRepetitionTimeSpendGoalReportRow weeklyRowForToday = WeeklyRepetitionTimeSpendGoalReportRow.builder()
                 .id(1L)
                 .startPeriod(testData.data().getCurrentDate().minusDays(1))
@@ -187,7 +188,7 @@ public class WeeklyRepetitionTimeSpendGoalReportRowServiceTest {
     @MethodSource("updateRowForNotWorkingDay")
     void testUpdateRow_WhenCurrentDayIsNotWorkingDay_ThenRecalculateRow(TestData testData) {
         DictionaryRepetitionTimeSpendGoalReport dictionaryGoalReport = new DictionaryRepetitionTimeSpendGoalReport(
-                1L, 10L, 66.667, Duration.ofHours(5), Duration.ofMinutes(200), 20);
+                1L, 10L, DICTIONARY_NAME, 66.667, Duration.ofHours(5), Duration.ofMinutes(200), 20);
         WeeklyRepetitionTimeSpendGoalReportRow weeklyRowForToday = WeeklyRepetitionTimeSpendGoalReportRow.builder()
                 .id(1L)
                 .startPeriod(testData.data().getCurrentDate().minusDays(5))
@@ -211,7 +212,7 @@ public class WeeklyRepetitionTimeSpendGoalReportRowServiceTest {
     @MethodSource("updateRowWhenCurrentDayIsAfterLastDayOfPreviousPeriod")
     void testUpdateRow_WhenCurrentDayIsAfterLastDayOfPreviousPeriod_ThenBuildRowFromScratch(TestData testData) {
         DictionaryRepetitionTimeSpendGoalReport dictionaryGoalReport = new DictionaryRepetitionTimeSpendGoalReport(
-                1L, 10L, 66.667, Duration.ofHours(5), Duration.ofMinutes(200), 20);
+                1L, 10L, DICTIONARY_NAME, 66.667, Duration.ofHours(5), Duration.ofMinutes(200), 20);
         WeeklyRepetitionTimeSpendGoalReportRow weeklyRowForToday = WeeklyRepetitionTimeSpendGoalReportRow.builder()
                 .id(1L)
                 .startPeriod(testData.data().getCurrentDate().minusDays(7))
@@ -248,6 +249,7 @@ public class WeeklyRepetitionTimeSpendGoalReportRowServiceTest {
                             new RepetitionTimeSpendData(
                                     USER_ID,
                                     dictionaryId,
+                                    DICTIONARY_NAME,
                                     repetitionDuration.multipliedBy(i),
                                     repetitionDurationGoal,
                                     userCreatedAt,
@@ -255,6 +257,7 @@ public class WeeklyRepetitionTimeSpendGoalReportRowServiceTest {
                             new DictionaryRepetitionTimeSpendGoalReport(
                                     null,
                                     dictionaryId,
+                                    DICTIONARY_NAME,
                                     goalCompletionPercentage,
                                     repetitionDurationGoal,
                                     repetitionDuration.multipliedBy(i),
@@ -283,6 +286,7 @@ public class WeeklyRepetitionTimeSpendGoalReportRowServiceTest {
                             new RepetitionTimeSpendData(
                                     USER_ID,
                                     dictionaryId,
+                                    DICTIONARY_NAME,
                                     repetitionDuration.multipliedBy(i),
                                     repetitionDurationGoal,
                                     userCreatedAt,
@@ -290,6 +294,7 @@ public class WeeklyRepetitionTimeSpendGoalReportRowServiceTest {
                             new DictionaryRepetitionTimeSpendGoalReport(
                                     null,
                                     dictionaryId,
+                                    DICTIONARY_NAME,
                                     goalCompletionPercentage,
                                     repetitionDurationGoal,
                                     repetitionDuration.multipliedBy(i),
@@ -318,6 +323,7 @@ public class WeeklyRepetitionTimeSpendGoalReportRowServiceTest {
                             new RepetitionTimeSpendData(
                                     USER_ID,
                                     dictionaryId,
+                                    DICTIONARY_NAME,
                                     repetitionDuration.multipliedBy(i),
                                     repetitionDurationGoal,
                                     userCreatedAt,
@@ -325,6 +331,7 @@ public class WeeklyRepetitionTimeSpendGoalReportRowServiceTest {
                             new DictionaryRepetitionTimeSpendGoalReport(
                                     null,
                                     dictionaryId,
+                                    DICTIONARY_NAME,
                                     goalCompletionPercentage,
                                     repetitionDurationGoal.multipliedBy(3),
                                     repetitionDuration.multipliedBy(i),
@@ -354,6 +361,7 @@ public class WeeklyRepetitionTimeSpendGoalReportRowServiceTest {
                             new RepetitionTimeSpendData(
                                     USER_ID,
                                     dictionaryId,
+                                    DICTIONARY_NAME,
                                     repetitionDuration.multipliedBy(i),
                                     repetitionDurationGoal,
                                     userCreatedAt,
@@ -361,6 +369,7 @@ public class WeeklyRepetitionTimeSpendGoalReportRowServiceTest {
                             new DictionaryRepetitionTimeSpendGoalReport(
                                     1L,
                                     dictionaryId,
+                                    DICTIONARY_NAME,
                                     goalCompletionPercentage,
                                     repetitionDurationGoal,
                                     repetitionDuration.multipliedBy(i + 10),
@@ -390,6 +399,7 @@ public class WeeklyRepetitionTimeSpendGoalReportRowServiceTest {
                             new RepetitionTimeSpendData(
                                     USER_ID,
                                     dictionaryId,
+                                    DICTIONARY_NAME,
                                     repetitionDuration.multipliedBy(i),
                                     repetitionDurationGoal,
                                     userCreatedAt,
@@ -397,6 +407,7 @@ public class WeeklyRepetitionTimeSpendGoalReportRowServiceTest {
                             new DictionaryRepetitionTimeSpendGoalReport(
                                     1L,
                                     dictionaryId,
+                                    DICTIONARY_NAME,
                                     goalCompletionPercentage,
                                     repetitionDurationGoal.multipliedBy(2),
                                     repetitionDuration.multipliedBy(i + 10),
@@ -425,6 +436,7 @@ public class WeeklyRepetitionTimeSpendGoalReportRowServiceTest {
                             new RepetitionTimeSpendData(
                                     USER_ID,
                                     dictionaryId,
+                                    DICTIONARY_NAME,
                                     repetitionDuration.multipliedBy(i),
                                     repetitionDurationGoal,
                                     userCreatedAt,
@@ -432,6 +444,7 @@ public class WeeklyRepetitionTimeSpendGoalReportRowServiceTest {
                             new DictionaryRepetitionTimeSpendGoalReport(
                                     null,
                                     dictionaryId,
+                                    DICTIONARY_NAME,
                                     goalCompletionPercentage,
                                     repetitionDurationGoal.multipliedBy(2),
                                     repetitionDuration.multipliedBy(i),
@@ -461,6 +474,7 @@ public class WeeklyRepetitionTimeSpendGoalReportRowServiceTest {
                             new RepetitionTimeSpendData(
                                     USER_ID,
                                     dictionaryId,
+                                    DICTIONARY_NAME,
                                     repetitionDuration.multipliedBy(i),
                                     repetitionDurationGoal,
                                     userCreatedAt,
@@ -468,6 +482,7 @@ public class WeeklyRepetitionTimeSpendGoalReportRowServiceTest {
                             new DictionaryRepetitionTimeSpendGoalReport(
                                     1L,
                                     dictionaryId,
+                                    DICTIONARY_NAME,
                                     goalCompletionPercentage,
                                     repetitionDurationGoal.multipliedBy(5),
                                     repetitionDuration.multipliedBy(i + 200),
@@ -496,6 +511,7 @@ public class WeeklyRepetitionTimeSpendGoalReportRowServiceTest {
                             new RepetitionTimeSpendData(
                                     USER_ID,
                                     dictionaryId,
+                                    DICTIONARY_NAME,
                                     repetitionDuration.multipliedBy(i),
                                     repetitionDurationGoal,
                                     userCreatedAt,
@@ -503,6 +519,7 @@ public class WeeklyRepetitionTimeSpendGoalReportRowServiceTest {
                             new DictionaryRepetitionTimeSpendGoalReport(
                                     null,
                                     dictionaryId,
+                                    DICTIONARY_NAME,
                                     goalCompletionPercentage,
                                     repetitionDurationGoal,
                                     repetitionDuration.multipliedBy(i),

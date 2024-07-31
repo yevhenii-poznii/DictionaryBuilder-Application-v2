@@ -34,7 +34,8 @@ public class RepetitionData extends RepetitionResultDataDto {
     private List<WordDto> passedWords = new ArrayList<>();
     private WordDto currentWord;
 
-    public RepetitionData(List<WordDto> repetitionWords, long dictionaryId, UUID userId, ZoneId userTimeZone) {
+    public RepetitionData(
+            List<WordDto> repetitionWords, long dictionaryId, String dictionaryName, UUID userId, ZoneId userTimeZone) {
         this.setId(userId.toString());
         this.repetitionWords = new ArrayList<>(repetitionWords);
         this.currentWord = this.repetitionWords.removeLast();
@@ -42,6 +43,7 @@ public class RepetitionData extends RepetitionResultDataDto {
         super.setStartTime(Instant.now());
         super.setTotalElements(repetitionWords.size());
         super.setDictionaryId(dictionaryId);
+        super.setDictionaryName(dictionaryName);
         super.setUserId(userId);
     }
 
@@ -52,6 +54,7 @@ public class RepetitionData extends RepetitionResultDataDto {
         return RepetitionResultDataDto.builder()
                 .userId(UUID.fromString(this.getId()))
                 .dictionaryId(this.getDictionaryId())
+                .dictionaryName(this.getDictionaryName())
                 .userTimeZone(this.getUserTimeZone())
                 .startTime(this.getStartTime())
                 .endTime(Instant.now())

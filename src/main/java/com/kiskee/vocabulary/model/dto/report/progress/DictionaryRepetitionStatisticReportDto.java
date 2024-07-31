@@ -8,7 +8,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class DictionaryRepetitionStatisticReportDto implements DictionaryReportDto {
 
-    private Long dictionaryId;
+    private String dictionaryName;
     private double completionRate;
     private int totalWordsCount;
     private double rightAnswersRate;

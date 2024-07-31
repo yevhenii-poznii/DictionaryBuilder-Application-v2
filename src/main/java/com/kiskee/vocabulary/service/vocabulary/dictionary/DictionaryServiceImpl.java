@@ -18,6 +18,7 @@ import com.kiskee.vocabulary.repository.vocabulary.projections.DictionaryProject
 import com.kiskee.vocabulary.service.vocabulary.AbstractDictionaryService;
 import com.kiskee.vocabulary.service.vocabulary.dictionary.page.DictionaryPageLoaderFactory;
 import com.kiskee.vocabulary.util.IdentityUtil;
+import com.kiskee.vocabulary.util.ThrowUtil;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -128,6 +129,14 @@ public class DictionaryServiceImpl extends AbstractDictionaryService
     @Override
     public void verifyUserHasDictionary(Long dictionaryId) {
         ensureDictionaryBelongsToUser(dictionaryId);
+    }
+
+    @Override
+    public DictionaryDto getDictionaryByIdAndUserId(Long dictionaryId, UUID userId) {
+        return repository
+                .findDictionaryDtoByIdAndUserProfileId(dictionaryId, userId)
+                .orElseThrow(
+                        ThrowUtil.throwNotFoundException(Dictionary.class.getSimpleName(), dictionaryId.toString()));
     }
 
     private Dictionary createEmptyDictionary(String dictionaryName) {

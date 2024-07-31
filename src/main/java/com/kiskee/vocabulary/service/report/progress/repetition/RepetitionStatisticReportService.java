@@ -23,6 +23,7 @@ import java.util.concurrent.CompletableFuture;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -51,14 +52,22 @@ public class RepetitionStatisticReportService
 
     @Async
     @Override
-    @Retryable
     @Transactional
+    @Retryable(
+            recover = "recoverUpdateReport",
+            maxAttemptsExpression = "${retry.max-attempts}",
+            backoff = @Backoff(delayExpression = "${retry.delay}", multiplier = 2.0))
     public CompletableFuture<UpdateReportResult> updateReport(RepetitionResultData repetitionResultData) {
-        UUID userId = repetitionResultData.getUserId();
-        RepetitionStatisticData repetitionStatisticData = buildReportData(userId, repetitionResultData);
+        try {
+            UUID userId = repetitionResultData.getUserId();
+            RepetitionStatisticData repetitionStatisticData = buildReportData(userId, repetitionResultData);
 
-        super.updateReport(userId, repetitionStatisticData);
-        return CompletableFuture.completedFuture(new UpdateReportResult(Boolean.TRUE));
+            super.updateReport(userId, repetitionStatisticData);
+            return CompletableFuture.completedFuture(new UpdateReportResult(Boolean.TRUE));
+        } catch (Exception e) {
+            log.error("Failed to update repetition statistic report for user: {}", repetitionResultData.getUserId());
+            throw e;
+        }
     }
 
     @Override
@@ -76,6 +85,7 @@ public class RepetitionStatisticReportService
         return new RepetitionStatisticData(
                 userId,
                 repetitionResultData.getDictionaryId(),
+                repetitionResultData.getDictionaryName(),
                 userCreatedAt,
                 currentDate,
                 repetitionResultData.getRightAnswersCount(),

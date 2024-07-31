@@ -16,8 +16,7 @@ public abstract class AbstractGoalReportRowService<
 
     protected abstract Double calculateGoalCompletionPercentage(V value, V goalForPeriod);
 
-    protected abstract DR buildReportByDictionary(
-            Long dictionaryId, Double goalCompletionPercentage, V goalForPeriod, V value);
+    protected abstract DR buildReportByDictionary(D reportData, Double goalCompletionPercentage, V goalForPeriod);
 
     @Override
     protected DR calculateDictionaryReport(D reportData, int workingDays) {
@@ -25,8 +24,7 @@ public abstract class AbstractGoalReportRowService<
         Double goalCompletionPercentage = calculateGoalCompletionPercentage(reportData.getValue(), goalForPeriod);
         goalCompletionPercentage = roundToThreeDigitAfterComma(goalCompletionPercentage);
 
-        return buildReportByDictionary(
-                reportData.getDictionaryId(), goalCompletionPercentage, goalForPeriod, reportData.getValue());
+        return buildReportByDictionary(reportData, goalCompletionPercentage, goalForPeriod);
     }
 
     @Override
@@ -39,7 +37,8 @@ public abstract class AbstractGoalReportRowService<
 
         return !dictionaryReport.getDictionaryId().equals(reportData.getDictionaryId())
                 ? dictionaryReport.buildFrom(goalCompletionPercentage, goalForPeriod)
-                : dictionaryReport.buildFrom(goalCompletionPercentage, goalForPeriod, reportData.getValue());
+                : dictionaryReport.buildFrom(
+                        reportData.getDictionaryName(), goalCompletionPercentage, goalForPeriod, reportData.getValue());
     }
 
     private Double recalculateGoalCompletionPercentageForDictionaryReport(

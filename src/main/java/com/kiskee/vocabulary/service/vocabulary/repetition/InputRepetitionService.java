@@ -7,6 +7,7 @@ import com.kiskee.vocabulary.model.dto.repetition.RepetitionRunningStatus;
 import com.kiskee.vocabulary.model.dto.repetition.RepetitionStartFilterRequest;
 import com.kiskee.vocabulary.model.dto.repetition.message.WSRequest;
 import com.kiskee.vocabulary.model.dto.repetition.message.WSResponse;
+import com.kiskee.vocabulary.model.dto.vocabulary.dictionary.DictionaryDto;
 import com.kiskee.vocabulary.model.dto.vocabulary.word.WordDto;
 import com.kiskee.vocabulary.model.dto.vocabulary.word.WordTranslationDto;
 import com.kiskee.vocabulary.model.entity.redis.repetition.RepetitionData;
@@ -68,7 +69,7 @@ public class InputRepetitionService implements RepetitionService {
             log.info("Repetition is already running for user [{}]", userId);
             throw new RepetitionException("Repetition is already running");
         }
-        dictionaryAccessValidator.verifyUserHasDictionary(dictionaryId);
+        DictionaryDto dictionary = dictionaryAccessValidator.getDictionaryByIdAndUserId(dictionaryId, userId);
         List<WordDto> words = repetitionWordLoaderFactory
                 .getLoader(request.getCriteriaFilter().getFilterType())
                 .loadRepetitionWordPage(dictionaryId, request);
@@ -79,8 +80,8 @@ public class InputRepetitionService implements RepetitionService {
         }
         Collections.shuffle(words);
 
-        RepetitionData repetitionData =
-                new RepetitionData(words, dictionaryId, userId, TimeZoneContextHolder.getTimeZone());
+        RepetitionData repetitionData = new RepetitionData(
+                words, dictionaryId, dictionary.getDictionaryName(), userId, TimeZoneContextHolder.getTimeZone());
         repository.save(repetitionData);
         log.info("Repetition has been started for user [{}]", userId);
         return new RepetitionRunningStatus(true, repetitionData.isPaused());

@@ -78,3 +78,6 @@ scheduler:
   start-task-delay: ${SCHEDULER_START_TASK_DELAY:PT100S}
   initial-delay: ${SCHEDULER_START_TASK_DELAY:PT10S}
 swagger.server.url: ${SERVER_URL:https://localhost:8443}
+retry:
+  max-attempts: ${RETRY_MAX_ATTEMPTS:3}
+  delay: ${RETRY_DELAY:1000}

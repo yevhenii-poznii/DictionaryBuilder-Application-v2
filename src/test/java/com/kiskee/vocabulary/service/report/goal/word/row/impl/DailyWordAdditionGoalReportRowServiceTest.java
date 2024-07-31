@@ -26,6 +26,7 @@ public class DailyWordAdditionGoalReportRowServiceTest {
     private DailyWordAdditionGoalReportRowService dailyWordAdditionGoalReportRowService;
 
     private static final UUID USER_ID = UUID.fromString("78c87bb3-01b6-41ca-8329-247a72162868");
+    private static final String DICTIONARY_NAME = "SomeDictionaryName";
 
     @ParameterizedTest
     @MethodSource("buildRowFromScratchTestData")
@@ -43,7 +44,7 @@ public class DailyWordAdditionGoalReportRowServiceTest {
     @MethodSource("updateRowTestData")
     void testUpdateRow_WhenDailyRowExistsForToday_ThenRecalculateRow(TestData testData) {
         DictionaryWordAdditionGoalReport dictionaryGoalReport =
-                new DictionaryWordAdditionGoalReport(1L, 10L, 10.0, 10, 1);
+                new DictionaryWordAdditionGoalReport(1L, 10L, DICTIONARY_NAME, 10.0, 10, 1);
         DailyWordAdditionGoalReportRow dailyRowForToday = DailyWordAdditionGoalReportRow.builder()
                 .id(1L)
                 .startPeriod(testData.data().getCurrentDate())
@@ -65,7 +66,7 @@ public class DailyWordAdditionGoalReportRowServiceTest {
     @MethodSource("buildRowFromScratchTestData")
     void testUpdateRow_WhenDailyRowExistsForTodayAndGivenNewDictionary_ThenRecalculateRow(TestData testData) {
         DictionaryWordAdditionGoalReport dictionaryGoalReport =
-                new DictionaryWordAdditionGoalReport(1L, 5L, 10.0, 10, 1);
+                new DictionaryWordAdditionGoalReport(1L, 5L, DICTIONARY_NAME, 10.0, 10, 1);
         DailyWordAdditionGoalReportRow dailyRowForToday = DailyWordAdditionGoalReportRow.builder()
                 .id(1L)
                 .startPeriod(testData.data().getCurrentDate())
@@ -89,7 +90,7 @@ public class DailyWordAdditionGoalReportRowServiceTest {
     void testUpdateRow_WhenDailyRowExistsAndCurrentDateIsAfterPreviousDailyRow_ThenBuildRowFromScratch(
             TestData testData) {
         DictionaryWordAdditionGoalReport dictionaryGoalReport =
-                new DictionaryWordAdditionGoalReport(1L, 5L, 70.0, 10, 7);
+                new DictionaryWordAdditionGoalReport(1L, 5L, DICTIONARY_NAME, 70.0, 10, 7);
         DailyWordAdditionGoalReportRow dailyRowForToday = DailyWordAdditionGoalReportRow.builder()
                 .id(1L)
                 .startPeriod(testData.data().getCurrentDate().minusDays(1))
@@ -115,9 +116,10 @@ public class DailyWordAdditionGoalReportRowServiceTest {
         LocalDate currentDate = LocalDate.of(2024, 7, 12);
         List<TestData> testDataList = IntStream.range(1, 12)
                 .mapToObj(i -> new TestData(
-                        new WordAdditionData(USER_ID, dictionaryId, i, newWordsGoal, userCreatedAt, currentDate),
+                        new WordAdditionData(
+                                USER_ID, dictionaryId, DICTIONARY_NAME, i, newWordsGoal, userCreatedAt, currentDate),
                         new DictionaryWordAdditionGoalReport(
-                                null, dictionaryId, (double) i * newWordsGoal, newWordsGoal, i)))
+                                null, dictionaryId, DICTIONARY_NAME, (double) i * newWordsGoal, newWordsGoal, i)))
                 .toList();
 
         return testDataList.stream();
@@ -130,9 +132,15 @@ public class DailyWordAdditionGoalReportRowServiceTest {
         LocalDate currentDate = LocalDate.of(2024, 7, 12);
         List<TestData> testDataList = IntStream.range(1, 12)
                 .mapToObj(i -> new TestData(
-                        new WordAdditionData(USER_ID, dictionaryId, i, newWordsGoal, userCreatedAt, currentDate),
+                        new WordAdditionData(
+                                USER_ID, dictionaryId, DICTIONARY_NAME, i, newWordsGoal, userCreatedAt, currentDate),
                         new DictionaryWordAdditionGoalReport(
-                                1L, dictionaryId, (double) (i + 1) * newWordsGoal, newWordsGoal, i + 1)))
+                                1L,
+                                dictionaryId,
+                                DICTIONARY_NAME,
+                                (double) (i + 1) * newWordsGoal,
+                                newWordsGoal,
+                                i + 1)))
                 .toList();
 
         return testDataList.stream();

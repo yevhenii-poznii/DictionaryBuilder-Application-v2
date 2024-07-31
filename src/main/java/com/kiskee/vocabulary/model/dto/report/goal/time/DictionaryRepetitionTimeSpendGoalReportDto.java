@@ -9,7 +9,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class DictionaryRepetitionTimeSpendGoalReportDto implements DictionaryReportDto {
 
-    private Long dictionaryId;
+    private String dictionaryName;
     private Double goalCompletionPercentage;
     private Duration repetitionTimeGoal;
     private Duration timeSpentDuration;

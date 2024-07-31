@@ -12,6 +12,7 @@ public class RepetitionStatisticData implements ReportData {
 
     private UUID userId;
     private Long dictionaryId;
+    private String dictionaryName;
     private LocalDate userCreatedAt;
     private LocalDate currentDate;
 

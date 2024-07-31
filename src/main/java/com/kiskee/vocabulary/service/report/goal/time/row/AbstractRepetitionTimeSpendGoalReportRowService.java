@@ -42,14 +42,19 @@ public abstract class AbstractRepetitionTimeSpendGoalReportRowService
 
     @Override
     protected DictionaryRepetitionTimeSpendGoalReport buildReportByDictionary(
-            Long dictionaryId, Double goalCompletionPercentage, Duration goalForPeriod, Duration value) {
+            RepetitionTimeSpendData repetitionTimeSpendData, Double goalCompletionPercentage, Duration goalForPeriod) {
         return new DictionaryRepetitionTimeSpendGoalReport(
-                dictionaryId, goalCompletionPercentage, goalForPeriod, value, 1);
+                repetitionTimeSpendData.getDictionaryId(),
+                repetitionTimeSpendData.getDictionaryName(),
+                goalCompletionPercentage,
+                goalForPeriod,
+                repetitionTimeSpendData.getValue(),
+                1);
     }
 
     @Override
     protected DictionaryRepetitionTimeSpendGoalReport buildReportByDictionary(Long dictionaryId) {
-        return new DictionaryRepetitionTimeSpendGoalReport(dictionaryId, 0.0, Duration.ZERO, Duration.ZERO, 0);
+        return new DictionaryRepetitionTimeSpendGoalReport(dictionaryId);
     }
 
     @Override

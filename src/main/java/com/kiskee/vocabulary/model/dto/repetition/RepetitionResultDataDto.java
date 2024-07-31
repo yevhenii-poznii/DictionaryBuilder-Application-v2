@@ -20,6 +20,7 @@ public class RepetitionResultDataDto implements RepetitionResultData {
 
     private UUID userId;
     private long dictionaryId;
+    private String dictionaryName;
     private ZoneId userTimeZone;
     private Instant startTime;
     private Instant endTime;

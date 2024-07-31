@@ -8,7 +8,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class DictionaryWordAdditionGoalReportDto implements DictionaryReportDto {
 
-    private Long dictionaryId;
+    private String dictionaryName;
     private Double goalCompletionPercentage;
     private int newWordsGoal;
     private int newWordsActual;

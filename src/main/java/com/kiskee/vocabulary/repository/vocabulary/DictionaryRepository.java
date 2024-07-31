@@ -20,6 +20,8 @@ public interface DictionaryRepository extends JpaRepository<Dictionary, Long> {
     @Query("SELECT d.id FROM Dictionary d WHERE d.userProfileId = :userProfileId AND d.id IN :dictionaryIds")
     List<Long> findIdsByUserProfileIdAndIdIn(UUID userProfileId, Set<Long> dictionaryIds);
 
+    Optional<DictionaryDto> findDictionaryDtoByIdAndUserProfileId(Long id, UUID userProfileId);
+
     List<DictionaryDto> findAllByUserProfileId(UUID userProfileId);
 
     List<DictionaryDetailDto> findDetailedDictionariesByUserProfileId(UUID userProfileId);
