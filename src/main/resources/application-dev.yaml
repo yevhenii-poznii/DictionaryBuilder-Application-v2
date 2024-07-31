@@ -9,7 +9,7 @@ server:
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: ${DATASOURCE_URL:jdbc:postgresql://localhost:5438/vocabulary_database}
+    url: ${DATASOURCE_URL:jdbc:postgresql://localhost:5438/dictionary_builder_database}
     username: ${DATASOURCE_USERNAME:postgres}
     password: ${DATASOURCE_PASSWORD:root}
   jpa:

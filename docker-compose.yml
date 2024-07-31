@@ -2,25 +2,25 @@ services:
   db:
     image: postgres:15
     restart: always
-    container_name: vocabulary-database
+    container_name: dictionary-builder-database
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: root
-      POSTGRES_DB: vocabulary_database
+      POSTGRES_DB: dictionary_builder_database
     ports:
       - "5438:5432"
     volumes:
-      - vocabulary-v2-postgres-data:/var/lib/postgresql/data
+      - dictionary-builder-postgres-data:/var/lib/postgresql/data
     networks:
       - custom
 
   backend:
-    container_name: vocabulary-backend
+    container_name: dictionary-builder-backend
     env_file:
       - ./.env
     volumes:
-      - ./keystore.p12:/etc/vocabulary-secrets/keystore.p12
-      - ./secretkey-256.bin:/etc/vocabulary-secrets/secretkey-256.bin
+      - ./keystore.p12:/etc/dictionary-builder-secrets/keystore.p12
+      - ./secretkey-256.bin:/etc/dictionary-builder-secrets/secretkey-256.bin
     build:
       dockerfile: Dockerfile
     restart: always
@@ -34,18 +34,18 @@ services:
 
   redis:
     image: redis:7.2.5
-    container_name: vocabulary-redis
+    container_name: dictionary-builder-redis
     restart: always
     ports:
       - "6379:6379"
     volumes:
-      - vocabulary-redis-data:/data
+      - dictionary-builder-redis-data:/data
     networks:
       - custom
 
   prometheus:
     image: prom/prometheus:v2.51.1
-    container_name: vocabulary-prometheus
+    container_name: dictionary-builder-prometheus
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
@@ -57,27 +57,27 @@ services:
 
   grafana:
     image: grafana/grafana:10.1.9
-    container_name: vocabulary-grafana
+    container_name: dictionary-builder-grafana
     environment:
       GF_SECURITY_ADMIN_PASSWORD: password
     ports:
       - "4000:3000"
     volumes:
-      - vocabulary-grafana-data:/var/lib/grafana
+      - dictionary-builder-grafana-data:/var/lib/grafana
     networks:
       - custom
     depends_on:
       - backend
 
 volumes:
-  vocabulary-v2-postgres-data:
-    name: vocabulary-v2-postgres-data
-  vocabulary-redis-data:
-    name: vocabulary-redis-data
-  vocabulary-grafana-data:
-    name: vocabulary-grafana-data
-  vocabulary-secrets:
-    name: vocabulary-secrets
+  dictionary-builder-postgres-data:
+    name: dictionary-builder-postgres-data
+  dictionary-builder-redis-data:
+    name: dictionary-builder-redis-data
+  dictionary-builder-grafana-data:
+    name: dictionary-builder-grafana-data
+  dictionary-builder-secrets:
+    name: dictionary-builder-secrets
 
 networks:
   custom:

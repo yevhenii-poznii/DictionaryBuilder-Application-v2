@@ -1,4 +1,4 @@
-# Vocabulary Application V2
+# DictionaryBuilder Application V2
 
 ## Tech stack
 Backend: Java, Spring \
