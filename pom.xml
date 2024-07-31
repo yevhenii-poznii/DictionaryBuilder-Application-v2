@@ -10,10 +10,10 @@
     </parent>
 
     <groupId>com.kiskee</groupId>
-    <artifactId>vocabulary</artifactId>
+    <artifactId>dictionarybuilder</artifactId>
     <version>0.0.1</version>
-    <name>vocabulary</name>
-    <description>VocabularyApplication project for Spring Boot</description>
+    <name>dictionarybuilder</name>
+    <description>DictionaryBuilder project for Spring Boot</description>
     <properties>
         <java.version>21</java.version>
         <maven.compiler.source>21</maven.compiler.source>
@@ -174,7 +174,7 @@
                 <artifactId>flyway-maven-plugin</artifactId>
                 <version>9.22.3</version>
                 <configuration>
-                    <url>jdbc:postgresql://localhost:5438/vocabulary_database</url>
+                    <url>jdbc:postgresql://localhost:5438/dictionary_builder_database</url>
                     <user>postgres</user>
                     <password>root</password>
                     <cleanDisabled>false</cleanDisabled>
