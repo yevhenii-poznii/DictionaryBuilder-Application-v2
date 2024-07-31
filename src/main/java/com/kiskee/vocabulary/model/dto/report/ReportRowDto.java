@@ -1,3 +1,17 @@
 package com.kiskee.vocabulary.model.dto.report;
 
-public interface ReportRowDto {}
+import java.time.LocalDate;
+import java.util.List;
+
+public interface ReportRowDto {
+
+    LocalDate getStartPeriod();
+
+    LocalDate getEndPeriod();
+
+    int getWorkingDays();
+
+    String getReportPeriod();
+
+    List<DictionaryReportDto> getDictionaryReports();
+}
