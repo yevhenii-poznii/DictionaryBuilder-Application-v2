@@ -26,10 +26,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class UserProfileServiceTest {
+public class UserProfileServiceImplTest {
 
     @InjectMocks
-    private UserProfileService userProfileService;
+    private UserProfileServiceImpl userProfileService;
 
     @Mock
     private UserProfileRepository userProfileRepository;
