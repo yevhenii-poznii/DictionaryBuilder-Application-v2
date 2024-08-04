@@ -24,14 +24,12 @@ public class UserProfileController {
     @GetMapping("/me")
     public UserMiniProfileDto getFullProfile() {
         // TODO implement
-        System.out.println("me");
         return null;
     }
 
     @GetMapping("/{userId}")
     public UserMiniProfileDto getFullProfile(@PathVariable UUID userId) {
         // TODO implement
-        System.out.println(userId);
         return null;
     }
 }
