@@ -6,9 +6,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.kiskee.dictionarybuilder.config.properties.user.DefaultUserProfileProperties;
+import com.kiskee.dictionarybuilder.enums.user.UserRole;
 import com.kiskee.dictionarybuilder.mapper.user.profile.UserProfileMapper;
 import com.kiskee.dictionarybuilder.model.dto.registration.InternalRegistrationRequest;
 import com.kiskee.dictionarybuilder.model.dto.user.profile.UserCreatedAt;
+import com.kiskee.dictionarybuilder.model.dto.user.profile.UserMiniProfileDto;
 import com.kiskee.dictionarybuilder.model.entity.user.UserVocabularyApplication;
 import com.kiskee.dictionarybuilder.model.entity.user.profile.UserProfile;
 import com.kiskee.dictionarybuilder.model.entity.vocabulary.Dictionary;
@@ -24,12 +26,17 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @ExtendWith(MockitoExtension.class)
-public class UserProfileServiceTest {
+public class UserProfileServiceImplTest {
 
     @InjectMocks
-    private UserProfileService userProfileService;
+    private UserProfileServiceImpl userProfileService;
 
     @Mock
     private UserProfileRepository userProfileRepository;
@@ -45,6 +52,9 @@ public class UserProfileServiceTest {
 
     @Mock
     private DefaultUserProfileProperties defaultUserProfileProperties;
+
+    @Mock
+    private SecurityContext securityContext;
 
     @Captor
     private ArgumentCaptor<UserProfile> userPreferenceArgumentCaptor;
@@ -129,6 +139,21 @@ public class UserProfileServiceTest {
     }
 
     @Test
+    void testGetMiniProfile_WhenUserIdIsGiven_ThenReturnMiniProfile() {
+        setAuth();
+
+        String publicUsername = "public username";
+        String avatar = "someEncodedAvatar";
+        UserMiniProfileDto userMiniProfileDto = new UserMiniProfileDto(publicUsername, avatar);
+        when(userProfileRepository.findUserMiniProfileByUserId(USER_ID)).thenReturn(userMiniProfileDto);
+
+        UserMiniProfileDto actual = userProfileService.getMiniProfile();
+
+        assertThat(actual.publicUsername()).isEqualTo(publicUsername);
+        assertThat(actual.profilePicture()).isEqualTo(avatar);
+    }
+
+    @Test
     void testGetCreatedAtField_WhenUserIdIsGiven_ThenReturnCreatedAtField() {
         Instant createdAtInstant = Instant.parse("2021-01-01T00:00:00Z");
         UserCreatedAt userCreatedAt = new UserCreatedAt(createdAtInstant);
@@ -137,5 +162,14 @@ public class UserProfileServiceTest {
         Instant actual = userProfileService.getCreatedAtField(USER_ID);
 
         assertThat(actual).isEqualTo(createdAtInstant);
+    }
+
+    private void setAuth() {
+        UserVocabularyApplication user = new UserVocabularyApplication(
+                USER_ID, "email", "username", "noPassword", true, UserRole.ROLE_USER, null, null);
+        Authentication authentication =
+                new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
     }
 }

@@ -33,6 +33,7 @@ import com.kiskee.dictionarybuilder.service.vocabulary.dictionary.page.Dictionar
 import com.kiskee.dictionarybuilder.service.vocabulary.word.page.DictionaryPageLoader;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -574,6 +575,46 @@ public class DictionaryServiceImplTest {
                         ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(),
                         Dictionary.class.getSimpleName(),
                         dictionaryId));
+    }
+
+    @Test
+    void testGetDictionaryByIdAndUserId_WhenDictionaryExistsForUser_ThenReturnDictionaryDto() {
+        Long dictionaryId = 10L;
+
+        DictionaryDto dictionaryByIdAndUserId = mock(DictionaryDto.class);
+        when(dictionaryByIdAndUserId.getId()).thenReturn(dictionaryId);
+
+        when(dictionaryRepository.findDictionaryDtoByIdAndUserProfileId(dictionaryId, USER_ID))
+                .thenReturn(Optional.of(dictionaryByIdAndUserId));
+
+        DictionaryDto dictionary = dictionaryService.getDictionaryByIdAndUserId(dictionaryId, USER_ID);
+
+        assertThat(dictionary.getId()).isEqualTo(dictionaryId);
+    }
+
+    @Test
+    void testGetDictionaryByIdAndUserId_WhenDictionaryDoesNotExistForUser_ThenThrowResourceNotFoundException() {
+        Long dictionaryId = 10L;
+
+        when(dictionaryRepository.findDictionaryDtoByIdAndUserProfileId(dictionaryId, USER_ID))
+                .thenReturn(Optional.empty());
+
+        assertThatExceptionOfType(ResourceNotFoundException.class)
+                .isThrownBy(() -> dictionaryService.getDictionaryByIdAndUserId(dictionaryId, USER_ID))
+                .withMessage(String.format(
+                        ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(),
+                        Dictionary.class.getSimpleName(),
+                        dictionaryId));
+    }
+
+    @Test
+    void testGetRepository() {
+        assertThat(dictionaryService.getRepository()).isEqualTo(dictionaryRepository);
+    }
+
+    @Test
+    void testGetMapper() {
+        assertThat(dictionaryService.getMapper()).isEqualTo(dictionaryMapper);
     }
 
     private static DictionaryPageResponseDto returnDictionaryPageResponseDto() {
