@@ -25,10 +25,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class UserPreferenceServiceTest {
+public class UserPreferenceServiceImplTest {
 
     @InjectMocks
-    private UserPreferenceService userPreferenceService;
+    private UserPreferenceServiceImpl userPreferenceService;
 
     @Mock
     private UserPreferenceRepository userPreferenceRepository;
