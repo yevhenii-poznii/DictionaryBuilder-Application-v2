@@ -15,9 +15,11 @@ import com.kiskee.dictionarybuilder.util.IdentityUtil;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @Order(2)
 @AllArgsConstructor
@@ -37,12 +39,17 @@ public class UserPreferenceServiceImpl extends AbstractUserProfilePreferenceInit
 
     @Override
     public WordPreference getWordPreference(UUID userId) {
-        return repository.findWordPreferenceByUserId(userId);
+        WordPreference wordPreference = repository.findWordPreferenceByUserId(userId);
+        displayLog(WordPreference.class, userId);
+        return wordPreference;
     }
 
     @Override
     public DictionaryPreference getDictionaryPreference() {
-        return repository.findDictionaryPreferenceByUserId(IdentityUtil.getUserId());
+        UUID userId = IdentityUtil.getUserId();
+        DictionaryPreference dictionaryPreference = repository.findDictionaryPreferenceByUserId(userId);
+        displayLog(DictionaryPreference.class, userId);
+        return dictionaryPreference;
     }
 
     @Override
@@ -52,5 +59,9 @@ public class UserPreferenceServiceImpl extends AbstractUserProfilePreferenceInit
                 registrationRequest.getUser(),
                 PageFilter.BY_ADDED_AT_ASC,
                 ProfileVisibility.PRIVATE);
+    }
+
+    private void displayLog(Class<?> cls, UUID userId) {
+        log.info("{} has been retrieved for user {}", cls.getSimpleName(), userId);
     }
 }
