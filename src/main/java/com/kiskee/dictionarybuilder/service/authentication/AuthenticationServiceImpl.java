@@ -19,7 +19,7 @@ import org.springframework.security.web.authentication.rememberme.InvalidCookieE
 
 @Slf4j
 @AllArgsConstructor
-public class AuthenticationServiceImpl implements AuthenticationService {
+public class AuthenticationServiceImpl implements AuthenticationService, LogoutService {
 
     private final DefaultJweTokenFactory defaultJweTokenFactory;
     private final JweStringSerializer tokenStringSerializer;
@@ -53,6 +53,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         log.info("Issued refresh token for user: [{}]", ((UserSecureProjection) authentication.getPrincipal()).getId());
 
         return tokenData;
+    }
+
+    @Override
+    public void revokeRefreshToken(String refreshToken) {
+        CookieToken cookieToken = cookieTokenIssuer.findTokenOrThrow(refreshToken);
+        validate(cookieToken, IdentityUtil.getAuthentication());
+        cookieTokenIssuer.invalidateToken(cookieToken);
+        log.info("Revoked refresh token for user: [{}]", cookieToken.getUserId());
     }
 
     private void validate(CookieToken cookieToken, Authentication authentication) {

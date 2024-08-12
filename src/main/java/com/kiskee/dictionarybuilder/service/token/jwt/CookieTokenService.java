@@ -6,8 +6,6 @@ import com.kiskee.dictionarybuilder.model.entity.token.CookieToken;
 import com.kiskee.dictionarybuilder.model.entity.token.Token;
 import com.kiskee.dictionarybuilder.repository.token.TokenRepository;
 import com.kiskee.dictionarybuilder.service.token.AbstractTokenService;
-import com.kiskee.dictionarybuilder.service.token.TokenInvalidatorService;
-import com.kiskee.dictionarybuilder.service.token.TokenPersistenceService;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -17,8 +15,7 @@ import org.springframework.stereotype.Service;
 @Getter
 @Service
 @AllArgsConstructor
-public class CookieTokenService extends AbstractTokenService<JweToken, CookieToken>
-        implements TokenPersistenceService<TokenData, String>, TokenInvalidatorService<CookieToken>, CookieTokenIssuer {
+public class CookieTokenService extends AbstractTokenService<JweToken, CookieToken> implements CookieTokenIssuer {
 
     private final TokenRepository tokenRepository;
 

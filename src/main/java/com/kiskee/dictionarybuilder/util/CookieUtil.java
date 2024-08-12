@@ -11,9 +11,11 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class CookieUtil {
 
+    public static final String COOKIE_NAME = "RefreshAuthentication";
+
     public Cookie buildCookie(TokenData tokenData) {
-        Cookie cookie = new Cookie("RefreshAuthentication", tokenData.token());
-        cookie.setPath("/");
+        Cookie cookie = new Cookie(COOKIE_NAME, tokenData.token());
+        cookie.setPath("/api/v1");
         cookie.setHttpOnly(true);
         cookie.setSecure(true);
         cookie.setMaxAge((int)
@@ -22,10 +24,17 @@ public class CookieUtil {
         return cookie;
     }
 
+    public Cookie removeJsessionIdCookie() {
+        Cookie jsessionid = new Cookie("JSESSIONID", null);
+        jsessionid.setMaxAge(0);
+        jsessionid.setPath("/api/v1");
+        return jsessionid;
+    }
+
     public String extractTokenFromCookie(Cookie[] cookies) {
         if (cookies != null) {
             return Arrays.stream(cookies)
-                    .filter(cookie -> cookie.getName().equals("RefreshAuthentication"))
+                    .filter(cookie -> cookie.getName().equals(COOKIE_NAME))
                     .findFirst()
                     .orElseThrow(() -> new ForbiddenAccessException("Cookie token not found"))
                     .getValue();
