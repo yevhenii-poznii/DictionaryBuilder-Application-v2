@@ -41,8 +41,10 @@ public class OAuth2LoginSuccessHandler extends SavedRequestAwareAuthenticationSu
             String redirectUrl = String.format("https://localhost:3000/?token=%s", provisionData.accessToken());
 
             Cookie cookie = CookieUtil.buildCookie(provisionData.refreshToken());
+            Cookie jsessionid = CookieUtil.removeJsessionIdCookie();
 
             response.addCookie(cookie);
+            response.addCookie(jsessionid);
             response.sendRedirect(redirectUrl);
 
             log.info("Cookie set successfully set for user");

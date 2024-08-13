@@ -5,6 +5,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOf
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import com.kiskee.dictionarybuilder.config.properties.jwt.JwtProperties;
@@ -66,12 +67,7 @@ public class AuthenticationServiceTest {
     @Test
     void testIssueAccessToken_WhenAuthenticationHasSet_ThenReturnAccessToken() {
         String tokenString = "tokenString";
-
-        UserVocabularyApplication user = new UserVocabularyApplication(
-                USER_ID, "email", "username", "noPassword", true, UserRole.ROLE_USER, null, null);
-        Authentication authentication =
-                new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
-        when(securityContext.getAuthentication()).thenReturn(authentication);
+        setAuth();
         when(jwtProperties.getAccessExpirationTime()).thenReturn(1000L);
 
         when(defaultJweTokenFactory.apply(any(AuthenticationData.class))).thenReturn(mock(JweToken.class));
@@ -92,14 +88,8 @@ public class AuthenticationServiceTest {
     @Test
     void testIssueAccessToken_WhenRefreshTokenIsProvidedAndValid_ThenReturnNewAccessToken() {
         String refreshToken = "refreshToken";
-
         String tokenString = "tokenString";
-
-        UserVocabularyApplication user = new UserVocabularyApplication(
-                USER_ID, "email", "username", "noPassword", true, UserRole.ROLE_USER, null, null);
-        Authentication authentication =
-                new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
-        when(securityContext.getAuthentication()).thenReturn(authentication);
+        setAuth();
         when(jwtProperties.getAccessExpirationTime()).thenReturn(1000L);
 
         CookieToken cookieToken = mock(CookieToken.class);
@@ -118,12 +108,7 @@ public class AuthenticationServiceTest {
     @Test
     void testIssueAccessToken_WhenRefreshTokenIsProvidedAndDoesNotBelongToUser_ThenThrowCookieTheftException() {
         String refreshToken = "refreshToken";
-
-        UserVocabularyApplication user = new UserVocabularyApplication(
-                USER_ID, "email", "username", "noPassword", true, UserRole.ROLE_USER, null, null);
-        Authentication authentication =
-                new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
-        when(securityContext.getAuthentication()).thenReturn(authentication);
+        setAuth();
 
         CookieToken cookieToken = mock(CookieToken.class);
         when(cookieToken.getUserId()).thenReturn(UUID.fromString("78c87bb3-01b6-41ca-8329-247a72162869"));
@@ -137,12 +122,7 @@ public class AuthenticationServiceTest {
     @Test
     void testIssueAccessToken_WhenRefreshTokenIsProvidedAndAlreadyInvalidated_ThenThrowInvalidCookieException() {
         String refreshToken = "refreshToken";
-
-        UserVocabularyApplication user = new UserVocabularyApplication(
-                USER_ID, "email", "username", "noPassword", true, UserRole.ROLE_USER, null, null);
-        Authentication authentication =
-                new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
-        when(securityContext.getAuthentication()).thenReturn(authentication);
+        setAuth();
 
         CookieToken cookieToken = mock(CookieToken.class);
         when(cookieToken.getUserId()).thenReturn(USER_ID);
@@ -171,5 +151,61 @@ public class AuthenticationServiceTest {
         verify(cookieTokenIssuer).persistToken(tokenData);
 
         assertThat(tokenData.token()).isEqualTo(tokenString);
+    }
+
+    @Test
+    void testRevokeRefreshToken_WhenRefreshTokenIsProvidedAndValid_ThenInvalidateToken() {
+        setAuth();
+        String refreshToken = "refreshToken";
+
+        CookieToken cookieToken = mock(CookieToken.class);
+        when(cookieToken.getUserId()).thenReturn(USER_ID);
+        when(cookieToken.isInvalidated()).thenReturn(false);
+        when(cookieTokenIssuer.findTokenOrThrow(refreshToken)).thenReturn(cookieToken);
+
+        authenticationService.revokeRefreshToken(refreshToken);
+
+        verify(cookieTokenIssuer).invalidateToken(cookieToken);
+    }
+
+    @Test
+    void testRevokeRefreshToken_WhenRefreshTokenIsProvidedAndDoesNotBelongToUser_ThenThrowCookieTheftException() {
+        setAuth();
+        String refreshToken = "refreshToken";
+
+        CookieToken cookieToken = mock(CookieToken.class);
+        when(cookieToken.getUserId()).thenReturn(UUID.fromString("78c87bb3-01b6-41ca-8329-247a72162869"));
+        when(cookieTokenIssuer.findTokenOrThrow(refreshToken)).thenReturn(cookieToken);
+
+        assertThatExceptionOfType(CookieTheftException.class)
+                .isThrownBy(() -> authenticationService.revokeRefreshToken(refreshToken))
+                .withMessage("Refresh token does not belong to the user");
+
+        verifyNoMoreInteractions(cookieTokenIssuer);
+    }
+
+    @Test
+    void testRevokeRefreshToken_WhenRefreshTokenIsProvidedAndAlreadyInvalidated_ThenThrowInvalidCookieException() {
+        setAuth();
+        String refreshToken = "refreshToken";
+
+        CookieToken cookieToken = mock(CookieToken.class);
+        when(cookieToken.getUserId()).thenReturn(USER_ID);
+        when(cookieToken.isInvalidated()).thenReturn(true);
+        when(cookieTokenIssuer.findTokenOrThrow(refreshToken)).thenReturn(cookieToken);
+
+        assertThatExceptionOfType(InvalidCookieException.class)
+                .isThrownBy(() -> authenticationService.revokeRefreshToken(refreshToken))
+                .withMessage("Refresh token is invalidated");
+
+        verifyNoMoreInteractions(cookieTokenIssuer);
+    }
+
+    private void setAuth() {
+        UserVocabularyApplication user = new UserVocabularyApplication(
+                USER_ID, "email", "username", "noPassword", true, UserRole.ROLE_USER, null, null);
+        Authentication authentication =
+                new UsernamePasswordAuthenticationToken(user, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
+        when(securityContext.getAuthentication()).thenReturn(authentication);
     }
 }

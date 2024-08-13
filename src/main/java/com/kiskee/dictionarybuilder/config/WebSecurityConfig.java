@@ -3,7 +3,6 @@ package com.kiskee.dictionarybuilder.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kiskee.dictionarybuilder.config.properties.email.MailSenderProperties;
 import com.kiskee.dictionarybuilder.config.properties.jwt.JwtProperties;
-import com.kiskee.dictionarybuilder.service.authentication.AuthenticationService;
 import com.kiskee.dictionarybuilder.service.authentication.AuthenticationServiceImpl;
 import com.kiskee.dictionarybuilder.service.provision.oauth.OAuth2UserProvisionService;
 import com.kiskee.dictionarybuilder.service.provision.oauth.OAuth2UserProvisionServiceImpl;
@@ -13,7 +12,9 @@ import com.kiskee.dictionarybuilder.service.token.jwt.JweStringDeserializer;
 import com.kiskee.dictionarybuilder.service.token.jwt.JweStringSerializer;
 import com.kiskee.dictionarybuilder.service.user.UserInitializingService;
 import com.kiskee.dictionarybuilder.service.user.UserService;
+import com.kiskee.dictionarybuilder.util.CookieUtil;
 import com.kiskee.dictionarybuilder.web.auth.OAuth2LoginSuccessHandler;
+import com.kiskee.dictionarybuilder.web.auth.PreLogoutHandler;
 import com.kiskee.dictionarybuilder.web.auth.TokenCookieAuthenticationSuccessHandler;
 import com.kiskee.dictionarybuilder.web.filter.JwtAuthenticationFilter;
 import com.kiskee.dictionarybuilder.web.filter.LoginAuthenticationFilter;
@@ -36,6 +37,7 @@ import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -52,6 +54,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -85,9 +88,14 @@ public class WebSecurityConfig {
                         .anyRequest()
                         .authenticated())
                 .oauth2Login(oauth2 -> oauth2.successHandler(oAuth2LoginSuccessHandler()))
+                .logout(logout -> logout.logoutUrl("/auth/logout")
+                        .addLogoutHandler(preLogoutHandler())
+                        .deleteCookies(CookieUtil.COOKIE_NAME)
+                        .logoutSuccessHandler((request, response, authentication) ->
+                                response.setStatus(HttpStatus.NO_CONTENT.value())))
                 .sessionManagement(
                         sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthenticationFilter(), LogoutFilter.class)
                 .addFilterBefore(webSocketAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(timeZoneRequestFilter, JwtAuthenticationFilter.class)
                 .addFilterBefore(loginAuthenticationFilter(), AnonymousAuthenticationFilter.class)
@@ -171,9 +179,15 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public AuthenticationService authenticationService() throws IOException, KeyLengthException {
+    public AuthenticationServiceImpl authenticationService() throws IOException, KeyLengthException {
         return new AuthenticationServiceImpl(
                 defaultJweTokenFactory, jweStringSerializer(), cookieTokenService, jwtProperties);
+    }
+
+    @Bean
+    @SneakyThrows
+    public PreLogoutHandler preLogoutHandler() {
+        return new PreLogoutHandler(authenticationService());
     }
 
     @Bean
