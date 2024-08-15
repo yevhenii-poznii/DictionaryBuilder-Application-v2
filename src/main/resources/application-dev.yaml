@@ -37,6 +37,10 @@ spring:
     basename: messages
   jackson:
     time-zone: UTC
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
 logging:
   level:
     org.springframework.security: DEBUG
@@ -51,7 +55,7 @@ vocabulary:
       from: ${MAIL_SENDER}
       subject: "Please verify your registration"
       template-location: email/confirm-registration.html
-      confirmation-url: https://localhost:3000/?verificationToken=
+      confirmation-url: ${SERVER_URL:https://localhost:3000}/?verificationToken=
   user:
     profile:
       default-avatar: ${DEFAULT_AVATAR}
@@ -71,13 +75,14 @@ vocabulary:
     words-to-update-count: ${WORDS_TO_UPDATE_COUNT:10}
 config:
   mvc:
-    allowed-origins: https://localhost:3000
+    allowed-origins: ${SERVER_URL:https://localhost:3000}
 scheduler:
   pool-size: ${SCHEDULER_POOL_SIZE:10}
   thread-name-prefix: ${SCHEDULER_THREAD_NAME_PREFIX:scheduler-}
-  start-task-delay: ${SCHEDULER_START_TASK_DELAY:PT100S}
+  start-task-delay: ${SCHEDULER_START_TASK_DELAY:PT10M}
   initial-delay: ${SCHEDULER_START_TASK_DELAY:PT10S}
-swagger.server.url: ${SERVER_URL:https://localhost:8443}
 retry:
   max-attempts: ${RETRY_MAX_ATTEMPTS:3}
   delay: ${RETRY_DELAY:1000}
+swagger-server-url: ${SERVER_URL:https://localhost:8443}
+post-oauth2-redirect-url: ${SERVER_URL:https://localhost:3000}/?token=%s

@@ -11,8 +11,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -22,10 +23,13 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class OAuth2LoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
 
     private final OAuth2UserProvisionService oAuth2UserProvisionService;
+
+    @Value("${post-oauth2-redirect-url}")
+    private String POST_OAUTH2_REDIRECT_URL;
 
     @Override
     public void onAuthenticationSuccess(
@@ -38,7 +42,7 @@ public class OAuth2LoginSuccessHandler extends SavedRequestAwareAuthenticationSu
 
             OAuth2ProvisionData provisionData = oAuth2UserProvisionService.provisionUser(userProvisionRequest);
 
-            String redirectUrl = String.format("https://localhost:3000/?token=%s", provisionData.accessToken());
+            String redirectUrl = String.format(POST_OAUTH2_REDIRECT_URL, provisionData.accessToken());
 
             Cookie cookie = CookieUtil.buildCookie(provisionData.refreshToken());
             Cookie jsessionid = CookieUtil.removeJsessionIdCookie();
