@@ -14,15 +14,15 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class OpenAPIConfig {
 
-    @Value("${swagger.server.url}")
-    private String swaggerServerUrl;
+    @Value("${swagger-server-url}")
+    private String SWAGGER_SERVER_URL;
 
     @Bean
     public OpenAPI openAPI() {
         final String bearerSecuritySchemeName = "Bearer";
         return new OpenAPI()
                 .info(new Info().title("Dictionary Builder API").version("v1"))
-                .servers(List.of(new Server().url(swaggerServerUrl)))
+                .servers(List.of(new Server().url(SWAGGER_SERVER_URL)))
                 .components(new Components()
                         .addSecuritySchemes(
                                 bearerSecuritySchemeName,
