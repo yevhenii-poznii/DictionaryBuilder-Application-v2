@@ -39,7 +39,7 @@ jobs:
 
       - name: Remove old JAR from EC2
         run: |
-          ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} "rm -rf ${EC2_PATH}/dictionarybuilder-1.0.0.jar"
+          ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} "rm -rf ${EC2_PATH}/dictionarybuilder-0.0.1.jar"
         env:
           EC2_USER: ${{ secrets.EC2_USER }}
           EC2_HOST: ${{ secrets.EC2_HOST }}
@@ -47,7 +47,7 @@ jobs:
 
       - name: Copy JAR to EC2
         run: |
-          scp -o StrictHostKeyChecking=no target/dictionarybuilder-1.0.0.jar ${EC2_USER}@${EC2_HOST}:${EC2_PATH}
+          scp -o StrictHostKeyChecking=no target/dictionarybuilder-0.0.1.jar ${EC2_USER}@${EC2_HOST}:${EC2_PATH}
         env:
           EC2_USER: ${{ secrets.EC2_USER }}
           EC2_HOST: ${{ secrets.EC2_HOST }}
