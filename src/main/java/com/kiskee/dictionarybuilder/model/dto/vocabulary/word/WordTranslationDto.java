@@ -18,8 +18,9 @@ public class WordTranslationDto {
     private Long id;
 
     @Pattern(
-            regexp = "^[а-щьюяєіїґА-ЩЬЮЯЄІЇҐ'\\-()\\s]+$",
-            message = "Translation must contain only letters, hyphens, brackets, apostrophes and spaces")
+            regexp = "^[\\p{L}\\-/'`(),!?\\s]+$",
+            message =
+                    "Translation must contain only letters, hyphens, slashes, commas, brackets, spaces, single quotes, and backticks")
     private String translation;
 
     public WordTranslationDto(String translation) {

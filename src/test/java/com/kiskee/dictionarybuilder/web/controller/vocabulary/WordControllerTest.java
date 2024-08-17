@@ -17,10 +17,9 @@ import com.kiskee.dictionarybuilder.exception.ForbiddenAccessException;
 import com.kiskee.dictionarybuilder.exception.ResourceNotFoundException;
 import com.kiskee.dictionarybuilder.model.dto.ResponseMessage;
 import com.kiskee.dictionarybuilder.model.dto.vocabulary.word.WordDto;
-import com.kiskee.dictionarybuilder.model.dto.vocabulary.word.WordSaveRequest;
 import com.kiskee.dictionarybuilder.model.dto.vocabulary.word.WordSaveResponse;
+import com.kiskee.dictionarybuilder.model.dto.vocabulary.word.WordSaveUpdateRequest;
 import com.kiskee.dictionarybuilder.model.dto.vocabulary.word.WordTranslationDto;
-import com.kiskee.dictionarybuilder.model.dto.vocabulary.word.WordUpdateRequest;
 import com.kiskee.dictionarybuilder.model.entity.vocabulary.Dictionary;
 import com.kiskee.dictionarybuilder.model.entity.vocabulary.Word;
 import com.kiskee.dictionarybuilder.service.vocabulary.word.WordServiceImpl;
@@ -83,7 +82,7 @@ public class WordControllerTest {
     void testAdd_WhenDictionaryExistsForUserAndGivenValidWordSaveRequest_ThenAddNewWord() {
         Long dictionaryId = 1L;
         String word = "word";
-        WordSaveRequest saveRequest = new WordSaveRequest(
+        WordSaveUpdateRequest saveRequest = new WordSaveUpdateRequest(
                 word,
                 List.of(new WordTranslationDto(null, "переклад"), new WordTranslationDto(null, "перекладд")),
                 "hint");
@@ -116,7 +115,7 @@ public class WordControllerTest {
     void testAdd_WhenDictionaryDoesNotExistForUser_ThenReturnNotFound() {
         Long dictionaryId = 1L;
         String word = "word";
-        WordSaveRequest saveRequest = new WordSaveRequest(
+        WordSaveUpdateRequest saveRequest = new WordSaveUpdateRequest(
                 word,
                 List.of(new WordTranslationDto(null, "переклад"), new WordTranslationDto(null, "переклад")),
                 "hint");
@@ -138,8 +137,8 @@ public class WordControllerTest {
 
     @SneakyThrows
     @ParameterizedTest
-    @MethodSource("invalidWordSaveRequest")
-    void testAdd_WhenGivenInvalidWordSaveRequest_ThenReturnBadRequest(WordSaveRequest saveRequest) {
+    @MethodSource("invalidWordSaveUpdateRequest")
+    void testAdd_WhenGivenInvalidWordSaveRequest_ThenReturnBadRequest(WordSaveUpdateRequest saveRequest) {
         long dictionaryId = 1L;
 
         mockMvc.perform(post("/dictionaries/{dictionaryId}/words", dictionaryId)
@@ -156,7 +155,7 @@ public class WordControllerTest {
         long dictionaryId = 1L;
         long wordId = 10L;
         String word = "word";
-        WordUpdateRequest updateRequest = new WordUpdateRequest(
+        WordSaveUpdateRequest updateRequest = new WordSaveUpdateRequest(
                 word,
                 List.of(new WordTranslationDto(1L, "перекладдд"), new WordTranslationDto(2L, "перекладд")),
                 "hinthint");
@@ -190,7 +189,7 @@ public class WordControllerTest {
         long dictionaryId = 1L;
         long wordId = 10L;
         String word = "word";
-        WordUpdateRequest updateRequest = new WordUpdateRequest(
+        WordSaveUpdateRequest updateRequest = new WordSaveUpdateRequest(
                 word,
                 List.of(new WordTranslationDto(1L, "перекладдд"), new WordTranslationDto(2L, "перекладд")),
                 "hinthint");
@@ -216,7 +215,7 @@ public class WordControllerTest {
         long dictionaryId = 1L;
         long wordId = 10L;
         String word = "word";
-        WordUpdateRequest updateRequest = new WordUpdateRequest(
+        WordSaveUpdateRequest updateRequest = new WordSaveUpdateRequest(
                 word,
                 List.of(new WordTranslationDto(1L, "перекладдд"), new WordTranslationDto(2L, "перекладд")),
                 "hinthint");
@@ -237,8 +236,8 @@ public class WordControllerTest {
 
     @SneakyThrows
     @ParameterizedTest
-    @MethodSource("invalidWordUpdateRequest")
-    void testUpdate_WhenGivenInvalidWordSaveRequest_ThenReturnBadRequest(WordUpdateRequest updateRequest) {
+    @MethodSource("invalidWordSaveUpdateRequest")
+    void testUpdate_WhenGivenInvalidWordSaveRequest_ThenReturnBadRequest(WordSaveUpdateRequest updateRequest) {
         long dictionaryId = 1L;
         long wordId = 10L;
 
@@ -419,18 +418,11 @@ public class WordControllerTest {
                         jsonPath("$.errors.responseMessage").value("You have no access to Word [10]"));
     }
 
-    static Stream<WordUpdateRequest> invalidWordUpdateRequest() {
+    static Stream<WordSaveUpdateRequest> invalidWordSaveUpdateRequest() {
         return Stream.of(
-                new WordUpdateRequest(null, null, "hint"),
-                new WordUpdateRequest("", List.of(), "hint"),
-                new WordUpdateRequest("word123", List.of(new WordTranslationDto(null, "translation")), "hint"));
-    }
-
-    static Stream<WordSaveRequest> invalidWordSaveRequest() {
-        return Stream.of(
-                new WordSaveRequest(null, null, "hint"),
-                new WordSaveRequest("", List.of(), "hint"),
-                new WordSaveRequest("word123", List.of(new WordTranslationDto(null, "translation")), "hint"));
+                new WordSaveUpdateRequest(null, null, "hint"),
+                new WordSaveUpdateRequest("", List.of(), "hint"),
+                new WordSaveUpdateRequest("word123", List.of(new WordTranslationDto(null, "translation")), "hint"));
     }
 
     static Stream<Boolean> updateRepetitionParameters() {

@@ -13,10 +13,13 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
-public class WordSaveRequest {
+public class WordSaveUpdateRequest {
 
     @NotNull
-    @Pattern(regexp = "^[a-zA-Z\\-()\\s]+$", message = "Word must contain only letters, hyphens, brackets and spaces")
+    @Pattern(
+            regexp = "^[\\p{L}\\-/'`(),!?\\s]+$",
+            message =
+                    "Word must contain only letters, hyphens, slashes, commas, brackets, spaces, single quotes, and backticks")
     private String word;
 
     @Valid
