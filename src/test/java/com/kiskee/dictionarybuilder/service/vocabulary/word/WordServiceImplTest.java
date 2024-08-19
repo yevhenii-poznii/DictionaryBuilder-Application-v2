@@ -16,10 +16,9 @@ import com.kiskee.dictionarybuilder.exception.ResourceNotFoundException;
 import com.kiskee.dictionarybuilder.mapper.dictionary.WordMapper;
 import com.kiskee.dictionarybuilder.model.dto.user.preference.WordPreference;
 import com.kiskee.dictionarybuilder.model.dto.vocabulary.word.WordDto;
-import com.kiskee.dictionarybuilder.model.dto.vocabulary.word.WordSaveRequest;
 import com.kiskee.dictionarybuilder.model.dto.vocabulary.word.WordSaveResponse;
+import com.kiskee.dictionarybuilder.model.dto.vocabulary.word.WordSaveUpdateRequest;
 import com.kiskee.dictionarybuilder.model.dto.vocabulary.word.WordTranslationDto;
-import com.kiskee.dictionarybuilder.model.dto.vocabulary.word.WordUpdateRequest;
 import com.kiskee.dictionarybuilder.model.entity.user.UserVocabularyApplication;
 import com.kiskee.dictionarybuilder.model.entity.vocabulary.Word;
 import com.kiskee.dictionarybuilder.model.entity.vocabulary.WordTranslation;
@@ -91,8 +90,8 @@ public class WordServiceImplTest {
         setAuth();
 
         long dictionaryId = 1L;
-        WordSaveRequest saveRequest =
-                new WordSaveRequest("word", List.of(new WordTranslationDto(null, "переклад")), "hint");
+        WordSaveUpdateRequest saveRequest =
+                new WordSaveUpdateRequest("word", List.of(new WordTranslationDto(null, "переклад")), "hint");
 
         Instant addedAt = Instant.parse("2024-03-12T12:12:00Z");
         Word wordToSave = new Word(
@@ -139,8 +138,8 @@ public class WordServiceImplTest {
     @Test
     void testAddWord_WhenDictionaryDoesNotExistForUser_ThenThrowResourceNotFoundException() {
         long dictionaryId = 1L;
-        WordSaveRequest saveRequest =
-                new WordSaveRequest("word", List.of(new WordTranslationDto(null, "переклад")), "hint");
+        WordSaveUpdateRequest saveRequest =
+                new WordSaveUpdateRequest("word", List.of(new WordTranslationDto(null, "переклад")), "hint");
 
         doThrow(ResourceNotFoundException.class).when(dictionaryAccessValidator).verifyUserHasDictionary(dictionaryId);
 
@@ -154,7 +153,7 @@ public class WordServiceImplTest {
 
         long dictionaryId = 1L;
         long wordId = 2L;
-        WordUpdateRequest updateRequest = new WordUpdateRequest(
+        WordSaveUpdateRequest updateRequest = new WordSaveUpdateRequest(
                 "word",
                 List.of(new WordTranslationDto(3L, "переклад"), new WordTranslationDto(null, "новий переклад")),
                 "hint");
@@ -222,7 +221,7 @@ public class WordServiceImplTest {
     void testUpdateWord_WhenDictionaryDoesNotExistsForUser_ThenThrowResourceNotFoundException() {
         long dictionaryId = 1L;
         long wordId = 2L;
-        WordUpdateRequest updateRequest = new WordUpdateRequest(
+        WordSaveUpdateRequest updateRequest = new WordSaveUpdateRequest(
                 "word",
                 List.of(new WordTranslationDto(3L, "переклад"), new WordTranslationDto(null, "новий переклад")),
                 "hint");
@@ -237,7 +236,7 @@ public class WordServiceImplTest {
     void testUpdateWord_WhenWordDoesNotExist_ThenThrowResourceNotFoundException() {
         long dictionaryId = 1L;
         long wordId = 2L;
-        WordUpdateRequest updateRequest = new WordUpdateRequest(
+        WordSaveUpdateRequest updateRequest = new WordSaveUpdateRequest(
                 "word",
                 List.of(new WordTranslationDto(3L, "переклад"), new WordTranslationDto(null, "новий переклад")),
                 "hint");
@@ -254,7 +253,7 @@ public class WordServiceImplTest {
     void testUpdateWord_WhenWordDoesNotExistsForDictionary_ThenThrowForbiddenAccessException() {
         long dictionaryId = 1L;
         long wordId = 2L;
-        WordUpdateRequest updateRequest = new WordUpdateRequest(
+        WordSaveUpdateRequest updateRequest = new WordSaveUpdateRequest(
                 "word",
                 List.of(new WordTranslationDto(3L, "переклад"), new WordTranslationDto(null, "новий переклад")),
                 "hint");

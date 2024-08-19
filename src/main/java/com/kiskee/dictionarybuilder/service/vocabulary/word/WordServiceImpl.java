@@ -8,9 +8,8 @@ import com.kiskee.dictionarybuilder.exception.ResourceNotFoundException;
 import com.kiskee.dictionarybuilder.mapper.dictionary.WordMapper;
 import com.kiskee.dictionarybuilder.model.dto.ResponseMessage;
 import com.kiskee.dictionarybuilder.model.dto.vocabulary.word.WordDto;
-import com.kiskee.dictionarybuilder.model.dto.vocabulary.word.WordSaveRequest;
 import com.kiskee.dictionarybuilder.model.dto.vocabulary.word.WordSaveResponse;
-import com.kiskee.dictionarybuilder.model.dto.vocabulary.word.WordUpdateRequest;
+import com.kiskee.dictionarybuilder.model.dto.vocabulary.word.WordSaveUpdateRequest;
 import com.kiskee.dictionarybuilder.model.entity.vocabulary.Word;
 import com.kiskee.dictionarybuilder.model.entity.vocabulary.WordTranslation;
 import com.kiskee.dictionarybuilder.repository.vocabulary.WordRepository;
@@ -48,7 +47,7 @@ public class WordServiceImpl implements WordService, WordCounterUpdateService {
 
     @Override
     @Transactional
-    public WordSaveResponse addWord(Long dictionaryId, WordSaveRequest wordSaveRequest) {
+    public WordSaveResponse addWord(Long dictionaryId, WordSaveUpdateRequest wordSaveRequest) {
         dictionaryAccessValidator.verifyUserHasDictionary(dictionaryId);
         Word wordToSave = mapper.toEntity(wordSaveRequest, dictionaryId);
         Word saved = repository.save(wordToSave);
@@ -61,7 +60,7 @@ public class WordServiceImpl implements WordService, WordCounterUpdateService {
 
     @Override
     @Transactional
-    public WordSaveResponse updateWord(Long dictionaryId, Long wordId, WordUpdateRequest updateRequest) {
+    public WordSaveResponse updateWord(Long dictionaryId, Long wordId, WordSaveUpdateRequest updateRequest) {
         Word wordToUpdate = getWord(wordId, dictionaryId);
 
         List<WordTranslation> wordTranslations = wordTranslationService.updateTranslations(

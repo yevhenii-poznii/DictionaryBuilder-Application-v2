@@ -1,9 +1,8 @@
 package com.kiskee.dictionarybuilder.web.controller.vocabulary;
 
 import com.kiskee.dictionarybuilder.model.dto.ResponseMessage;
-import com.kiskee.dictionarybuilder.model.dto.vocabulary.word.WordSaveRequest;
 import com.kiskee.dictionarybuilder.model.dto.vocabulary.word.WordSaveResponse;
-import com.kiskee.dictionarybuilder.model.dto.vocabulary.word.WordUpdateRequest;
+import com.kiskee.dictionarybuilder.model.dto.vocabulary.word.WordSaveUpdateRequest;
 import com.kiskee.dictionarybuilder.service.vocabulary.word.WordService;
 import jakarta.validation.Valid;
 import java.util.Set;
@@ -28,7 +27,8 @@ public class WordController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public WordSaveResponse add(@PathVariable Long dictionaryId, @RequestBody @Valid WordSaveRequest wordSaveRequest) {
+    public WordSaveResponse add(
+            @PathVariable Long dictionaryId, @RequestBody @Valid WordSaveUpdateRequest wordSaveRequest) {
         return wordService.addWord(dictionaryId, wordSaveRequest);
     }
 
@@ -36,7 +36,7 @@ public class WordController {
     public WordSaveResponse update(
             @PathVariable Long dictionaryId,
             @PathVariable Long wordId,
-            @RequestBody @Valid WordUpdateRequest wordUpdateRequest) {
+            @RequestBody @Valid WordSaveUpdateRequest wordUpdateRequest) {
         return wordService.updateWord(dictionaryId, wordId, wordUpdateRequest);
     }
 
