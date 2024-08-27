@@ -7,6 +7,7 @@ import com.kiskee.dictionarybuilder.exception.repetition.RepetitionException;
 import com.kiskee.dictionarybuilder.exception.token.InvalidVerificationTokenException;
 import com.kiskee.dictionarybuilder.exception.user.DuplicateUserException;
 import com.kiskee.dictionarybuilder.util.TimeZoneContextHolder;
+import jakarta.validation.ValidationException;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -48,7 +49,7 @@ public class GlobalExceptionHandler {
         return handleCustomException(exception, HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
-    @ExceptionHandler({DuplicateResourceException.class, RepetitionException.class})
+    @ExceptionHandler({DuplicateResourceException.class, RepetitionException.class, ValidationException.class})
     public ResponseEntity<ErrorResponse> handleDuplicateResourceException(Exception exception) {
         return handleCustomException(exception, HttpStatus.BAD_REQUEST);
     }

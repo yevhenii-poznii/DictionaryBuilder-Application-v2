@@ -1,5 +1,6 @@
 package com.kiskee.dictionarybuilder.model.dto.vocabulary.word;
 
+import com.kiskee.dictionarybuilder.repository.vocabulary.projections.WordProjection;
 import java.util.Set;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -9,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class WordDto {
+public class WordDto implements WordProjection {
 
     private Long id;
     private String word;

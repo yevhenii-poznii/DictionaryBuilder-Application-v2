@@ -2,6 +2,8 @@ package com.kiskee.dictionarybuilder.web.controller.vocabulary;
 
 import com.kiskee.dictionarybuilder.repository.vocabulary.projections.WordProjection;
 import com.kiskee.dictionarybuilder.service.vocabulary.search.SearchService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,7 +19,7 @@ public class SearchController {
     private final SearchService searchService;
 
     @GetMapping
-    public List<WordProjection> search(@RequestParam String searchWord) {
+    public List<WordProjection> search(@RequestParam @Valid @NotBlank String searchWord) {
         return searchService.search(searchWord);
     }
 }
