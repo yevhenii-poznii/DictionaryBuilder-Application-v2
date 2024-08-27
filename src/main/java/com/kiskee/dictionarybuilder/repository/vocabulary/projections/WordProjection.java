@@ -8,9 +8,9 @@ public interface WordProjection {
 
     String getWord();
 
-    boolean getUseInRepetition();
+    boolean isUseInRepetition();
 
-    Set<TranslationProjection> getWordTranslations();
+    Set<?> getWordTranslations();
 
     String getWordHint();
 }
