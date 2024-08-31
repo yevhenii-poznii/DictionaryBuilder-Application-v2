@@ -1,6 +1,7 @@
 package com.kiskee.dictionarybuilder.web.controller.user;
 
 import com.kiskee.dictionarybuilder.model.dto.user.profile.UserMiniProfileDto;
+import com.kiskee.dictionarybuilder.model.dto.user.profile.UserProfileDto;
 import com.kiskee.dictionarybuilder.service.user.profile.UserProfileService;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -22,9 +23,8 @@ public class UserProfileController {
     }
 
     @GetMapping("/me")
-    public UserMiniProfileDto getFullProfile() {
-        // TODO implement
-        return null;
+    public UserProfileDto getFullProfile() {
+        return userProfileService.getFullProfile();
     }
 
     @GetMapping("/{userId}")
