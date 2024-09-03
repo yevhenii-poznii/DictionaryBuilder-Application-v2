@@ -418,6 +418,90 @@ public class WordControllerTest {
                         jsonPath("$.errors.responseMessage").value("You have no access to Word [10]"));
     }
 
+    @Test
+    @SneakyThrows
+    void testMoveWord_WhenDictionaryAndWordExistForUser_ThenMoveWord() {
+        long dictionaryId = 1L;
+        long wordId = 10L;
+        long targetDictionaryId = 2L;
+
+        ResponseMessage responseMessage = new ResponseMessage(String.format(
+                VocabularyResponseMessageEnum.WORD_MOVED.getResponseMessage(), wordId, targetDictionaryId));
+
+        when(wordService.moveWord(dictionaryId, wordId, targetDictionaryId)).thenReturn(responseMessage);
+
+        mockMvc.perform(put("/dictionaries/{dictionaryId}/words/{wordId}/move", dictionaryId, wordId)
+                        .param("targetDictionaryId", String.valueOf(targetDictionaryId)))
+                .andDo(print())
+                .andExpectAll(
+                        status().isOk(), jsonPath("$.responseMessage").value(responseMessage.getResponseMessage()));
+    }
+
+    @Test
+    @SneakyThrows
+    void testMoveWord_WhenDictionaryDoesNotExistForUser_ThenReturnNotFound() {
+        long dictionaryId = 1L;
+        long wordId = 10L;
+        long targetDictionaryId = 2L;
+
+        String responseMessage = String.format(
+                ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(), Dictionary.class.getSimpleName(), dictionaryId);
+
+        when(wordService.moveWord(dictionaryId, wordId, targetDictionaryId))
+                .thenThrow(new ResourceNotFoundException(responseMessage));
+
+        mockMvc.perform(put("/dictionaries/{dictionaryId}/words/{wordId}/move", dictionaryId, wordId)
+                        .param("targetDictionaryId", String.valueOf(targetDictionaryId)))
+                .andDo(print())
+                .andExpectAll(
+                        status().isNotFound(),
+                        jsonPath("$.errors.responseMessage").value(responseMessage));
+    }
+
+    @Test
+    @SneakyThrows
+    void testMoveWord_WhenTargetDictionaryDoesNotExistForUser_ThenReturnNotFound() {
+        long dictionaryId = 1L;
+        long wordId = 10L;
+        long targetDictionaryId = 2L;
+
+        String responseMessage = String.format(
+                ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(),
+                Dictionary.class.getSimpleName(),
+                targetDictionaryId);
+
+        when(wordService.moveWord(dictionaryId, wordId, targetDictionaryId))
+                .thenThrow(new ResourceNotFoundException(responseMessage));
+
+        mockMvc.perform(put("/dictionaries/{dictionaryId}/words/{wordId}/move", dictionaryId, wordId)
+                        .param("targetDictionaryId", String.valueOf(targetDictionaryId)))
+                .andDo(print())
+                .andExpectAll(
+                        status().isNotFound(),
+                        jsonPath("$.errors.responseMessage").value(responseMessage));
+    }
+
+    @Test
+    @SneakyThrows
+    void testMoveWord_WhenWordDoesNotExistForDictionary_ThenReturnNotFound() {
+        long dictionaryId = 1L;
+        long wordId = 10L;
+        long targetDictionaryId = 2L;
+
+        String responseMessage =
+                String.format(ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(), Word.class.getSimpleName(), wordId);
+
+        when(wordService.moveWord(dictionaryId, wordId, targetDictionaryId))
+                .thenThrow(new ResourceNotFoundException(responseMessage));
+
+        mockMvc.perform(put("/dictionaries/{dictionaryId}/words/{wordId}/move", dictionaryId, wordId)
+                        .param("targetDictionaryId", String.valueOf(targetDictionaryId)))
+                .andDo(print())
+                .andExpectAll(
+                        status().isNotFound(),
+                        jsonPath("$.errors.responseMessage").value(responseMessage));
+    }
+
     static Stream<WordSaveUpdateRequest> invalidWordSaveUpdateRequest() {
         return Stream.of(
                 new WordSaveUpdateRequest(null, null, "hint"),
