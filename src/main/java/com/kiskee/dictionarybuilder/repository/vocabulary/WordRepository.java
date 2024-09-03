@@ -21,6 +21,11 @@ public interface WordRepository extends JpaRepository<Word, Long> {
     @Query("UPDATE Word w SET w.useInRepetition = :useInRepetition WHERE w.id = :id AND w.dictionaryId = :dictionaryId")
     int updateUseInRepetitionByIdAndDictionaryId(Long id, Long dictionaryId, boolean useInRepetition);
 
+    @Modifying
+    @Query(
+            "UPDATE Word w SET w.dictionaryId = :targetDictionaryId WHERE w.id = :wordId AND w.dictionaryId = :dictionaryId")
+    int updateDictionaryIdByIdAndDictionaryId(Long wordId, Long dictionaryId, Long targetDictionaryId);
+
     default Word getWord(Long id) {
         return findWordById(id)
                 .orElseThrow(ThrowUtil.throwNotFoundException(Word.class.getSimpleName(), id.toString()));
