@@ -4,6 +4,7 @@ import com.kiskee.dictionarybuilder.config.properties.user.DefaultUserProfilePro
 import com.kiskee.dictionarybuilder.mapper.user.profile.UserProfileMapper;
 import com.kiskee.dictionarybuilder.model.dto.registration.RegistrationRequest;
 import com.kiskee.dictionarybuilder.model.dto.user.profile.UserMiniProfileDto;
+import com.kiskee.dictionarybuilder.model.dto.user.profile.UserProfileDto;
 import com.kiskee.dictionarybuilder.model.entity.user.profile.UserProfile;
 import com.kiskee.dictionarybuilder.model.entity.vocabulary.Dictionary;
 import com.kiskee.dictionarybuilder.repository.user.profile.UserProfileRepository;
@@ -45,6 +46,11 @@ public class UserProfileServiceImpl extends AbstractUserProfilePreferenceInitial
     }
 
     @Override
+    public UserProfileDto getFullProfile() {
+        return repository.findUserProfileByUserId(IdentityUtil.getUserId());
+    }
+
+    @Override
     public Instant getCreatedAtField(UUID userId) {
         return repository.findCreatedAtByUserId(userId).createdAt();
     }
@@ -52,9 +58,7 @@ public class UserProfileServiceImpl extends AbstractUserProfilePreferenceInitial
     @Override
     protected <R extends RegistrationRequest> UserProfile buildEntityToSave(R registrationRequest) {
         Dictionary dictionary = dictionaryCreationService.addDictionary("Default Dictionary");
-
         String profilePicture = resolveProfilePicture(registrationRequest.getPicture());
-
         return mapper.toEntity(registrationRequest, List.of(dictionary), profilePicture);
     }
 

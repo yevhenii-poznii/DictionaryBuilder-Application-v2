@@ -11,6 +11,7 @@ import com.kiskee.dictionarybuilder.mapper.user.profile.UserProfileMapper;
 import com.kiskee.dictionarybuilder.model.dto.registration.InternalRegistrationRequest;
 import com.kiskee.dictionarybuilder.model.dto.user.profile.UserCreatedAt;
 import com.kiskee.dictionarybuilder.model.dto.user.profile.UserMiniProfileDto;
+import com.kiskee.dictionarybuilder.model.dto.user.profile.UserProfileDto;
 import com.kiskee.dictionarybuilder.model.entity.user.UserVocabularyApplication;
 import com.kiskee.dictionarybuilder.model.entity.user.profile.UserProfile;
 import com.kiskee.dictionarybuilder.model.entity.vocabulary.Dictionary;
@@ -151,6 +152,22 @@ public class UserProfileServiceImplTest {
 
         assertThat(actual.publicUsername()).isEqualTo(publicUsername);
         assertThat(actual.profilePicture()).isEqualTo(avatar);
+    }
+
+    @Test
+    void testGetFullProfile_WhenProfileExists_ThenReturnUserProfileDto() {
+        setAuth();
+
+        UserProfileDto userProfile = new UserProfileDto(
+                "username", "public name", "someEncodedPicture", Instant.parse("2024-08-20T12:45:33Z"));
+        when(userProfileRepository.findUserProfileByUserId(USER_ID)).thenReturn(userProfile);
+
+        UserProfileDto actual = userProfileService.getFullProfile();
+
+        assertThat(actual.publicUsername()).isEqualTo(userProfile.publicUsername());
+        assertThat(actual.publicName()).isEqualTo(userProfile.publicName());
+        assertThat(actual.profilePicture()).isEqualTo(userProfile.profilePicture());
+        assertThat(actual.createdAt()).isEqualTo(userProfile.createdAt());
     }
 
     @Test

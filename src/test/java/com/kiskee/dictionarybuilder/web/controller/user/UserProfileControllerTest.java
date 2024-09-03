@@ -8,7 +8,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kiskee.dictionarybuilder.model.dto.user.profile.UserMiniProfileDto;
+import com.kiskee.dictionarybuilder.model.dto.user.profile.UserProfileDto;
 import com.kiskee.dictionarybuilder.service.user.profile.UserProfileService;
+import java.time.Instant;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -57,5 +59,22 @@ public class UserProfileControllerTest {
 
         String actualResponseBody = result.getResponse().getContentAsString();
         assertThat(actualResponseBody).isEqualTo(objectMapper.writeValueAsString(miniProfile));
+    }
+
+    @Test
+    @SneakyThrows
+    void testGetFullProfile_WhenProfileExists_ThenReturnUserProfileDto() {
+        UserProfileDto profileDto = new UserProfileDto(
+                "username", "public name", "someEncodedPicture", Instant.parse("2024-08-20T12:45:33Z"));
+
+        when(userProfileService.getFullProfile()).thenReturn(profileDto);
+
+        MvcResult result = mockMvc.perform(get("/user/profile/me"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String actualResponseBody = result.getResponse().getContentAsString();
+        assertThat(actualResponseBody).isEqualTo(objectMapper.writeValueAsString(profileDto));
     }
 }
