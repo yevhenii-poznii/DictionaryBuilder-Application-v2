@@ -121,9 +121,21 @@ public class WordServiceImpl implements WordService, WordCounterUpdateService {
                 String.format(VocabularyResponseMessageEnum.WORDS_DELETE.getResponseMessage(), wordsToDelete));
     }
 
-    /* TODO implement method for move word to another dictionary
-    implementation
-     */
+    @Override
+    @Transactional
+    public ResponseMessage moveWord(Long dictionaryId, Long wordId, Long targetDictionaryId) {
+        dictionaryAccessValidator.verifyUserHasDictionary(dictionaryId);
+        dictionaryAccessValidator.verifyUserHasDictionary(targetDictionaryId);
+
+        int updatedRow = repository.updateDictionaryIdByIdAndDictionaryId(wordId, dictionaryId, targetDictionaryId);
+        if (updatedRow > 0) {
+            String message = String.format(
+                    VocabularyResponseMessageEnum.WORD_MOVED.getResponseMessage(), wordId, targetDictionaryId);
+            return new ResponseMessage(message);
+        }
+        throw new ResourceNotFoundException(String.format(
+                ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(), Word.class.getSimpleName(), wordId));
+    }
 
     // TODO
     @Async

@@ -55,4 +55,10 @@ public class WordController {
     public ResponseMessage deleteSet(@PathVariable Long dictionaryId, @RequestParam Set<Long> wordIds) {
         return wordService.deleteWords(dictionaryId, wordIds);
     }
+
+    @PutMapping("/{wordId}/move")
+    public ResponseMessage moveWord(
+            @PathVariable Long dictionaryId, @PathVariable Long wordId, @RequestParam Long targetDictionaryId) {
+        return wordService.moveWord(dictionaryId, wordId, targetDictionaryId);
+    }
 }

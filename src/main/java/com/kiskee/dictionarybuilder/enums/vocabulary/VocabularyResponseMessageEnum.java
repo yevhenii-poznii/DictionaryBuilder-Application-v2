@@ -16,7 +16,8 @@ public enum VocabularyResponseMessageEnum {
     WORD_FOR_REPETITION_IS_SET("Word will be used in repetition"),
     WORD_NOT_FOR_REPETITION_IS_SET("Word won't be used in repetition anymore"),
     WORD_DELETED("Word %s has been deleted"),
-    WORDS_DELETE("Words %s have been deleted");
+    WORDS_DELETE("Words %s have been deleted"),
+    WORD_MOVED("Word %s has been moved to dictionary %s");
 
     private final String responseMessage;
 }

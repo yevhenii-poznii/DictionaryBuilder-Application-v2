@@ -7,6 +7,8 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import com.kiskee.dictionarybuilder.enums.ExceptionStatusesEnum;
@@ -20,6 +22,7 @@ import com.kiskee.dictionarybuilder.model.dto.vocabulary.word.WordSaveResponse;
 import com.kiskee.dictionarybuilder.model.dto.vocabulary.word.WordSaveUpdateRequest;
 import com.kiskee.dictionarybuilder.model.dto.vocabulary.word.WordTranslationDto;
 import com.kiskee.dictionarybuilder.model.entity.user.UserVocabularyApplication;
+import com.kiskee.dictionarybuilder.model.entity.vocabulary.Dictionary;
 import com.kiskee.dictionarybuilder.model.entity.vocabulary.Word;
 import com.kiskee.dictionarybuilder.model.entity.vocabulary.WordTranslation;
 import com.kiskee.dictionarybuilder.repository.vocabulary.WordRepository;
@@ -480,6 +483,74 @@ public class WordServiceImplTest {
     @Test
     void testUpdateRightAnswersCounters_WhenGivenEmptyList_ThenDoNothing() {
         wordService.updateRightAnswersCounters(USER_ID, List.of());
+    }
+
+    @Test
+    void testMoveWord_WhenDictionaryAndWordExistForUser_ThenMoveWordToTargetDictionary() {
+        long sourceDictionaryId = 10L;
+        long targetDictionaryId = 23L;
+        long wordId = 3L;
+
+        when(wordRepository.updateDictionaryIdByIdAndDictionaryId(wordId, sourceDictionaryId, targetDictionaryId))
+                .thenReturn(1);
+
+        wordService.moveWord(sourceDictionaryId, wordId, targetDictionaryId);
+
+        verify(dictionaryAccessValidator).verifyUserHasDictionary(sourceDictionaryId);
+        verify(dictionaryAccessValidator).verifyUserHasDictionary(targetDictionaryId);
+    }
+
+    @Test
+    void testMoveWord_WhenDictionaryDoesNotExistForUser_ThenThrowResourceNotFoundException() {
+        long sourceDictionaryId = 10L;
+        long targetDictionaryId = 23L;
+        long wordId = 3L;
+
+        doThrow(new ResourceNotFoundException(String.format(
+                        ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(),
+                        Dictionary.class.getSimpleName(),
+                        sourceDictionaryId)))
+                .when(dictionaryAccessValidator)
+                .verifyUserHasDictionary(sourceDictionaryId);
+
+        assertThatExceptionOfType(ResourceNotFoundException.class)
+                .isThrownBy(() -> wordService.moveWord(sourceDictionaryId, wordId, targetDictionaryId));
+
+        verifyNoMoreInteractions(dictionaryAccessValidator);
+        verifyNoInteractions(wordRepository);
+    }
+
+    @Test
+    void testMoveWord_WhenTargetDictionaryDoesNotExistForUser_ThenThrowResourceNotFoundException() {
+        long sourceDictionaryId = 10L;
+        long targetDictionaryId = 23L;
+        long wordId = 3L;
+
+        doNothing().when(dictionaryAccessValidator).verifyUserHasDictionary(sourceDictionaryId);
+        doThrow(new ResourceNotFoundException(String.format(
+                        ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(),
+                        Dictionary.class.getSimpleName(),
+                        sourceDictionaryId)))
+                .when(dictionaryAccessValidator)
+                .verifyUserHasDictionary(targetDictionaryId);
+
+        assertThatExceptionOfType(ResourceNotFoundException.class)
+                .isThrownBy(() -> wordService.moveWord(sourceDictionaryId, wordId, targetDictionaryId));
+
+        verifyNoInteractions(wordRepository);
+    }
+
+    @Test
+    void testMoveWord_WhenWordDoesNotExistForDictionary_ThenThrowResourceNotFoundException() {
+        long sourceDictionaryId = 10L;
+        long targetDictionaryId = 23L;
+        long wordId = 3L;
+
+        when(wordRepository.updateDictionaryIdByIdAndDictionaryId(wordId, sourceDictionaryId, targetDictionaryId))
+                .thenReturn(0);
+
+        assertThatExceptionOfType(ResourceNotFoundException.class)
+                .isThrownBy(() -> wordService.moveWord(sourceDictionaryId, wordId, targetDictionaryId));
     }
 
     private void setAuth() {

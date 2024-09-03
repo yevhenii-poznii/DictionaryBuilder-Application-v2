@@ -16,4 +16,6 @@ public interface WordService {
     ResponseMessage deleteWord(Long dictionaryId, Long wordId);
 
     ResponseMessage deleteWords(Long dictionaryId, Set<Long> wordIds);
+
+    ResponseMessage moveWord(Long dictionaryId, Long wordId, Long targetDictionaryId);
 }
