@@ -18,6 +18,8 @@ import com.kiskee.dictionarybuilder.service.user.preference.WordPreferenceServic
 import com.kiskee.dictionarybuilder.service.vocabulary.dictionary.DictionaryAccessValidator;
 import com.kiskee.dictionarybuilder.service.vocabulary.word.translation.WordTranslationService;
 import com.kiskee.dictionarybuilder.util.IdentityUtil;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -93,13 +95,12 @@ public class WordServiceImpl implements WordService, WordCounterUpdateService {
     @Transactional
     public ResponseMessage deleteWord(Long dictionaryId, Long wordId) {
         Word wordToDelete = getWord(wordId, dictionaryId);
-
         repository.delete(wordToDelete);
 
-        // TODO update word addition goal report if deleted word was added today
-
+        if (wordToDelete.getAddedAt().atZone(ZoneOffset.UTC).toLocalDate().equals(LocalDate.now())) {
+            cacheService.updateCache(IdentityUtil.getUserId(), dictionaryId, 1);
+        }
         displayLog(LogMessageEnum.WORD_DELETED, wordToDelete);
-
         return new ResponseMessage(
                 String.format(VocabularyResponseMessageEnum.WORD_DELETED.getResponseMessage(), wordToDelete));
     }
@@ -108,15 +109,17 @@ public class WordServiceImpl implements WordService, WordCounterUpdateService {
     @Transactional
     public ResponseMessage deleteWords(Long dictionaryId, Set<Long> wordIds) {
         dictionaryAccessValidator.verifyUserHasDictionary(dictionaryId);
-
         List<Word> wordsToDelete = repository.findByIdIn(wordIds);
-
         verifyWordBelongsToSpecifiedDictionary(wordsToDelete, dictionaryId);
-
         repository.deleteAll(wordsToDelete);
 
-        // TODO update word addition goal report if deleted words were added today
-
+        long addedTodayCount = wordsToDelete.stream()
+                .filter(word ->
+                        word.getAddedAt().atZone(ZoneOffset.UTC).toLocalDate().equals(LocalDate.now()))
+                .count();
+        if (addedTodayCount > 0) {
+            cacheService.updateCache(IdentityUtil.getUserId(), dictionaryId, (int) addedTodayCount);
+        }
         return new ResponseMessage(
                 String.format(VocabularyResponseMessageEnum.WORDS_DELETE.getResponseMessage(), wordsToDelete));
     }

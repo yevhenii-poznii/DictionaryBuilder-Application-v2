@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,10 +25,24 @@ public class TemporaryWordAdditionCacheService implements CacheService {
 
     @Override
     public void updateCache(UUID userId, Long dictionaryId) {
+        updateCache(userId, dictionaryId, 0);
+    }
+
+    @Override
+    public void updateCache(UUID userId, Long dictionaryId, int deletedWordsCount) {
         String key = buildKey(userId, dictionaryId);
         Optional<TemporaryWordAdditionData> dataOpt = repository.findById(key);
-        TemporaryWordAdditionData data = dataOpt.orElseGet(() -> createFromScratch(key, userId, dictionaryId))
-                .incrementAddedWords();
+        TemporaryWordAdditionData data = dataOpt.orElseGet(() -> createFromScratch(key, userId, dictionaryId));
+        if (deletedWordsCount > 0) {
+            IntStream.range(0, Math.abs(deletedWordsCount)).forEach(i -> data.decrementAddedWords());
+            if (data.getAddedWords() == 0) {
+                repository.delete(data);
+                log.info("Temporary word addition data deleted for key: {}", key);
+                return;
+            }
+        } else {
+            data.incrementAddedWords();
+        }
         repository.save(data);
         log.info("Temporary word addition data updated for key: {}", key);
 
