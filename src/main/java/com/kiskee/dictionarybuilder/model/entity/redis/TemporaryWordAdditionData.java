@@ -25,8 +25,11 @@ public class TemporaryWordAdditionData implements Serializable {
     private LocalDate date;
     private ZoneId userTimeZone;
 
-    public TemporaryWordAdditionData incrementAddedWords() {
+    public void incrementAddedWords() {
         this.addedWords++;
-        return this;
+    }
+
+    public void decrementAddedWords() {
+        this.addedWords--;
     }
 }
