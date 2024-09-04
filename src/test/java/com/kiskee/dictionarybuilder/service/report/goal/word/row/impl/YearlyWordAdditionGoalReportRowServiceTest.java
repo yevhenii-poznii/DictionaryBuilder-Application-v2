@@ -213,6 +213,31 @@ public class YearlyWordAdditionGoalReportRowServiceTest {
         assertThat(yearlyRow.getDictionaryReports()).containsExactlyInAnyOrder(testData.expectedDictionaryGoalReport());
     }
 
+    @ParameterizedTest
+    @MethodSource("updateRowTestDataWithDecrease")
+    void testUpdateRow_WhenYearlyRowExistsAndGivenAddedWordsNegative_ThenRecalculateRow(TestData testData) {
+        DictionaryWordAdditionGoalReport dictionaryGoalReport =
+                new DictionaryWordAdditionGoalReport(1L, 5L, DICTIONARY_NAME, 70.0, 50, 35);
+        YearlyWordAdditionGoalReportRow yearlyRow = YearlyWordAdditionGoalReportRow.builder()
+                .id(1L)
+                .startPeriod(testData.data().getCurrentDate().minusDays(5))
+                .endPeriod(testData.data().getCurrentDate())
+                .workingDays(5)
+                .dictionaryReports(Set.of(dictionaryGoalReport))
+                .build();
+
+        WordAdditionGoalReportRow updatedYearlyRow =
+                yearlyWordAdditionGoalReportRowService.updateRow(yearlyRow, testData.data());
+
+        assertThat(yearlyRow.getWorkingDays()).isEqualTo(5);
+        assertThat(yearlyRow.getRowPeriod()).isEqualTo(ReportPeriodUtil.YEAR);
+        assertThat(yearlyRow.getStartPeriod())
+                .isEqualTo(testData.data().getCurrentDate().minusDays(5));
+        assertThat(updatedYearlyRow.getEndPeriod()).isEqualTo(testData.data().getCurrentDate());
+        assertThat(updatedYearlyRow.getDictionaryReports())
+                .containsExactlyInAnyOrder(testData.expectedDictionaryGoalReport());
+    }
+
     private static Stream<TestData> buildRowFromScratchTestData() {
         Long dictionaryId = 10L;
         int newWordsGoal = 10;
@@ -375,6 +400,26 @@ public class YearlyWordAdditionGoalReportRowServiceTest {
                 .toList();
 
         return testDataList.stream();
+    }
+
+    private static Stream<TestData> updateRowTestDataWithDecrease() {
+        Long dictionaryId = 5L;
+        int newWordsGoal = 10;
+        LocalDate userCreatedAt = LocalDate.of(2023, 12, 9);
+        LocalDate currentDate = LocalDate.of(2024, 1, 7);
+        return IntStream.range(1, 7)
+                .mapToObj(i -> new TestData(
+                        new WordAdditionData(
+                                USER_ID, dictionaryId, DICTIONARY_NAME, -i, newWordsGoal, userCreatedAt, currentDate),
+                        new DictionaryWordAdditionGoalReport(
+                                1L,
+                                dictionaryId,
+                                DICTIONARY_NAME,
+                                Double.parseDouble(DECIMAL_FORMAT.format((double) (35 - i) / (newWordsGoal * 5) * 100)),
+                                newWordsGoal * 5,
+                                35 - i)))
+                .toList()
+                .stream();
     }
 
     private record TestData(WordAdditionData data, DictionaryWordAdditionGoalReport expectedDictionaryGoalReport) {}
