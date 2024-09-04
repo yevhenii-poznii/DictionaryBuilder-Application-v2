@@ -27,11 +27,13 @@ import com.kiskee.dictionarybuilder.model.entity.vocabulary.Word;
 import com.kiskee.dictionarybuilder.model.entity.vocabulary.WordTranslation;
 import com.kiskee.dictionarybuilder.repository.vocabulary.WordRepository;
 import com.kiskee.dictionarybuilder.service.cache.TemporaryWordAdditionCacheService;
+import com.kiskee.dictionarybuilder.service.time.CurrentDateTimeService;
 import com.kiskee.dictionarybuilder.service.user.preference.WordPreferenceService;
 import com.kiskee.dictionarybuilder.service.vocabulary.dictionary.DictionaryAccessValidator;
 import com.kiskee.dictionarybuilder.service.vocabulary.word.translation.WordTranslationService;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -78,6 +80,9 @@ public class WordServiceImplTest {
 
     @Mock
     private TemporaryWordAdditionCacheService cacheService;
+
+    @Mock
+    private CurrentDateTimeService currentDateTimeService;
 
     @Mock
     private SecurityContext securityContext;
@@ -326,15 +331,43 @@ public class WordServiceImplTest {
         Word wordToDelete = mock(Word.class);
         when(wordToDelete.getId()).thenReturn(wordId);
         when(wordToDelete.getWord()).thenReturn("word");
+        when(wordToDelete.getAddedAt()).thenReturn(Instant.parse("2024-03-11T11:12:00Z"));
         when(wordToDelete.getDictionaryId()).thenReturn(dictionaryId);
         when(wordRepository.getWord(wordId)).thenReturn(wordToDelete);
 
         doNothing().when(wordRepository).delete(wordCaptor.capture());
+        when(currentDateTimeService.getCurrentDate()).thenReturn(LocalDate.parse("2024-03-12"));
 
         wordService.deleteWord(dictionaryId, wordId);
         Word deletedWord = wordCaptor.getValue();
 
         verify(dictionaryAccessValidator).verifyUserHasDictionary(dictionaryId);
+
+        assertThat(deletedWord.getId()).isEqualTo(wordId);
+    }
+
+    @Test
+    void testDeleteWord_WhenWordWasAddedToday_ThenDeleteWord() {
+        setAuth();
+
+        long dictionaryId = 1L;
+        long wordId = 2L;
+
+        Word wordToDelete = mock(Word.class);
+        when(wordToDelete.getId()).thenReturn(wordId);
+        when(wordToDelete.getWord()).thenReturn("word");
+        when(wordToDelete.getAddedAt()).thenReturn(Instant.parse("2024-03-12T12:12:00Z"));
+        when(wordToDelete.getDictionaryId()).thenReturn(dictionaryId);
+        when(wordRepository.getWord(wordId)).thenReturn(wordToDelete);
+
+        doNothing().when(wordRepository).delete(wordCaptor.capture());
+        when(currentDateTimeService.getCurrentDate()).thenReturn(LocalDate.parse("2024-03-12"));
+
+        wordService.deleteWord(dictionaryId, wordId);
+        Word deletedWord = wordCaptor.getValue();
+
+        verify(dictionaryAccessValidator).verifyUserHasDictionary(dictionaryId);
+        verify(cacheService).updateCache(USER_ID, dictionaryId, 1);
 
         assertThat(deletedWord.getId()).isEqualTo(wordId);
     }
@@ -386,22 +419,58 @@ public class WordServiceImplTest {
 
         Word wordId2 = mock(Word.class);
         when(wordId2.getId()).thenReturn(2L);
+        when(wordId2.getAddedAt()).thenReturn(Instant.parse("2024-03-11T12:12:00Z"));
         when(wordId2.getDictionaryId()).thenReturn(dictionaryId);
         Word wordId15 = mock(Word.class);
         when(wordId15.getId()).thenReturn(15L);
+        when(wordId15.getAddedAt()).thenReturn(Instant.parse("2024-03-11T12:12:00Z"));
         when(wordId15.getDictionaryId()).thenReturn(dictionaryId);
         Word wordId33 = mock(Word.class);
         when(wordId33.getId()).thenReturn(33L);
+        when(wordId33.getAddedAt()).thenReturn(Instant.parse("2024-03-11T12:12:00Z"));
         when(wordId33.getDictionaryId()).thenReturn(dictionaryId);
         List<Word> wordsToDelete = List.of(wordId2, wordId15, wordId33);
 
         when(wordRepository.findByIdIn(wordId)).thenReturn(wordsToDelete);
         doNothing().when(wordRepository).deleteAll(wordsCaptor.capture());
+        when(currentDateTimeService.getCurrentDate()).thenReturn(LocalDate.parse("2024-03-12"));
 
         wordService.deleteWords(dictionaryId, wordId);
         List<Word> deletedWords = wordsCaptor.getValue();
 
         verify(dictionaryAccessValidator).verifyUserHasDictionary(dictionaryId);
+
+        assertThat(deletedWords).extracting(Word::getId).containsExactlyInAnyOrderElementsOf(wordId);
+    }
+
+    @Test
+    void testDeleteWords_WhenFewWordsWereAddedToday_ThenDeleteWords() {
+        long dictionaryId = 1L;
+        Set<Long> wordId = Set.of(2L, 15L, 33L);
+
+        Word wordId2 = mock(Word.class);
+        when(wordId2.getId()).thenReturn(2L);
+        when(wordId2.getAddedAt()).thenReturn(Instant.parse("2024-03-11T11:12:00Z"));
+        when(wordId2.getDictionaryId()).thenReturn(dictionaryId);
+        Word wordId15 = mock(Word.class);
+        when(wordId15.getId()).thenReturn(15L);
+        when(wordId15.getAddedAt()).thenReturn(Instant.parse("2024-03-12T12:12:00Z"));
+        when(wordId15.getDictionaryId()).thenReturn(dictionaryId);
+        Word wordId33 = mock(Word.class);
+        when(wordId33.getId()).thenReturn(33L);
+        when(wordId33.getAddedAt()).thenReturn(Instant.parse("2024-03-12T12:12:00Z"));
+        when(wordId33.getDictionaryId()).thenReturn(dictionaryId);
+        List<Word> wordsToDelete = List.of(wordId2, wordId15, wordId33);
+
+        when(wordRepository.findByIdIn(wordId)).thenReturn(wordsToDelete);
+        doNothing().when(wordRepository).deleteAll(wordsCaptor.capture());
+        when(currentDateTimeService.getCurrentDate()).thenReturn(LocalDate.parse("2024-03-12"));
+
+        wordService.deleteWords(dictionaryId, wordId);
+        List<Word> deletedWords = wordsCaptor.getValue();
+
+        verify(dictionaryAccessValidator).verifyUserHasDictionary(dictionaryId);
+        verify(cacheService).updateCache(USER_ID, dictionaryId, 2);
 
         assertThat(deletedWords).extracting(Word::getId).containsExactlyInAnyOrderElementsOf(wordId);
     }

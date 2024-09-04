@@ -14,11 +14,11 @@ import com.kiskee.dictionarybuilder.model.entity.vocabulary.Word;
 import com.kiskee.dictionarybuilder.model.entity.vocabulary.WordTranslation;
 import com.kiskee.dictionarybuilder.repository.vocabulary.WordRepository;
 import com.kiskee.dictionarybuilder.service.cache.CacheService;
+import com.kiskee.dictionarybuilder.service.time.CurrentDateTimeService;
 import com.kiskee.dictionarybuilder.service.user.preference.WordPreferenceService;
 import com.kiskee.dictionarybuilder.service.vocabulary.dictionary.DictionaryAccessValidator;
 import com.kiskee.dictionarybuilder.service.vocabulary.word.translation.WordTranslationService;
 import com.kiskee.dictionarybuilder.util.IdentityUtil;
-import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +46,8 @@ public class WordServiceImpl implements WordService, WordCounterUpdateService {
 
     private final CacheService cacheService;
     private final WordPreferenceService wordPreferenceService;
+
+    private final CurrentDateTimeService currentDateTimeService;
 
     @Override
     @Transactional
@@ -97,7 +99,11 @@ public class WordServiceImpl implements WordService, WordCounterUpdateService {
         Word wordToDelete = getWord(wordId, dictionaryId);
         repository.delete(wordToDelete);
 
-        if (wordToDelete.getAddedAt().atZone(ZoneOffset.UTC).toLocalDate().equals(LocalDate.now())) {
+        if (wordToDelete
+                .getAddedAt()
+                .atZone(ZoneOffset.UTC)
+                .toLocalDate()
+                .equals(currentDateTimeService.getCurrentDate())) {
             cacheService.updateCache(IdentityUtil.getUserId(), dictionaryId, 1);
         }
         displayLog(LogMessageEnum.WORD_DELETED, wordToDelete);
@@ -114,8 +120,10 @@ public class WordServiceImpl implements WordService, WordCounterUpdateService {
         repository.deleteAll(wordsToDelete);
 
         long addedTodayCount = wordsToDelete.stream()
-                .filter(word ->
-                        word.getAddedAt().atZone(ZoneOffset.UTC).toLocalDate().equals(LocalDate.now()))
+                .filter(word -> word.getAddedAt()
+                        .atZone(ZoneOffset.UTC)
+                        .toLocalDate()
+                        .equals(currentDateTimeService.getCurrentDate()))
                 .count();
         if (addedTodayCount > 0) {
             cacheService.updateCache(IdentityUtil.getUserId(), dictionaryId, (int) addedTodayCount);
