@@ -100,4 +100,85 @@ public class TemporaryWordAdditionCacheServiceTest {
         assertThat(temporaryWordAdditionData.getDate()).isEqualTo(currentDate);
         assertThat(temporaryWordAdditionData.getAddedWords()).isEqualTo(6);
     }
+
+    @Test
+    void testUpdateCache_WhenTemporaryDataDoesNotExistAndGivenDeletedWordsCount_ThenCreateNewDataAndDecrementCounter() {
+        long dictionaryId = 10L;
+        int deletedWordsCount = 3;
+
+        LocalDate currentDate = LocalDate.of(2024, 7, 12);
+        when(currentDateTimeService.getCurrentDate(TimeZoneContextHolder.getTimeZone()))
+                .thenReturn(currentDate);
+
+        String key = USER_ID + ":" + dictionaryId + ":" + currentDate;
+        when(repository.findById(key)).thenReturn(Optional.empty());
+
+        temporaryWordAdditionCacheService.updateCache(USER_ID, dictionaryId, deletedWordsCount);
+
+        verify(repository).save(temporaryWordAdditionDataCaptor.capture());
+
+        TemporaryWordAdditionData temporaryWordAdditionData = temporaryWordAdditionDataCaptor.getValue();
+        System.out.println(temporaryWordAdditionData);
+        assertThat(temporaryWordAdditionData.getId()).isEqualTo(key);
+        assertThat(temporaryWordAdditionData.getUserId()).isEqualTo(USER_ID);
+        assertThat(temporaryWordAdditionData.getDictionaryId()).isEqualTo(dictionaryId);
+        assertThat(temporaryWordAdditionData.getDate()).isEqualTo(currentDate);
+        assertThat(temporaryWordAdditionData.getAddedWords()).isEqualTo(-3);
+    }
+
+    @Test
+    void testUpdateCache_WhenTemporaryDataExistsAndGivenDeletedWordCount_ThenDecrementCounter() {
+        long dictionaryId = 10L;
+        int deletedWordsCount = 3;
+
+        LocalDate currentDate = LocalDate.of(2024, 7, 12);
+        when(currentDateTimeService.getCurrentDate(TimeZoneContextHolder.getTimeZone()))
+                .thenReturn(currentDate);
+
+        String key = USER_ID + ":" + dictionaryId + ":" + currentDate;
+        TemporaryWordAdditionData existingData = TemporaryWordAdditionData.builder()
+                .id(key)
+                .userId(USER_ID)
+                .dictionaryId(dictionaryId)
+                .date(currentDate)
+                .addedWords(5)
+                .build();
+        when(repository.findById(key)).thenReturn(Optional.of(existingData));
+
+        temporaryWordAdditionCacheService.updateCache(USER_ID, dictionaryId, deletedWordsCount);
+
+        verify(repository).save(temporaryWordAdditionDataCaptor.capture());
+
+        TemporaryWordAdditionData temporaryWordAdditionData = temporaryWordAdditionDataCaptor.getValue();
+        System.out.println(temporaryWordAdditionData);
+        assertThat(temporaryWordAdditionData.getId()).isEqualTo(key);
+        assertThat(temporaryWordAdditionData.getUserId()).isEqualTo(USER_ID);
+        assertThat(temporaryWordAdditionData.getDictionaryId()).isEqualTo(dictionaryId);
+        assertThat(temporaryWordAdditionData.getDate()).isEqualTo(currentDate);
+        assertThat(temporaryWordAdditionData.getAddedWords()).isEqualTo(2);
+    }
+
+    @Test
+    void testUpdateCache_WhenTemporaryDataExistsAndAfterDecrementingCounterItBecomesZero_ThenDeleteData() {
+        long dictionaryId = 10L;
+        int deletedWordsCount = 5;
+
+        LocalDate currentDate = LocalDate.of(2024, 7, 12);
+        when(currentDateTimeService.getCurrentDate(TimeZoneContextHolder.getTimeZone()))
+                .thenReturn(currentDate);
+
+        String key = USER_ID + ":" + dictionaryId + ":" + currentDate;
+        TemporaryWordAdditionData existingData = TemporaryWordAdditionData.builder()
+                .id(key)
+                .userId(USER_ID)
+                .dictionaryId(dictionaryId)
+                .date(currentDate)
+                .addedWords(5)
+                .build();
+        when(repository.findById(key)).thenReturn(Optional.of(existingData));
+
+        temporaryWordAdditionCacheService.updateCache(USER_ID, dictionaryId, deletedWordsCount);
+
+        verify(repository).delete(existingData);
+    }
 }
