@@ -6,17 +6,9 @@ import com.kiskee.dictionarybuilder.model.dto.repetition.message.WSRequest;
 import com.kiskee.dictionarybuilder.model.dto.repetition.message.WSResponse;
 import org.springframework.security.core.Authentication;
 
-public interface RepetitionService {
-
-    RepetitionRunningStatus isRepetitionRunning();
+public interface RepetitionService extends CommonRepetitionService {
 
     RepetitionRunningStatus start(long dictionaryId, RepetitionStartFilterRequest request);
-
-    RepetitionRunningStatus pause();
-
-    RepetitionRunningStatus unpause();
-
-    RepetitionRunningStatus stop();
 
     WSResponse handleRepetitionMessage(Authentication principal, WSRequest request);
 }

@@ -18,7 +18,7 @@ import com.kiskee.dictionarybuilder.model.dto.repetition.RepetitionRunningStatus
 import com.kiskee.dictionarybuilder.model.dto.repetition.RepetitionStartFilterRequest;
 import com.kiskee.dictionarybuilder.model.dto.repetition.filter.DefaultCriteriaFilter;
 import com.kiskee.dictionarybuilder.model.entity.vocabulary.Dictionary;
-import com.kiskee.dictionarybuilder.service.vocabulary.repetition.InputRepetitionService;
+import com.kiskee.dictionarybuilder.service.vocabulary.repetition.input.InputRepetitionService;
 import com.kiskee.dictionarybuilder.util.TimeZoneContextHolder;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;

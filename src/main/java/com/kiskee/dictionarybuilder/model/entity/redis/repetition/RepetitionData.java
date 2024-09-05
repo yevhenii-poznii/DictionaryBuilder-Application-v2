@@ -1,5 +1,6 @@
 package com.kiskee.dictionarybuilder.model.entity.redis.repetition;
 
+import com.kiskee.dictionarybuilder.enums.repetition.RepetitionType;
 import com.kiskee.dictionarybuilder.exception.repetition.RepetitionException;
 import com.kiskee.dictionarybuilder.model.dto.repetition.RepetitionResultDataDto;
 import com.kiskee.dictionarybuilder.model.dto.vocabulary.word.WordDto;
@@ -25,7 +26,7 @@ import org.springframework.data.redis.core.RedisHash;
 @SuperBuilder(toBuilder = true)
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class RepetitionData extends RepetitionResultDataDto {
+public class RepetitionData extends RepetitionResultDataDto implements RepetitionDataDto {
 
     @Id
     private String id;
@@ -33,12 +34,19 @@ public class RepetitionData extends RepetitionResultDataDto {
     private List<WordDto> repetitionWords = new ArrayList<>();
     private List<WordDto> passedWords = new ArrayList<>();
     private WordDto currentWord;
+    private RepetitionType repetitionType;
 
     public RepetitionData(
-            List<WordDto> repetitionWords, long dictionaryId, String dictionaryName, UUID userId, ZoneId userTimeZone) {
+            List<WordDto> repetitionWords,
+            long dictionaryId,
+            String dictionaryName,
+            UUID userId,
+            ZoneId userTimeZone,
+            RepetitionType repetitionType) {
         this.setId(userId.toString());
         this.repetitionWords = new ArrayList<>(repetitionWords);
-        this.currentWord = this.repetitionWords.removeLast();
+        this.repetitionType = repetitionType;
+        this.setNext();
         super.setUserTimeZone(userTimeZone);
         super.setStartTime(Instant.now());
         super.setTotalElements(repetitionWords.size());
@@ -105,7 +113,7 @@ public class RepetitionData extends RepetitionResultDataDto {
         throw new RepetitionException("No pause to end");
     }
 
-    private void setNext() {
+    protected void setNext() {
         if (this.getRepetitionWords().isEmpty()) {
             setCurrentWord(null);
             return;
