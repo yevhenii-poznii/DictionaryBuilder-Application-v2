@@ -4,7 +4,7 @@ import com.kiskee.dictionarybuilder.model.dto.repetition.RepetitionRunningStatus
 import com.kiskee.dictionarybuilder.model.dto.repetition.RepetitionStartFilterRequest;
 import com.kiskee.dictionarybuilder.model.dto.repetition.message.WSRequest;
 import com.kiskee.dictionarybuilder.model.dto.repetition.message.WSResponse;
-import com.kiskee.dictionarybuilder.service.vocabulary.repetition.input.InputRepetitionHandler;
+import com.kiskee.dictionarybuilder.service.vocabulary.repetition.choice.ChoiceRepetitionHandler;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -18,20 +18,20 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/repetition/input")
-public class InputRepetitionController {
+@RequestMapping("/repetition/choice")
+public class ChoiceRepetitionController {
 
-    private final InputRepetitionHandler inputRepetitionHandler;
+    private final ChoiceRepetitionHandler choiceRepetitionHandler;
 
     @PostMapping("/{dictionaryId}")
     public RepetitionRunningStatus start(
             @PathVariable long dictionaryId, @RequestBody @Valid RepetitionStartFilterRequest request) {
-        return inputRepetitionHandler.start(dictionaryId, request);
+        return choiceRepetitionHandler.start(dictionaryId, request);
     }
 
-    @MessageMapping("/handle/input")
+    @MessageMapping("/handle/choice")
     @SendToUser("/queue/response")
     public WSResponse handleMessage(Authentication authentication, WSRequest request) {
-        return inputRepetitionHandler.handleRepetitionMessage(authentication, request);
+        return choiceRepetitionHandler.handleRepetitionMessage(authentication, request);
     }
 }

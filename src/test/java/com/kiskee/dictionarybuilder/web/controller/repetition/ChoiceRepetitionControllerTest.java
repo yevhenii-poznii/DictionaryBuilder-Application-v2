@@ -16,7 +16,7 @@ import com.kiskee.dictionarybuilder.model.dto.repetition.RepetitionRunningStatus
 import com.kiskee.dictionarybuilder.model.dto.repetition.RepetitionStartFilterRequest;
 import com.kiskee.dictionarybuilder.model.dto.repetition.filter.DefaultCriteriaFilter;
 import com.kiskee.dictionarybuilder.model.entity.vocabulary.Dictionary;
-import com.kiskee.dictionarybuilder.service.vocabulary.repetition.input.InputRepetitionService;
+import com.kiskee.dictionarybuilder.service.vocabulary.repetition.choice.ChoiceRepetitionService;
 import com.kiskee.dictionarybuilder.util.TimeZoneContextHolder;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,8 +33,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 @ExtendWith(SpringExtension.class)
-@WebMvcTest(InputRepetitionController.class)
-public class InputRepetitionControllerTest {
+@WebMvcTest(ChoiceRepetitionController.class)
+public class ChoiceRepetitionControllerTest {
 
     @Autowired
     private WebApplicationContext webApplicationContext;
@@ -42,7 +42,7 @@ public class InputRepetitionControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private InputRepetitionService inputRepetitionService;
+    private ChoiceRepetitionService choiceRepetitionService;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -61,11 +61,11 @@ public class InputRepetitionControllerTest {
                 RepetitionStartFilterRequest.RepetitionFilter.REPETITION_ONLY,
                 new DefaultCriteriaFilter(DefaultCriteriaFilter.CriteriaFilterType.ALL));
 
-        RepetitionRunningStatus runningStatus = new RepetitionRunningStatus(true, false, RepetitionType.INPUT);
+        RepetitionRunningStatus runningStatus = new RepetitionRunningStatus(true, false, RepetitionType.CHOICE);
 
-        when(inputRepetitionService.start(dictionaryId, requestBody)).thenReturn(runningStatus);
+        when(choiceRepetitionService.start(dictionaryId, requestBody)).thenReturn(runningStatus);
 
-        MvcResult result = mockMvc.perform(post("/repetition/input/{dictionaryId}", dictionaryId)
+        MvcResult result = mockMvc.perform(post("/repetition/choice/{dictionaryId}", dictionaryId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestBody)))
                 .andDo(print())
@@ -86,10 +86,10 @@ public class InputRepetitionControllerTest {
                 RepetitionStartFilterRequest.RepetitionFilter.REPETITION_ONLY,
                 new DefaultCriteriaFilter(DefaultCriteriaFilter.CriteriaFilterType.ALL));
 
-        when(inputRepetitionService.start(dictionaryId, requestBody))
+        when(choiceRepetitionService.start(dictionaryId, requestBody))
                 .thenThrow(new RepetitionException("Repetition is already running"));
 
-        mockMvc.perform(post("/repetition/input/{dictionaryId}", dictionaryId)
+        mockMvc.perform(post("/repetition/choice/{dictionaryId}", dictionaryId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestBody)))
                 .andDo(print())
@@ -110,13 +110,13 @@ public class InputRepetitionControllerTest {
                 RepetitionStartFilterRequest.RepetitionFilter.REPETITION_ONLY,
                 new DefaultCriteriaFilter(DefaultCriteriaFilter.CriteriaFilterType.ALL));
 
-        when(inputRepetitionService.start(dictionaryId, requestBody))
+        when(choiceRepetitionService.start(dictionaryId, requestBody))
                 .thenThrow(new ResourceNotFoundException(String.format(
                         ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(),
                         Dictionary.class.getSimpleName(),
                         dictionaryId)));
 
-        mockMvc.perform(post("/repetition/input/{dictionaryId}", dictionaryId)
+        mockMvc.perform(post("/repetition/choice/{dictionaryId}", dictionaryId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestBody)))
                 .andDo(print())
@@ -141,10 +141,10 @@ public class InputRepetitionControllerTest {
                 RepetitionStartFilterRequest.RepetitionFilter.REPETITION_ONLY,
                 new DefaultCriteriaFilter(DefaultCriteriaFilter.CriteriaFilterType.ALL));
 
-        when(inputRepetitionService.start(dictionaryId, requestBody))
+        when(choiceRepetitionService.start(dictionaryId, requestBody))
                 .thenThrow(new RepetitionException("No words to repeat"));
 
-        mockMvc.perform(post("/repetition/input/{dictionaryId}", dictionaryId)
+        mockMvc.perform(post("/repetition/choice/{dictionaryId}", dictionaryId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestBody)))
                 .andDo(print())
