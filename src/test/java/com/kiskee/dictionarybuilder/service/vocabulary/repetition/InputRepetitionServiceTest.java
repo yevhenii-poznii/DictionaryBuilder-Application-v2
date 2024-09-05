@@ -468,8 +468,8 @@ public class InputRepetitionServiceTest {
 
         List<WordDto> repetitionWords = prepareRepetitionWords();
         WordDto currentWord = repetitionWords.getLast();
-        RepetitionData repetitionData =
-                new RepetitionData(repetitionWords, 1L, "SomeDictionaryName", USER_ID, ZoneId.of("Asia/Tokyo"), RepetitionType.INPUT);
+        RepetitionData repetitionData = new RepetitionData(
+                repetitionWords, 1L, "SomeDictionaryName", USER_ID, ZoneId.of("Asia/Tokyo"), RepetitionType.INPUT);
         when(repository.findById(USER_ID.toString())).thenReturn(Optional.of(repetitionData));
 
         inputRepetitionService.handleRepetitionMessage(authentication, wsRequest);
