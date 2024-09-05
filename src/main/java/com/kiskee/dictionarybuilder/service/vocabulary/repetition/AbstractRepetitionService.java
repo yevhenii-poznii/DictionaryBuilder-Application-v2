@@ -98,7 +98,7 @@ public abstract class AbstractRepetitionService {
 
         getRepository().save(repetitionData);
         log.info("Repetition has been paused for user [{}]", userId);
-        return new RepetitionRunningStatus(true, true);
+        return new RepetitionRunningStatus(true, true, repetitionData.getRepetitionType());
     }
 
     public RepetitionRunningStatus unpause() {
@@ -108,7 +108,7 @@ public abstract class AbstractRepetitionService {
 
         getRepository().save(repetitionData);
         log.info("Repetition has been unpaused for user [{}]", userId);
-        return new RepetitionRunningStatus(true, false);
+        return new RepetitionRunningStatus(true, false, repetitionData.getRepetitionType());
     }
 
     public RepetitionRunningStatus stop() {
