@@ -53,7 +53,8 @@ public class DateRepetitionWordCriteriaLoaderTest {
         LocalDate to = LocalDate.of(2024, 7, 4);
         RepetitionStartFilterRequest request = new RepetitionStartFilterRequest(
                 RepetitionStartFilterRequest.RepetitionFilter.REPETITION_ONLY,
-                new DateCriteriaFilter(new DateCriteriaFilter.DateRange(from, to)));
+                new DateCriteriaFilter(new DateCriteriaFilter.DateRange(from, to)),
+                false);
 
         Word word = mock(Word.class);
         when(word.getDictionaryId()).thenReturn(dictionaryId);
@@ -79,7 +80,8 @@ public class DateRepetitionWordCriteriaLoaderTest {
         LocalDate to = LocalDate.of(2024, 7, 4);
         RepetitionStartFilterRequest request = new RepetitionStartFilterRequest(
                 RepetitionStartFilterRequest.RepetitionFilter.NOT_REPETITION_ONLY,
-                new DateCriteriaFilter(new DateCriteriaFilter.DateRange(from, to)));
+                new DateCriteriaFilter(new DateCriteriaFilter.DateRange(from, to)),
+                false);
 
         Word word = mock(Word.class);
         when(word.getDictionaryId()).thenReturn(dictionaryId);
@@ -105,7 +107,8 @@ public class DateRepetitionWordCriteriaLoaderTest {
         LocalDate to = LocalDate.of(2024, 7, 4);
         RepetitionStartFilterRequest request = new RepetitionStartFilterRequest(
                 RepetitionStartFilterRequest.RepetitionFilter.ALL,
-                new DateCriteriaFilter(new DateCriteriaFilter.DateRange(from, to)));
+                new DateCriteriaFilter(new DateCriteriaFilter.DateRange(from, to)),
+                false);
 
         Word firstWord = mock(Word.class);
         when(firstWord.getDictionaryId()).thenReturn(dictionaryId);

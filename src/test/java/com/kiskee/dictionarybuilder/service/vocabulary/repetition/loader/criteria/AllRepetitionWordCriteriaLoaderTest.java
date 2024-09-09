@@ -46,7 +46,8 @@ public class AllRepetitionWordCriteriaLoaderTest {
         long dictionaryId = 1L;
         RepetitionStartFilterRequest request = new RepetitionStartFilterRequest(
                 RepetitionStartFilterRequest.RepetitionFilter.REPETITION_ONLY,
-                new DefaultCriteriaFilter(DefaultCriteriaFilter.CriteriaFilterType.ALL));
+                new DefaultCriteriaFilter(DefaultCriteriaFilter.CriteriaFilterType.ALL),
+                false);
 
         Word word = mock(Word.class);
         when(word.getDictionaryId()).thenReturn(dictionaryId);
@@ -69,7 +70,8 @@ public class AllRepetitionWordCriteriaLoaderTest {
         long dictionaryId = 1L;
         RepetitionStartFilterRequest request = new RepetitionStartFilterRequest(
                 RepetitionStartFilterRequest.RepetitionFilter.NOT_REPETITION_ONLY,
-                new DefaultCriteriaFilter(DefaultCriteriaFilter.CriteriaFilterType.ALL));
+                new DefaultCriteriaFilter(DefaultCriteriaFilter.CriteriaFilterType.ALL),
+                false);
 
         Word word = mock(Word.class);
         when(word.getDictionaryId()).thenReturn(dictionaryId);
@@ -92,7 +94,8 @@ public class AllRepetitionWordCriteriaLoaderTest {
         long dictionaryId = 1L;
         RepetitionStartFilterRequest request = new RepetitionStartFilterRequest(
                 RepetitionStartFilterRequest.RepetitionFilter.ALL,
-                new DefaultCriteriaFilter(DefaultCriteriaFilter.CriteriaFilterType.ALL));
+                new DefaultCriteriaFilter(DefaultCriteriaFilter.CriteriaFilterType.ALL),
+                false);
 
         Word firstWord = mock(Word.class);
         when(firstWord.getDictionaryId()).thenReturn(dictionaryId);

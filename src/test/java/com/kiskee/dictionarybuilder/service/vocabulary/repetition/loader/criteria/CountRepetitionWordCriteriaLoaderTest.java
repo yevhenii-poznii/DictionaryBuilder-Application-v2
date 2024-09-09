@@ -52,7 +52,7 @@ public class CountRepetitionWordCriteriaLoaderTest {
     void testLoadRepetitionWordPage_WhenGivenRepetitionOnlyRepetitionFilter_ThenLoadWordsByFilters() {
         long dictionaryId = 1L;
         RepetitionStartFilterRequest request = new RepetitionStartFilterRequest(
-                RepetitionStartFilterRequest.RepetitionFilter.REPETITION_ONLY, new CountCriteriaFilter(10));
+                RepetitionStartFilterRequest.RepetitionFilter.REPETITION_ONLY, new CountCriteriaFilter(10), false);
 
         Page<WordIdDto> wordIds = new PageImpl<>(List.of(new WordIdDto(1L)));
         when(repository.findByDictionaryIdAndUseInRepetition(eq(dictionaryId), eq(true), any(Pageable.class)))
@@ -77,7 +77,7 @@ public class CountRepetitionWordCriteriaLoaderTest {
     void testLoadRepetitionWordPage_WhenGivenNotRepetitionOnlyRepetitionFilter_ThenLoadWordsByFilters() {
         long dictionaryId = 1L;
         RepetitionStartFilterRequest request = new RepetitionStartFilterRequest(
-                RepetitionStartFilterRequest.RepetitionFilter.NOT_REPETITION_ONLY, new CountCriteriaFilter(10));
+                RepetitionStartFilterRequest.RepetitionFilter.NOT_REPETITION_ONLY, new CountCriteriaFilter(10), false);
 
         Page<WordIdDto> wordIds = new PageImpl<>(List.of(new WordIdDto(1L)));
         when(repository.findByDictionaryIdAndUseInRepetition(eq(dictionaryId), eq(false), any(Pageable.class)))
@@ -102,7 +102,7 @@ public class CountRepetitionWordCriteriaLoaderTest {
     void testLoadRepetitionWordPage_WhenGivenAllRepetitionFilter_ThenLoadWordsByFilters() {
         long dictionaryId = 1L;
         RepetitionStartFilterRequest request = new RepetitionStartFilterRequest(
-                RepetitionStartFilterRequest.RepetitionFilter.ALL, new CountCriteriaFilter(10));
+                RepetitionStartFilterRequest.RepetitionFilter.ALL, new CountCriteriaFilter(10), false);
 
         Page<WordIdDto> wordIds = new PageImpl<>(List.of(new WordIdDto(1L), new WordIdDto(2L)));
         when(repository.findByDictionaryId(eq(dictionaryId), any(Pageable.class)))

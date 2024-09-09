@@ -150,7 +150,8 @@ public class InputRepetitionServiceTest {
         long dictionaryId = 1L;
         RepetitionStartFilterRequest startFilterRequest = new RepetitionStartFilterRequest(
                 RepetitionStartFilterRequest.RepetitionFilter.REPETITION_ONLY,
-                new DefaultCriteriaFilter(DefaultCriteriaFilter.CriteriaFilterType.ALL));
+                new DefaultCriteriaFilter(DefaultCriteriaFilter.CriteriaFilterType.ALL),
+                false);
 
         when(repository.existsById(USER_ID.toString())).thenReturn(false);
         DictionaryDto dictionaryDto = new DictionaryDto(dictionaryId, "SomeDictionaryName");
@@ -192,7 +193,8 @@ public class InputRepetitionServiceTest {
         long dictionaryId = 1L;
         RepetitionStartFilterRequest startFilterRequest = new RepetitionStartFilterRequest(
                 RepetitionStartFilterRequest.RepetitionFilter.REPETITION_ONLY,
-                new DefaultCriteriaFilter(DefaultCriteriaFilter.CriteriaFilterType.ALL));
+                new DefaultCriteriaFilter(DefaultCriteriaFilter.CriteriaFilterType.ALL),
+                false);
 
         when(repository.existsById(USER_ID.toString())).thenReturn(true);
 
@@ -208,7 +210,8 @@ public class InputRepetitionServiceTest {
         long dictionaryId = 1L;
         RepetitionStartFilterRequest startFilterRequest = new RepetitionStartFilterRequest(
                 RepetitionStartFilterRequest.RepetitionFilter.REPETITION_ONLY,
-                new DefaultCriteriaFilter(DefaultCriteriaFilter.CriteriaFilterType.ALL));
+                new DefaultCriteriaFilter(DefaultCriteriaFilter.CriteriaFilterType.ALL),
+                false);
 
         when(repository.existsById(USER_ID.toString())).thenReturn(false);
         doThrow(new ResourceNotFoundException(String.format(
@@ -233,7 +236,8 @@ public class InputRepetitionServiceTest {
         long dictionaryId = 1L;
         RepetitionStartFilterRequest startFilterRequest = new RepetitionStartFilterRequest(
                 RepetitionStartFilterRequest.RepetitionFilter.REPETITION_ONLY,
-                new DefaultCriteriaFilter(DefaultCriteriaFilter.CriteriaFilterType.ALL));
+                new DefaultCriteriaFilter(DefaultCriteriaFilter.CriteriaFilterType.ALL),
+                false);
 
         when(repository.existsById(USER_ID.toString())).thenReturn(false);
 
@@ -478,8 +482,9 @@ public class InputRepetitionServiceTest {
 
         List<WordDto> repetitionWords = prepareRepetitionWords();
         WordDto currentWord = repetitionWords.getLast();
+        DictionaryDto dictionaryDto = new DictionaryDto(1L, "SomeDictionaryName");
         RepetitionData repetitionData = new RepetitionData(
-                repetitionWords, 1L, "SomeDictionaryName", USER_ID, ZoneId.of("Asia/Tokyo"), RepetitionType.INPUT);
+                repetitionWords, dictionaryDto, USER_ID, ZoneId.of("Asia/Tokyo"), RepetitionType.INPUT, false);
         when(repository.findById(USER_ID.toString())).thenReturn(Optional.of(repetitionData));
 
         inputRepetitionService.handleRepetitionMessage(authentication, wsRequest);
@@ -502,11 +507,10 @@ public class InputRepetitionServiceTest {
 
         List<WordDto> repetitionWords = prepareRepetitionWords();
         WordDto currentWord = repetitionWords.removeLast();
-        RepetitionData repetitionData = RepetitionData.builder()
-                .repetitionWords(repetitionWords)
-                .passedWords(new ArrayList<>())
-                .currentWord(currentWord)
-                .build();
+        DictionaryDto dictionaryDto = new DictionaryDto(1L, "SomeDictionaryName");
+        RepetitionData repetitionData = new RepetitionData(
+                repetitionWords, dictionaryDto, USER_ID, ZoneId.of("Asia/Tokyo"), RepetitionType.INPUT, false);
+        repetitionData.setCurrentWord(currentWord);
         when(repository.findById(USER_ID.toString())).thenReturn(Optional.of(repetitionData));
 
         inputRepetitionService.handleRepetitionMessage(authentication, wsRequest);
@@ -533,11 +537,11 @@ public class InputRepetitionServiceTest {
         List<WordDto> passedWord = new ArrayList<>();
         IntStream.range(0, 10).forEach(i -> passedWord.add(mock(WordDto.class)));
 
-        RepetitionData repetitionData = RepetitionData.builder()
-                .repetitionWords(repetitionWords)
-                .passedWords(passedWord)
-                .currentWord(currentWord)
-                .build();
+        DictionaryDto dictionaryDto = new DictionaryDto(1L, "SomeDictionaryName");
+        RepetitionData repetitionData = new RepetitionData(
+                repetitionWords, dictionaryDto, USER_ID, ZoneId.of("Asia/Tokyo"), RepetitionType.INPUT, false);
+        repetitionData.setCurrentWord(currentWord);
+        repetitionData.setPassedWords(passedWord);
         when(repository.findById(USER_ID.toString())).thenReturn(Optional.of(repetitionData));
         doNothing().when(wordCounterUpdateService).updateRightAnswersCounters(eq(USER_ID), eq(passedWord));
 
@@ -581,8 +585,8 @@ public class InputRepetitionServiceTest {
 
     private List<WordDto> prepareLoadedWords() {
         return new ArrayList<>(List.of(
-                new WordDto(1L, "word1", true, Set.of(new WordTranslationDto("translation 1")), 0, null),
-                new WordDto(2L, "word2", true, Set.of(), 0, null),
+                new WordDto(1L, "word1", true, Set.of(new WordTranslationDto("translation 6")), 0, null),
+                new WordDto(2L, "word2", true, Set.of(new WordTranslationDto("translation 5")), 0, null),
                 new WordDto(3L, "word3", true, Set.of(new WordTranslationDto("translation 1")), 0, null)));
     }
 

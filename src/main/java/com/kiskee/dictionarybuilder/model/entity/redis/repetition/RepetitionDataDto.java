@@ -17,6 +17,8 @@ public interface RepetitionDataDto {
 
     int getTotalElementsPassed();
 
+    boolean isReversed();
+
     default List<String> getTranslationOptions() {
         return null;
     }

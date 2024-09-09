@@ -3,6 +3,7 @@ package com.kiskee.dictionarybuilder.service.vocabulary.repetition.choice;
 import com.kiskee.dictionarybuilder.enums.repetition.RepetitionType;
 import com.kiskee.dictionarybuilder.exception.repetition.RepetitionException;
 import com.kiskee.dictionarybuilder.mapper.repetition.RepetitionWordMapper;
+import com.kiskee.dictionarybuilder.model.dto.vocabulary.dictionary.DictionaryDto;
 import com.kiskee.dictionarybuilder.model.dto.vocabulary.word.WordDto;
 import com.kiskee.dictionarybuilder.model.entity.redis.repetition.ChoiceRepetitionData;
 import com.kiskee.dictionarybuilder.model.entity.redis.repetition.RepetitionData;
@@ -39,12 +40,19 @@ public class ChoiceRepetitionService extends AbstractRepetitionService implement
 
     @Override
     protected RepetitionData buildRepetitionData(
-            List<WordDto> loadedWords, long dictionaryId, String dictionaryName, UUID userId, ZoneId userTimeZone) {
+            List<WordDto> loadedWords,
+            DictionaryDto dictionaryDto,
+            UUID userId,
+            ZoneId userTimeZone,
+            boolean reversed) {
         if (loadedWords.size() < 4) {
-            log.info("Not enough words to start repetition for dictionary [{}] for user: [{}]", dictionaryName, userId);
+            log.info(
+                    "Not enough words to start repetition for dictionary [{}] for user: [{}]",
+                    dictionaryDto.getDictionaryName(),
+                    userId);
             throw new RepetitionException("Not enough words to start repetition");
         }
         return new ChoiceRepetitionData(
-                loadedWords, dictionaryId, dictionaryName, userId, userTimeZone, RepetitionType.CHOICE);
+                loadedWords, dictionaryDto, userId, userTimeZone, RepetitionType.CHOICE, reversed);
     }
 }
