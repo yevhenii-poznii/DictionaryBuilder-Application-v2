@@ -7,6 +7,8 @@ public interface RepetitionDataDto {
 
     WordDto getCurrentWord();
 
+    String getWord();
+
     int getRightAnswersCount();
 
     int getWrongAnswersCount();
@@ -17,7 +19,13 @@ public interface RepetitionDataDto {
 
     int getTotalElementsPassed();
 
+    boolean isReversed();
+
     default List<String> getTranslationOptions() {
         return null;
+    }
+
+    default String getWordHint() {
+        return getCurrentWord().getWordHint();
     }
 }

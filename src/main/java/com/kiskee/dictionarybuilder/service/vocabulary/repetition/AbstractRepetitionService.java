@@ -9,7 +9,6 @@ import com.kiskee.dictionarybuilder.model.dto.repetition.message.WSRequest;
 import com.kiskee.dictionarybuilder.model.dto.repetition.message.WSResponse;
 import com.kiskee.dictionarybuilder.model.dto.vocabulary.dictionary.DictionaryDto;
 import com.kiskee.dictionarybuilder.model.dto.vocabulary.word.WordDto;
-import com.kiskee.dictionarybuilder.model.dto.vocabulary.word.WordTranslationDto;
 import com.kiskee.dictionarybuilder.model.entity.redis.repetition.RepetitionData;
 import com.kiskee.dictionarybuilder.repository.redis.RepetitionDataRepository;
 import com.kiskee.dictionarybuilder.service.report.StatisticUpdateReportManager;
@@ -49,7 +48,7 @@ public abstract class AbstractRepetitionService {
     protected abstract int getWordsToUpdateCount();
 
     protected abstract RepetitionData buildRepetitionData(
-            List<WordDto> loadedWords, long dictionaryId, String dictionaryName, UUID userId, ZoneId userTimeZone);
+            List<WordDto> loadedWords, DictionaryDto dictionaryDto, UUID userId, ZoneId userTimeZone, boolean reversed);
 
     public RepetitionRunningStatus isRepetitionRunning() {
         UUID userId = IdentityUtil.getUserId();
@@ -69,7 +68,7 @@ public abstract class AbstractRepetitionService {
             log.info("Repetition is already running for user [{}]", userId);
             throw new RepetitionException("Repetition is already running");
         }
-        DictionaryDto dictionary = getDictionaryAccessValidator().getDictionaryByIdAndUserId(dictionaryId, userId);
+        DictionaryDto dictionaryDto = getDictionaryAccessValidator().getDictionaryByIdAndUserId(dictionaryId, userId);
         List<WordDto> words = getRepetitionWordLoaderFactory()
                 .getLoader(request.getCriteriaFilter().getFilterType())
                 .loadRepetitionWordPage(dictionaryId, request);
@@ -81,7 +80,7 @@ public abstract class AbstractRepetitionService {
         Collections.shuffle(words);
 
         RepetitionData repetitionData = buildRepetitionData(
-                words, dictionaryId, dictionary.getDictionaryName(), userId, TimeZoneContextHolder.getTimeZone());
+                words, dictionaryDto, userId, TimeZoneContextHolder.getTimeZone(), request.getReversed());
         getRepository().save(repetitionData);
         log.info("Repetition has been started for user [{}]", userId);
         return new RepetitionRunningStatus(true, repetitionData.isPaused(), repetitionData.getRepetitionType());
@@ -178,15 +177,13 @@ public abstract class AbstractRepetitionService {
             getWordCounterUpdateService().updateRightAnswersCounters(userId, wordsToUpdate);
             passedWords.clear();
         }
-        WordDto currentWord = repetitionData.getCurrentWord();
-
-        if (Objects.isNull(currentWord)) {
+        if (Objects.isNull(repetitionData.getCurrentWord())) {
             updateRepetitionProgress(repetitionData);
             throw new RepetitionException("No more words to repeat");
         }
-        List<String> translationsToCheck = Arrays.asList(request.getInput().split(", "));
+        List<String> translationsToCheck = Arrays.asList(request.getInput().split("\\s*,\\s*"));
         long correctTranslationsCount =
-                calculateCorrectTranslationsCount(currentWord.getWordTranslations(), translationsToCheck);
+                calculateCorrectTranslationsCount(repetitionData.getTranslations(), translationsToCheck);
 
         RepetitionData updatedRepetitionData = repetitionData.updateData(correctTranslationsCount > 0);
         getRepository().save(updatedRepetitionData);
@@ -194,11 +191,8 @@ public abstract class AbstractRepetitionService {
         return getMapper().toWSResponse(updatedRepetitionData, correctTranslationsCount);
     }
 
-    private long calculateCorrectTranslationsCount(
-            Set<WordTranslationDto> actualTranslations, List<String> translationsToCheck) {
-        return translationsToCheck.stream()
-                .filter(translation -> actualTranslations.contains(new WordTranslationDto(translation)))
-                .count();
+    private long calculateCorrectTranslationsCount(Set<String> wordTranslations, List<String> translationsToCheck) {
+        return translationsToCheck.stream().filter(wordTranslations::contains).count();
     }
 
     private void validateNextNonNull(WordDto nextWord) throws RepetitionException {

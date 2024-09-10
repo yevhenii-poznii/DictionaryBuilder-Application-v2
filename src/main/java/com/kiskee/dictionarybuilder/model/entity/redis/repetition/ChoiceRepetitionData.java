@@ -1,6 +1,7 @@
 package com.kiskee.dictionarybuilder.model.entity.redis.repetition;
 
 import com.kiskee.dictionarybuilder.enums.repetition.RepetitionType;
+import com.kiskee.dictionarybuilder.model.dto.vocabulary.dictionary.DictionaryDto;
 import com.kiskee.dictionarybuilder.model.dto.vocabulary.word.WordDto;
 import com.kiskee.dictionarybuilder.model.dto.vocabulary.word.WordTranslationDto;
 import com.kiskee.dictionarybuilder.util.RandomElementsPicker;
@@ -12,6 +13,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -33,12 +35,12 @@ public class ChoiceRepetitionData extends RepetitionData implements RepetitionDa
 
     public ChoiceRepetitionData(
             List<WordDto> repetitionWords,
-            long dictionaryId,
-            String dictionaryName,
+            DictionaryDto dictionaryDto,
             UUID userId,
             ZoneId userTimeZone,
-            RepetitionType repetitionType) {
-        super(repetitionWords, dictionaryId, dictionaryName, userId, userTimeZone, repetitionType);
+            RepetitionType repetitionType,
+            boolean reversed) {
+        super(repetitionWords, dictionaryDto, userId, userTimeZone, repetitionType, reversed);
     }
 
     @Override
@@ -53,21 +55,29 @@ public class ChoiceRepetitionData extends RepetitionData implements RepetitionDa
             return;
         }
         WordDto next = this.getRepetitionWords().get(this.currentWordIndex);
-        setTranslationOptions();
         this.setCurrentWord(next);
+        this.setWordAndTranslations(next);
+        this.setTranslationOptions();
     }
 
     private void setTranslationOptions() {
         Set<Integer> randomElements =
-                RandomElementsPicker.getRandomElements(getRepetitionWords(), this.currentWordIndex);
-        List<String> randomTranslations = randomElements.stream()
-                .map(getRepetitionWords()::get)
+                RandomElementsPicker.getRandomElements(this.getRepetitionWords(), this.currentWordIndex);
+        List<String> randomTranslations = collectRandomTranslations(randomElements);
+        Collections.shuffle(randomTranslations);
+        this.translationOptions = randomTranslations;
+    }
+
+    private List<String> collectRandomTranslations(Set<Integer> randomElements) {
+        Stream<WordDto> wordDtoStream = randomElements.stream().map(getRepetitionWords()::get);
+        if (this.isReversed()) {
+            return wordDtoStream.map(WordDto::getWord).collect(Collectors.toList());
+        }
+        return wordDtoStream
                 .map(WordDto::getWordTranslations)
                 .map(ArrayList::new)
                 .map(RandomElementsPicker::getRandomElement)
                 .map(WordTranslationDto::getTranslation)
                 .collect(Collectors.toList());
-        Collections.shuffle(randomTranslations);
-        this.translationOptions = randomTranslations;
     }
 }

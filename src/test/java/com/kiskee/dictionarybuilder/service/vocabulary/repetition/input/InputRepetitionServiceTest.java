@@ -42,6 +42,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -150,7 +151,8 @@ public class InputRepetitionServiceTest {
         long dictionaryId = 1L;
         RepetitionStartFilterRequest startFilterRequest = new RepetitionStartFilterRequest(
                 RepetitionStartFilterRequest.RepetitionFilter.REPETITION_ONLY,
-                new DefaultCriteriaFilter(DefaultCriteriaFilter.CriteriaFilterType.ALL));
+                new DefaultCriteriaFilter(DefaultCriteriaFilter.CriteriaFilterType.ALL),
+                false);
 
         when(repository.existsById(USER_ID.toString())).thenReturn(false);
         DictionaryDto dictionaryDto = new DictionaryDto(dictionaryId, "SomeDictionaryName");
@@ -192,7 +194,8 @@ public class InputRepetitionServiceTest {
         long dictionaryId = 1L;
         RepetitionStartFilterRequest startFilterRequest = new RepetitionStartFilterRequest(
                 RepetitionStartFilterRequest.RepetitionFilter.REPETITION_ONLY,
-                new DefaultCriteriaFilter(DefaultCriteriaFilter.CriteriaFilterType.ALL));
+                new DefaultCriteriaFilter(DefaultCriteriaFilter.CriteriaFilterType.ALL),
+                false);
 
         when(repository.existsById(USER_ID.toString())).thenReturn(true);
 
@@ -208,7 +211,8 @@ public class InputRepetitionServiceTest {
         long dictionaryId = 1L;
         RepetitionStartFilterRequest startFilterRequest = new RepetitionStartFilterRequest(
                 RepetitionStartFilterRequest.RepetitionFilter.REPETITION_ONLY,
-                new DefaultCriteriaFilter(DefaultCriteriaFilter.CriteriaFilterType.ALL));
+                new DefaultCriteriaFilter(DefaultCriteriaFilter.CriteriaFilterType.ALL),
+                false);
 
         when(repository.existsById(USER_ID.toString())).thenReturn(false);
         doThrow(new ResourceNotFoundException(String.format(
@@ -233,7 +237,8 @@ public class InputRepetitionServiceTest {
         long dictionaryId = 1L;
         RepetitionStartFilterRequest startFilterRequest = new RepetitionStartFilterRequest(
                 RepetitionStartFilterRequest.RepetitionFilter.REPETITION_ONLY,
-                new DefaultCriteriaFilter(DefaultCriteriaFilter.CriteriaFilterType.ALL));
+                new DefaultCriteriaFilter(DefaultCriteriaFilter.CriteriaFilterType.ALL),
+                false);
 
         when(repository.existsById(USER_ID.toString())).thenReturn(false);
 
@@ -478,8 +483,9 @@ public class InputRepetitionServiceTest {
 
         List<WordDto> repetitionWords = prepareRepetitionWords();
         WordDto currentWord = repetitionWords.getLast();
+        DictionaryDto dictionaryDto = new DictionaryDto(1L, "SomeDictionaryName");
         RepetitionData repetitionData = new RepetitionData(
-                repetitionWords, 1L, "SomeDictionaryName", USER_ID, ZoneId.of("Asia/Tokyo"), RepetitionType.INPUT);
+                repetitionWords, dictionaryDto, USER_ID, ZoneId.of("Asia/Tokyo"), RepetitionType.INPUT, false);
         when(repository.findById(USER_ID.toString())).thenReturn(Optional.of(repetitionData));
 
         inputRepetitionService.handleRepetitionMessage(authentication, wsRequest);
@@ -502,11 +508,10 @@ public class InputRepetitionServiceTest {
 
         List<WordDto> repetitionWords = prepareRepetitionWords();
         WordDto currentWord = repetitionWords.removeLast();
-        RepetitionData repetitionData = RepetitionData.builder()
-                .repetitionWords(repetitionWords)
-                .passedWords(new ArrayList<>())
-                .currentWord(currentWord)
-                .build();
+        DictionaryDto dictionaryDto = new DictionaryDto(1L, "SomeDictionaryName");
+        RepetitionData repetitionData = new RepetitionData(
+                repetitionWords, dictionaryDto, USER_ID, ZoneId.of("Asia/Tokyo"), RepetitionType.INPUT, false);
+        repetitionData.setCurrentWord(currentWord);
         when(repository.findById(USER_ID.toString())).thenReturn(Optional.of(repetitionData));
 
         inputRepetitionService.handleRepetitionMessage(authentication, wsRequest);
@@ -533,11 +538,11 @@ public class InputRepetitionServiceTest {
         List<WordDto> passedWord = new ArrayList<>();
         IntStream.range(0, 10).forEach(i -> passedWord.add(mock(WordDto.class)));
 
-        RepetitionData repetitionData = RepetitionData.builder()
-                .repetitionWords(repetitionWords)
-                .passedWords(passedWord)
-                .currentWord(currentWord)
-                .build();
+        DictionaryDto dictionaryDto = new DictionaryDto(1L, "SomeDictionaryName");
+        RepetitionData repetitionData = new RepetitionData(
+                repetitionWords, dictionaryDto, USER_ID, ZoneId.of("Asia/Tokyo"), RepetitionType.INPUT, false);
+        repetitionData.setCurrentWord(currentWord);
+        repetitionData.setPassedWords(passedWord);
         when(repository.findById(USER_ID.toString())).thenReturn(Optional.of(repetitionData));
         doNothing().when(wordCounterUpdateService).updateRightAnswersCounters(eq(USER_ID), eq(passedWord));
 
@@ -567,6 +572,39 @@ public class InputRepetitionServiceTest {
                 .withMessage("No more words to repeat");
     }
 
+    @Test
+    void testHandleRepetitionMessage_WhenRequestIsCheckAndReverseMode_ThenHandleCheckOperationAndReturnWSResponse() {
+        Authentication authentication = getAuth();
+
+        WSRequest wsRequest = new WSRequest("word3, word1", WSRequest.Operation.NEXT);
+
+        List<WordDto> repetitionWords = prepareRepetitionWords();
+        WordDto word = repetitionWords.getLast();
+        DictionaryDto dictionaryDto = new DictionaryDto(1L, "SomeDictionaryName");
+        RepetitionData repetitionData = new RepetitionData(
+                repetitionWords, dictionaryDto, USER_ID, ZoneId.of("Asia/Tokyo"), RepetitionType.INPUT, true);
+        when(repository.findById(USER_ID.toString())).thenReturn(Optional.of(repetitionData));
+
+        WSResponse response = mock(WSResponse.class);
+        String responseWord = repetitionWords.get(repetitionWords.size() - 2).getWordTranslations().stream()
+                .map(WordTranslationDto::getTranslation)
+                .collect(Collectors.joining(", "));
+        when(response.getWord()).thenReturn(responseWord);
+        when(mapper.toWSResponse(eq(repetitionData), anyLong())).thenReturn(response);
+
+        WSResponse currentWSResponse = inputRepetitionService.handleRepetitionMessage(authentication, wsRequest);
+
+        verify(repository).save(repetitionDataCaptor.capture());
+
+        RepetitionData savedData = repetitionDataCaptor.getValue();
+        Set<String> translationSet = Set.of(savedData.getCurrentWord().getWord());
+        assertThat(savedData.getPassedWords()).contains(word);
+        assertThat(savedData.getWord()).isEqualTo(currentWSResponse.getWord());
+        assertThat(savedData.getTranslations()).isEqualTo(translationSet);
+        assertThat(savedData.getRightAnswersCount()).isEqualTo(1);
+        assertThat(savedData.getTotalElementsPassed()).isEqualTo(1);
+    }
+
     private void setAuth() {
         Authentication authentication = getAuth();
         when(securityContext.getAuthentication()).thenReturn(authentication);
@@ -581,8 +619,8 @@ public class InputRepetitionServiceTest {
 
     private List<WordDto> prepareLoadedWords() {
         return new ArrayList<>(List.of(
-                new WordDto(1L, "word1", true, Set.of(new WordTranslationDto("translation 1")), 0, null),
-                new WordDto(2L, "word2", true, Set.of(), 0, null),
+                new WordDto(1L, "word1", true, Set.of(new WordTranslationDto("translation 6")), 0, null),
+                new WordDto(2L, "word2", true, Set.of(new WordTranslationDto("translation 5")), 0, null),
                 new WordDto(3L, "word3", true, Set.of(new WordTranslationDto("translation 1")), 0, null)));
     }
 

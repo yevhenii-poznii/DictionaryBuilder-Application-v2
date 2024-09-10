@@ -22,6 +22,7 @@ public class RandomElementsPicker {
         Set<Integer> indices = new HashSet<>();
         indices.add(currentWordIndex);
         indices.addAll(IntStream.generate(() -> RANDOM.nextInt(list.size()))
+                .filter(i -> i != currentWordIndex)
                 .distinct()
                 .limit(Math.min(DEFAULT_NUMBER_OF_ELEMENTS - 1, list.size()))
                 .boxed()

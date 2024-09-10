@@ -10,15 +10,14 @@ import lombok.Data;
 public class WSResponse {
 
     private String word;
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private List<String> translationOptions;
-
     private String wordHint;
-    private Long correctTranslationsCount;
     private int rightAnswersCount;
     private int wrongAnswersCount;
     private int skippedWordsCount;
     private int totalElements;
     private int totalElementsPassed;
+    private Long correctTranslationsCount;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private List<String> translationOptions;
 }

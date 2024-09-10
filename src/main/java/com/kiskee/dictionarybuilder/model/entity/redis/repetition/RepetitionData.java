@@ -3,14 +3,19 @@ package com.kiskee.dictionarybuilder.model.entity.redis.repetition;
 import com.kiskee.dictionarybuilder.enums.repetition.RepetitionType;
 import com.kiskee.dictionarybuilder.exception.repetition.RepetitionException;
 import com.kiskee.dictionarybuilder.model.dto.repetition.RepetitionResultDataDto;
+import com.kiskee.dictionarybuilder.model.dto.vocabulary.dictionary.DictionaryDto;
 import com.kiskee.dictionarybuilder.model.dto.vocabulary.word.WordDto;
+import com.kiskee.dictionarybuilder.model.dto.vocabulary.word.WordTranslationDto;
 import jakarta.persistence.Id;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -34,24 +39,28 @@ public class RepetitionData extends RepetitionResultDataDto implements Repetitio
     private List<WordDto> repetitionWords = new ArrayList<>();
     private List<WordDto> passedWords = new ArrayList<>();
     private WordDto currentWord;
+    private String word;
+    private Set<String> translations;
+    private boolean reversed;
     private RepetitionType repetitionType;
 
     public RepetitionData(
             List<WordDto> repetitionWords,
-            long dictionaryId,
-            String dictionaryName,
+            DictionaryDto dictionaryDto,
             UUID userId,
             ZoneId userTimeZone,
-            RepetitionType repetitionType) {
+            RepetitionType repetitionType,
+            boolean reversed) {
         this.setId(userId.toString());
         this.repetitionWords = new ArrayList<>(repetitionWords);
         this.repetitionType = repetitionType;
+        this.reversed = reversed;
         this.setNext();
         super.setUserTimeZone(userTimeZone);
         super.setStartTime(Instant.now());
         super.setTotalElements(repetitionWords.size());
-        super.setDictionaryId(dictionaryId);
-        super.setDictionaryName(dictionaryName);
+        super.setDictionaryId(dictionaryDto.getId());
+        super.setDictionaryName(dictionaryDto.getDictionaryName());
         super.setUserId(userId);
     }
 
@@ -120,6 +129,20 @@ public class RepetitionData extends RepetitionResultDataDto implements Repetitio
         }
         WordDto next = this.getRepetitionWords().removeLast();
         this.setCurrentWord(next);
+        this.setWordAndTranslations(next);
+    }
+
+    protected void setWordAndTranslations(WordDto next) {
+        Set<String> translationsSet = next.getWordTranslations().stream()
+                .map(WordTranslationDto::getTranslation)
+                .collect(Collectors.toSet());
+        if (!this.isReversed()) {
+            this.word = next.getWord();
+            this.translations = translationsSet;
+            return;
+        }
+        this.word = String.join(", ", translationsSet);
+        this.translations = Arrays.stream(next.getWord().split("\\s*,\\s*")).collect(Collectors.toSet());
     }
 
     protected void incrementRightAnswersCount() {

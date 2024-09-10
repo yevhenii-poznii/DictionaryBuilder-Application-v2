@@ -59,7 +59,8 @@ public class InputRepetitionControllerTest {
         long dictionaryId = 1L;
         RepetitionStartFilterRequest requestBody = new RepetitionStartFilterRequest(
                 RepetitionStartFilterRequest.RepetitionFilter.REPETITION_ONLY,
-                new DefaultCriteriaFilter(DefaultCriteriaFilter.CriteriaFilterType.ALL));
+                new DefaultCriteriaFilter(DefaultCriteriaFilter.CriteriaFilterType.ALL),
+                false);
 
         RepetitionRunningStatus runningStatus = new RepetitionRunningStatus(true, false, RepetitionType.INPUT);
 
@@ -84,7 +85,8 @@ public class InputRepetitionControllerTest {
         long dictionaryId = 1L;
         RepetitionStartFilterRequest requestBody = new RepetitionStartFilterRequest(
                 RepetitionStartFilterRequest.RepetitionFilter.REPETITION_ONLY,
-                new DefaultCriteriaFilter(DefaultCriteriaFilter.CriteriaFilterType.ALL));
+                new DefaultCriteriaFilter(DefaultCriteriaFilter.CriteriaFilterType.ALL),
+                false);
 
         when(inputRepetitionService.start(dictionaryId, requestBody))
                 .thenThrow(new RepetitionException("Repetition is already running"));
@@ -108,7 +110,8 @@ public class InputRepetitionControllerTest {
         long dictionaryId = 1L;
         RepetitionStartFilterRequest requestBody = new RepetitionStartFilterRequest(
                 RepetitionStartFilterRequest.RepetitionFilter.REPETITION_ONLY,
-                new DefaultCriteriaFilter(DefaultCriteriaFilter.CriteriaFilterType.ALL));
+                new DefaultCriteriaFilter(DefaultCriteriaFilter.CriteriaFilterType.ALL),
+                false);
 
         when(inputRepetitionService.start(dictionaryId, requestBody))
                 .thenThrow(new ResourceNotFoundException(String.format(
@@ -139,7 +142,8 @@ public class InputRepetitionControllerTest {
         long dictionaryId = 1L;
         RepetitionStartFilterRequest requestBody = new RepetitionStartFilterRequest(
                 RepetitionStartFilterRequest.RepetitionFilter.REPETITION_ONLY,
-                new DefaultCriteriaFilter(DefaultCriteriaFilter.CriteriaFilterType.ALL));
+                new DefaultCriteriaFilter(DefaultCriteriaFilter.CriteriaFilterType.ALL),
+                false);
 
         when(inputRepetitionService.start(dictionaryId, requestBody))
                 .thenThrow(new RepetitionException("No words to repeat"));

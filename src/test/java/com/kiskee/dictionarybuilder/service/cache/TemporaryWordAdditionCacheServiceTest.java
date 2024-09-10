@@ -118,7 +118,6 @@ public class TemporaryWordAdditionCacheServiceTest {
         verify(repository).save(temporaryWordAdditionDataCaptor.capture());
 
         TemporaryWordAdditionData temporaryWordAdditionData = temporaryWordAdditionDataCaptor.getValue();
-        System.out.println(temporaryWordAdditionData);
         assertThat(temporaryWordAdditionData.getId()).isEqualTo(key);
         assertThat(temporaryWordAdditionData.getUserId()).isEqualTo(USER_ID);
         assertThat(temporaryWordAdditionData.getDictionaryId()).isEqualTo(dictionaryId);
@@ -150,7 +149,6 @@ public class TemporaryWordAdditionCacheServiceTest {
         verify(repository).save(temporaryWordAdditionDataCaptor.capture());
 
         TemporaryWordAdditionData temporaryWordAdditionData = temporaryWordAdditionDataCaptor.getValue();
-        System.out.println(temporaryWordAdditionData);
         assertThat(temporaryWordAdditionData.getId()).isEqualTo(key);
         assertThat(temporaryWordAdditionData.getUserId()).isEqualTo(USER_ID);
         assertThat(temporaryWordAdditionData.getDictionaryId()).isEqualTo(dictionaryId);

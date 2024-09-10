@@ -18,6 +18,9 @@ public class RepetitionStartFilterRequest {
     @NotNull
     private CriteriaFilter criteriaFilter;
 
+    @NotNull
+    private Boolean reversed;
+
     public enum RepetitionFilter {
         REPETITION_ONLY,
         NOT_REPETITION_ONLY,

@@ -2,6 +2,7 @@ package com.kiskee.dictionarybuilder.service.vocabulary.repetition.input;
 
 import com.kiskee.dictionarybuilder.enums.repetition.RepetitionType;
 import com.kiskee.dictionarybuilder.mapper.repetition.RepetitionWordMapper;
+import com.kiskee.dictionarybuilder.model.dto.vocabulary.dictionary.DictionaryDto;
 import com.kiskee.dictionarybuilder.model.dto.vocabulary.word.WordDto;
 import com.kiskee.dictionarybuilder.model.entity.redis.repetition.RepetitionData;
 import com.kiskee.dictionarybuilder.repository.redis.RepetitionDataRepository;
@@ -37,8 +38,11 @@ public class InputRepetitionService extends AbstractRepetitionService implements
 
     @Override
     protected RepetitionData buildRepetitionData(
-            List<WordDto> loadedWords, long dictionaryId, String dictionaryName, UUID userId, ZoneId userTimeZone) {
-        return new RepetitionData(
-                loadedWords, dictionaryId, dictionaryName, userId, userTimeZone, RepetitionType.INPUT);
+            List<WordDto> loadedWords,
+            DictionaryDto dictionaryDto,
+            UUID userId,
+            ZoneId userTimeZone,
+            boolean reversed) {
+        return new RepetitionData(loadedWords, dictionaryDto, userId, userTimeZone, RepetitionType.INPUT, reversed);
     }
 }
