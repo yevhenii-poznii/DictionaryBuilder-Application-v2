@@ -636,9 +636,6 @@ public class ChoiceRepetitionServiceTest {
 
         RepetitionData savedData = repetitionDataCaptor.getValue();
         Set<String> translationSet = Set.of(savedData.getCurrentWord().getWord());
-        System.out.println(savedData.getWord());
-        System.out.println(savedData.getTranslations());
-        System.out.println(savedData.getTranslationOptions());
         assertThat(savedData.getPassedWords()).contains(word);
         assertThat(savedData.getWord()).isEqualTo(currentWSResponse.getWord());
         assertThat(savedData.getTranslations()).isEqualTo(translationSet);
