@@ -6,6 +6,7 @@ import com.kiskee.dictionarybuilder.enums.vocabulary.PageFilter;
 import com.kiskee.dictionarybuilder.mapper.user.preference.UserPreferenceMapper;
 import com.kiskee.dictionarybuilder.model.dto.registration.RegistrationRequest;
 import com.kiskee.dictionarybuilder.model.dto.user.preference.DictionaryPreference;
+import com.kiskee.dictionarybuilder.model.dto.user.preference.UserPreferenceDto;
 import com.kiskee.dictionarybuilder.model.dto.user.preference.WordPreference;
 import com.kiskee.dictionarybuilder.model.entity.user.preference.UserPreference;
 import com.kiskee.dictionarybuilder.repository.user.preference.UserPreferenceRepository;
@@ -13,6 +14,7 @@ import com.kiskee.dictionarybuilder.service.user.AbstractUserProfilePreferenceIn
 import com.kiskee.dictionarybuilder.service.user.UserInitializingService;
 import com.kiskee.dictionarybuilder.util.IdentityUtil;
 import java.util.UUID;
+import java.util.function.Supplier;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -39,17 +41,17 @@ public class UserPreferenceServiceImpl extends AbstractUserProfilePreferenceInit
 
     @Override
     public WordPreference getWordPreference(UUID userId) {
-        WordPreference wordPreference = repository.findWordPreferenceByUserId(userId);
-        displayLog(WordPreference.class, userId);
-        return wordPreference;
+        return getPreference(() -> repository.findWordPreferenceByUserId(userId));
+    }
+
+    @Override
+    public UserPreferenceDto getUserPreference() {
+        return getPreference(() -> repository.findUserPreferenceByUserId(IdentityUtil.getUserId()));
     }
 
     @Override
     public DictionaryPreference getDictionaryPreference() {
-        UUID userId = IdentityUtil.getUserId();
-        DictionaryPreference dictionaryPreference = repository.findDictionaryPreferenceByUserId(userId);
-        displayLog(DictionaryPreference.class, userId);
-        return dictionaryPreference;
+        return getPreference(() -> repository.findDictionaryPreferenceByUserId(IdentityUtil.getUserId()));
     }
 
     @Override
@@ -59,6 +61,12 @@ public class UserPreferenceServiceImpl extends AbstractUserProfilePreferenceInit
                 registrationRequest.getUser(),
                 PageFilter.BY_ADDED_AT_ASC,
                 ProfileVisibility.PRIVATE);
+    }
+
+    private <P> P getPreference(Supplier<P> supplier) {
+        P preference = supplier.get();
+        displayLog(preference.getClass(), IdentityUtil.getUserId());
+        return preference;
     }
 
     private void displayLog(Class<?> cls, UUID userId) {
