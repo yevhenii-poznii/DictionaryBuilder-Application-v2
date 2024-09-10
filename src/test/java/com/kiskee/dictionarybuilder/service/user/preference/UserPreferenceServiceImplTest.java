@@ -11,6 +11,7 @@ import com.kiskee.dictionarybuilder.enums.vocabulary.PageFilter;
 import com.kiskee.dictionarybuilder.mapper.user.preference.UserPreferenceMapper;
 import com.kiskee.dictionarybuilder.model.dto.registration.InternalRegistrationRequest;
 import com.kiskee.dictionarybuilder.model.dto.user.preference.DictionaryPreference;
+import com.kiskee.dictionarybuilder.model.dto.user.preference.UserPreferenceDto;
 import com.kiskee.dictionarybuilder.model.dto.user.preference.WordPreference;
 import com.kiskee.dictionarybuilder.model.entity.user.UserVocabularyApplication;
 import com.kiskee.dictionarybuilder.model.entity.user.preference.UserPreference;
@@ -105,6 +106,27 @@ public class UserPreferenceServiceImplTest {
         assertThat(actualWordPreference.rightAnswersToDisableInRepetition())
                 .isEqualTo(rightAnswersToDisableInRepetition);
         assertThat(actualWordPreference.newWordsPerDayGoal()).isEqualTo(newWordsPerDayGoal);
+    }
+
+    @Test
+    void testUserPreference_WhenUserPreferenceExists_ThenReturnUserPreferenceDto() {
+        setAuth();
+
+        UserPreferenceDto userPreferenceDto = new UserPreferenceDto(
+                ProfileVisibility.PUBLIC, 100, true, PageFilter.BY_ADDED_AT_ASC, 10, 10, Duration.ofHours(1));
+        when(userPreferenceRepository.findUserPreferenceByUserId(USER_ID)).thenReturn(userPreferenceDto);
+
+        UserPreferenceDto actualUserPreference = userPreferenceService.getUserPreference();
+
+        assertThat(actualUserPreference.profileVisibility()).isEqualTo(ProfileVisibility.PUBLIC);
+        assertThat(actualUserPreference.wordsPerPage()).isEqualTo(userPreferenceDto.wordsPerPage());
+        assertThat(actualUserPreference.blurTranslation()).isTrue();
+        assertThat(actualUserPreference.pageFilter()).isEqualTo(PageFilter.BY_ADDED_AT_ASC);
+        assertThat(actualUserPreference.rightAnswersToDisableInRepetition())
+                .isEqualTo(userPreferenceDto.rightAnswersToDisableInRepetition());
+        assertThat(actualUserPreference.newWordsPerDayGoal()).isEqualTo(userPreferenceDto.newWordsPerDayGoal());
+        assertThat(actualUserPreference.dailyRepetitionDurationGoal())
+                .isEqualTo(userPreferenceDto.dailyRepetitionDurationGoal());
     }
 
     @Test

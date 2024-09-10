@@ -7,9 +7,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kiskee.dictionarybuilder.enums.user.ProfileVisibility;
 import com.kiskee.dictionarybuilder.enums.vocabulary.PageFilter;
 import com.kiskee.dictionarybuilder.model.dto.user.preference.DictionaryPreference;
+import com.kiskee.dictionarybuilder.model.dto.user.preference.UserPreferenceDto;
 import com.kiskee.dictionarybuilder.service.user.preference.UserPreferenceService;
+import java.time.Duration;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,6 +45,23 @@ public class UserPreferenceControllerTest {
     public void setup() {
         this.mockMvc =
                 MockMvcBuilders.webAppContextSetup(this.webApplicationContext).build();
+    }
+
+    @Test
+    @SneakyThrows
+    void testGetUserPreference_WhenPreferenceExists_ThenReturnUserPreferenceDto() {
+        UserPreferenceDto userPreferenceDto = new UserPreferenceDto(
+                ProfileVisibility.PUBLIC, 100, true, PageFilter.BY_ADDED_AT_ASC, 10, 10, Duration.ofHours(1));
+
+        when(userPreferenceService.getUserPreference()).thenReturn(userPreferenceDto);
+
+        MvcResult result = mockMvc.perform(get("/user/preference"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String actualResponseBody = result.getResponse().getContentAsString();
+        assertThat(actualResponseBody).isEqualTo(objectMapper.writeValueAsString(userPreferenceDto));
     }
 
     @Test
