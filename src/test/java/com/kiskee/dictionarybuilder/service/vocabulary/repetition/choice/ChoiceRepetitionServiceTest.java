@@ -26,6 +26,7 @@ import com.kiskee.dictionarybuilder.model.dto.repetition.message.WSResponse;
 import com.kiskee.dictionarybuilder.model.dto.vocabulary.dictionary.DictionaryDto;
 import com.kiskee.dictionarybuilder.model.dto.vocabulary.word.WordDto;
 import com.kiskee.dictionarybuilder.model.dto.vocabulary.word.WordTranslationDto;
+import com.kiskee.dictionarybuilder.model.entity.redis.repetition.ChoiceRepetitionData;
 import com.kiskee.dictionarybuilder.model.entity.redis.repetition.Pause;
 import com.kiskee.dictionarybuilder.model.entity.redis.repetition.RepetitionData;
 import com.kiskee.dictionarybuilder.model.entity.user.UserVocabularyApplication;
@@ -42,6 +43,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -164,6 +166,8 @@ public class ChoiceRepetitionServiceTest {
                 .thenReturn(repetitionWordCriteriaLoader);
 
         List<WordDto> loadedWords = prepareLoadedWords();
+        loadedWords.removeLast();
+        loadedWords.removeLast();
         when(repetitionWordCriteriaLoader.loadRepetitionWordPage(dictionaryId, startFilterRequest))
                 .thenReturn(loadedWords);
 
@@ -606,6 +610,42 @@ public class ChoiceRepetitionServiceTest {
                 .withMessage("No more words to repeat");
     }
 
+    @Test
+    void testHandleRepetitionMessage_WhenRequestIsCheckAndReverseMode_ThenHandleCheckOperationAndReturnWSResponse() {
+        Authentication authentication = getAuth();
+
+        WSRequest wsRequest = new WSRequest("word3, word1", WSRequest.Operation.NEXT);
+
+        List<WordDto> repetitionWords = prepareRepetitionWords();
+        WordDto word = repetitionWords.getLast();
+        DictionaryDto dictionaryDto = new DictionaryDto(1L, "SomeDictionaryName");
+        ChoiceRepetitionData repetitionData = new ChoiceRepetitionData(
+                repetitionWords, dictionaryDto, USER_ID, ZoneId.of("Asia/Tokyo"), RepetitionType.INPUT, true);
+        when(repository.findById(USER_ID.toString())).thenReturn(Optional.of(repetitionData));
+
+        WSResponse response = mock(WSResponse.class);
+        String responseWord = repetitionWords.get(repetitionWords.size() - 2).getWordTranslations().stream()
+                .map(WordTranslationDto::getTranslation)
+                .collect(Collectors.joining(", "));
+        when(response.getWord()).thenReturn(responseWord);
+        when(mapper.toWSResponse(eq(repetitionData), anyLong())).thenReturn(response);
+
+        WSResponse currentWSResponse = choiceRepetitionService.handleRepetitionMessage(authentication, wsRequest);
+
+        verify(repository).save(repetitionDataCaptor.capture());
+
+        RepetitionData savedData = repetitionDataCaptor.getValue();
+        Set<String> translationSet = Set.of(savedData.getCurrentWord().getWord());
+        System.out.println(savedData.getWord());
+        System.out.println(savedData.getTranslations());
+        System.out.println(savedData.getTranslationOptions());
+        assertThat(savedData.getPassedWords()).contains(word);
+        assertThat(savedData.getWord()).isEqualTo(currentWSResponse.getWord());
+        assertThat(savedData.getTranslations()).isEqualTo(translationSet);
+        assertThat(savedData.getRightAnswersCount()).isEqualTo(1);
+        assertThat(savedData.getTotalElementsPassed()).isEqualTo(1);
+    }
+
     private void setAuth() {
         Authentication authentication = getAuth();
         when(securityContext.getAuthentication()).thenReturn(authentication);
@@ -620,9 +660,11 @@ public class ChoiceRepetitionServiceTest {
 
     private List<WordDto> prepareLoadedWords() {
         return new ArrayList<>(List.of(
-                new WordDto(1L, "word1", true, Set.of(new WordTranslationDto("translation 1")), 0, null),
-                new WordDto(2L, "word2", true, Set.of(), 0, null),
-                new WordDto(3L, "word3", true, Set.of(new WordTranslationDto("translation 1")), 0, null)));
+                new WordDto(1L, "word6", true, Set.of(new WordTranslationDto("translation 6")), 0, null),
+                new WordDto(2L, "word5", true, Set.of(new WordTranslationDto("translation 5")), 0, null),
+                new WordDto(2L, "word4", true, Set.of(new WordTranslationDto("translation 4")), 0, null),
+                new WordDto(2L, "word3", true, Set.of(new WordTranslationDto("translation 3")), 0, null),
+                new WordDto(3L, "word1", true, Set.of(new WordTranslationDto("translation 1")), 0, null)));
     }
 
     private List<WordDto> prepareRepetitionWords() {

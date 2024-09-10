@@ -42,6 +42,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -569,6 +570,39 @@ public class InputRepetitionServiceTest {
         assertThatExceptionOfType(RepetitionException.class)
                 .isThrownBy(() -> inputRepetitionService.handleRepetitionMessage(authentication, wsRequest))
                 .withMessage("No more words to repeat");
+    }
+
+    @Test
+    void testHandleRepetitionMessage_WhenRequestIsCheckAndReverseMode_ThenHandleCheckOperationAndReturnWSResponse() {
+        Authentication authentication = getAuth();
+
+        WSRequest wsRequest = new WSRequest("word3, word1", WSRequest.Operation.NEXT);
+
+        List<WordDto> repetitionWords = prepareRepetitionWords();
+        WordDto word = repetitionWords.getLast();
+        DictionaryDto dictionaryDto = new DictionaryDto(1L, "SomeDictionaryName");
+        RepetitionData repetitionData = new RepetitionData(
+                repetitionWords, dictionaryDto, USER_ID, ZoneId.of("Asia/Tokyo"), RepetitionType.INPUT, true);
+        when(repository.findById(USER_ID.toString())).thenReturn(Optional.of(repetitionData));
+
+        WSResponse response = mock(WSResponse.class);
+        String responseWord = repetitionWords.get(repetitionWords.size() - 2).getWordTranslations().stream()
+                .map(WordTranslationDto::getTranslation)
+                .collect(Collectors.joining(", "));
+        when(response.getWord()).thenReturn(responseWord);
+        when(mapper.toWSResponse(eq(repetitionData), anyLong())).thenReturn(response);
+
+        WSResponse currentWSResponse = inputRepetitionService.handleRepetitionMessage(authentication, wsRequest);
+
+        verify(repository).save(repetitionDataCaptor.capture());
+
+        RepetitionData savedData = repetitionDataCaptor.getValue();
+        Set<String> translationSet = Set.of(savedData.getCurrentWord().getWord());
+        assertThat(savedData.getPassedWords()).contains(word);
+        assertThat(savedData.getWord()).isEqualTo(currentWSResponse.getWord());
+        assertThat(savedData.getTranslations()).isEqualTo(translationSet);
+        assertThat(savedData.getRightAnswersCount()).isEqualTo(1);
+        assertThat(savedData.getTotalElementsPassed()).isEqualTo(1);
     }
 
     private void setAuth() {
