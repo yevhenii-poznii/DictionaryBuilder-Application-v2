@@ -13,9 +13,9 @@ public interface RepetitionWordMapper {
 
     List<WordDto> toDto(List<Word> repetitionWords);
 
-    @Mapping(source = "repetitionData.currentWord.wordHint", target = "wordHint")
+    @Mapping(source = "repetitionData.wordHint", target = "wordHint")
     WSResponse toWSResponse(RepetitionDataDto repetitionData);
 
-    @Mapping(source = "repetitionData.currentWord.wordHint", target = "wordHint")
+    @Mapping(source = "repetitionData.wordHint", target = "wordHint")
     WSResponse toWSResponse(RepetitionDataDto repetitionData, Long correctTranslationsCount);
 }

@@ -16,10 +16,8 @@ public class WSResponse {
     private int skippedWordsCount;
     private int totalElements;
     private int totalElementsPassed;
+    private Long correctTranslationsCount;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<String> translationOptions;
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private Long correctTranslationsCount;
 }
