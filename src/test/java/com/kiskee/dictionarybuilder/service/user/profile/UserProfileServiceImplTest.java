@@ -1,14 +1,17 @@
 package com.kiskee.dictionarybuilder.service.user.profile;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.kiskee.dictionarybuilder.config.properties.user.DefaultUserProfileProperties;
 import com.kiskee.dictionarybuilder.enums.user.UserRole;
+import com.kiskee.dictionarybuilder.exception.user.DuplicateUserException;
 import com.kiskee.dictionarybuilder.mapper.user.profile.UserProfileMapper;
 import com.kiskee.dictionarybuilder.model.dto.registration.InternalRegistrationRequest;
+import com.kiskee.dictionarybuilder.model.dto.user.profile.UpdateUserProfileDto;
 import com.kiskee.dictionarybuilder.model.dto.user.profile.UserCreatedAt;
 import com.kiskee.dictionarybuilder.model.dto.user.profile.UserMiniProfileDto;
 import com.kiskee.dictionarybuilder.model.dto.user.profile.UserProfileDto;
@@ -19,6 +22,7 @@ import com.kiskee.dictionarybuilder.repository.user.profile.UserProfileRepositor
 import com.kiskee.dictionarybuilder.service.vocabulary.dictionary.DictionaryCreationService;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -168,6 +172,48 @@ public class UserProfileServiceImplTest {
         assertThat(actual.publicName()).isEqualTo(userProfile.publicName());
         assertThat(actual.profilePicture()).isEqualTo(userProfile.profilePicture());
         assertThat(actual.createdAt()).isEqualTo(userProfile.createdAt());
+    }
+
+    @Test
+    void testUpdateProfile_WhenProfileExists_ThenReturnUserProfileDto() {
+        setAuth();
+        UpdateUserProfileDto updateUserProfileDto =
+                new UpdateUserProfileDto("newPublicUsername", "new name", "new avatar");
+
+        when(userProfileRepository.existsByPublicUsernameIgnoreCase(updateUserProfileDto.publicUsername()))
+                .thenReturn(false);
+        UserProfile userProfile = mock(UserProfile.class);
+        when(userProfileRepository.findById(USER_ID)).thenReturn(Optional.of(userProfile));
+
+        UserProfile updatedUserProfile = UserProfile.builder()
+                .publicUsername(updateUserProfileDto.publicUsername())
+                .publicName(updateUserProfileDto.publicName())
+                .profilePicture(updateUserProfileDto.profilePicture())
+                .build();
+        when(userProfileMapper.toEntity(updateUserProfileDto, userProfile)).thenReturn(updatedUserProfile);
+        when(userProfileRepository.save(userPreferenceArgumentCaptor.capture())).thenReturn(updatedUserProfile);
+        when(userProfileMapper.toDto(updatedUserProfile)).thenReturn(mock(UserProfileDto.class));
+
+        userProfileService.updateProfile(updateUserProfileDto);
+
+        UserProfile actual = userPreferenceArgumentCaptor.getValue();
+        assertThat(actual.getPublicUsername()).isEqualTo(updateUserProfileDto.publicUsername());
+        assertThat(actual.getPublicName()).isEqualTo(updateUserProfileDto.publicName());
+        assertThat(actual.getProfilePicture()).isEqualTo(updateUserProfileDto.profilePicture());
+    }
+
+    @Test
+    void testUpdateProfile_WhenNewUsernameAlreadyExists_ThenThrowDuplicateUserException() {
+        setAuth();
+        UpdateUserProfileDto updateUserProfileDto =
+                new UpdateUserProfileDto("newPublicUsername", "new name", "new avatar");
+
+        when(userProfileRepository.existsByPublicUsernameIgnoreCase(updateUserProfileDto.publicUsername()))
+                .thenReturn(true);
+
+        assertThatThrownBy(() -> userProfileService.updateProfile(updateUserProfileDto))
+                .isInstanceOf(DuplicateUserException.class)
+                .hasMessageContaining("Username \"newPublicUsername\" already exists");
     }
 
     @Test
