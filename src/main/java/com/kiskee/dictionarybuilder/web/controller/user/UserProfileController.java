@@ -1,6 +1,7 @@
 package com.kiskee.dictionarybuilder.web.controller.user;
 
 import com.kiskee.dictionarybuilder.model.dto.user.profile.UpdateUserProfileDto;
+import com.kiskee.dictionarybuilder.model.dto.user.profile.UserFullProfileDto;
 import com.kiskee.dictionarybuilder.model.dto.user.profile.UserMiniProfileDto;
 import com.kiskee.dictionarybuilder.model.dto.user.profile.UserProfileDto;
 import com.kiskee.dictionarybuilder.service.user.profile.UserProfileService;
@@ -27,7 +28,7 @@ public class UserProfileController {
     }
 
     @GetMapping("/me")
-    public UserProfileDto getFullProfile() {
+    public UserFullProfileDto getFullProfile() {
         return userProfileService.getFullProfile();
     }
 

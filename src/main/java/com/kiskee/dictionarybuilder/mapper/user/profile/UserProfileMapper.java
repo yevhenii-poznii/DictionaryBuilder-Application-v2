@@ -1,8 +1,10 @@
 package com.kiskee.dictionarybuilder.mapper.user.profile;
 
+import com.kiskee.dictionarybuilder.enums.user.ProfileVisibility;
 import com.kiskee.dictionarybuilder.mapper.user.UserBaseMapper;
 import com.kiskee.dictionarybuilder.model.dto.registration.RegistrationRequest;
 import com.kiskee.dictionarybuilder.model.dto.user.profile.UpdateUserProfileDto;
+import com.kiskee.dictionarybuilder.model.dto.user.profile.UserFullProfileDto;
 import com.kiskee.dictionarybuilder.model.dto.user.profile.UserProfileDto;
 import com.kiskee.dictionarybuilder.model.entity.user.profile.UserProfile;
 import com.kiskee.dictionarybuilder.model.entity.vocabulary.Dictionary;
@@ -22,4 +24,6 @@ public interface UserProfileMapper extends UserBaseMapper {
     UserProfile toEntity(UpdateUserProfileDto updateUserProfileDto, @MappingTarget UserProfile userProfile);
 
     UserProfileDto toDto(UserProfile userProfile);
+
+    UserFullProfileDto toDto(UserProfileDto userProfileDto, ProfileVisibility profileVisibility);
 }

@@ -26,7 +26,7 @@ import org.springframework.stereotype.Service;
 @Order(2)
 @AllArgsConstructor
 public class UserPreferenceServiceImpl extends AbstractUserProfilePreferenceInitializationService<UserPreference>
-        implements UserInitializingService, UserPreferenceService, WordPreferenceService {
+        implements UserInitializingService, UserPreferenceService, WordPreferenceService, ProfilePreferenceService {
 
     @Getter
     private final UserPreferenceRepository repository;
@@ -52,6 +52,12 @@ public class UserPreferenceServiceImpl extends AbstractUserProfilePreferenceInit
     @Override
     public DictionaryPreference getDictionaryPreference() {
         return getPreference(() -> repository.findDictionaryPreferenceByUserId(IdentityUtil.getUserId()));
+    }
+
+    @Override
+    public ProfileVisibility getProfileVisibility() {
+        return getPreference(() -> repository.findProfileVisibilityByUserId(IdentityUtil.getUserId()))
+                .profileVisibility();
     }
 
     @Override
