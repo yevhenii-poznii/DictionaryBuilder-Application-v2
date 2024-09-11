@@ -11,6 +11,7 @@ import com.kiskee.dictionarybuilder.enums.vocabulary.PageFilter;
 import com.kiskee.dictionarybuilder.mapper.user.preference.UserPreferenceMapper;
 import com.kiskee.dictionarybuilder.model.dto.registration.InternalRegistrationRequest;
 import com.kiskee.dictionarybuilder.model.dto.user.preference.DictionaryPreference;
+import com.kiskee.dictionarybuilder.model.dto.user.preference.ProfilePreferenceDto;
 import com.kiskee.dictionarybuilder.model.dto.user.preference.UserPreferenceDto;
 import com.kiskee.dictionarybuilder.model.dto.user.preference.WordPreference;
 import com.kiskee.dictionarybuilder.model.entity.user.UserVocabularyApplication;
@@ -147,6 +148,18 @@ public class UserPreferenceServiceImplTest {
         assertThat(actualDictionaryPreference.wordsPerPage()).isEqualTo(wordsPerPage);
         assertThat(actualDictionaryPreference.blurTranslation()).isEqualTo(blurTranslation);
         assertThat(actualDictionaryPreference.pageFilter()).isEqualTo(pageFilter);
+    }
+
+    @Test
+    void testGetProfileVisibility_WhenProfilePreferenceExists_ThenReturnProfileVisibility() {
+        setAuth();
+
+        ProfilePreferenceDto profilePreferenceDto = new ProfilePreferenceDto(ProfileVisibility.PUBLIC);
+        when(userPreferenceRepository.findProfileVisibilityByUserId(USER_ID)).thenReturn(profilePreferenceDto);
+
+        ProfileVisibility actualProfileVisibility = userPreferenceService.getProfileVisibility();
+
+        assertThat(actualProfileVisibility).isEqualTo(profilePreferenceDto.profileVisibility());
     }
 
     private void setAuth() {

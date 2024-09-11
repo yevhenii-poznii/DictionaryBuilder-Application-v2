@@ -7,18 +7,21 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.kiskee.dictionarybuilder.config.properties.user.DefaultUserProfileProperties;
+import com.kiskee.dictionarybuilder.enums.user.ProfileVisibility;
 import com.kiskee.dictionarybuilder.enums.user.UserRole;
 import com.kiskee.dictionarybuilder.exception.user.DuplicateUserException;
 import com.kiskee.dictionarybuilder.mapper.user.profile.UserProfileMapper;
 import com.kiskee.dictionarybuilder.model.dto.registration.InternalRegistrationRequest;
 import com.kiskee.dictionarybuilder.model.dto.user.profile.UpdateUserProfileDto;
 import com.kiskee.dictionarybuilder.model.dto.user.profile.UserCreatedAt;
+import com.kiskee.dictionarybuilder.model.dto.user.profile.UserFullProfileDto;
 import com.kiskee.dictionarybuilder.model.dto.user.profile.UserMiniProfileDto;
 import com.kiskee.dictionarybuilder.model.dto.user.profile.UserProfileDto;
 import com.kiskee.dictionarybuilder.model.entity.user.UserVocabularyApplication;
 import com.kiskee.dictionarybuilder.model.entity.user.profile.UserProfile;
 import com.kiskee.dictionarybuilder.model.entity.vocabulary.Dictionary;
 import com.kiskee.dictionarybuilder.repository.user.profile.UserProfileRepository;
+import com.kiskee.dictionarybuilder.service.user.preference.ProfilePreferenceService;
 import com.kiskee.dictionarybuilder.service.vocabulary.dictionary.DictionaryCreationService;
 import java.time.Instant;
 import java.util.List;
@@ -51,6 +54,9 @@ public class UserProfileServiceImplTest {
 
     @Mock
     private DictionaryCreationService dictionaryCreationService;
+
+    @Mock
+    private ProfilePreferenceService profilePreference;
 
     @Mock
     private ProfilePictureEncoder profilePictureEncoder;
@@ -162,11 +168,22 @@ public class UserProfileServiceImplTest {
     void testGetFullProfile_WhenProfileExists_ThenReturnUserProfileDto() {
         setAuth();
 
+        ProfileVisibility profileVisibility = ProfileVisibility.PUBLIC;
+        when(profilePreference.getProfileVisibility()).thenReturn(profileVisibility);
+
         UserProfileDto userProfile = new UserProfileDto(
                 "username", "public name", "someEncodedPicture", Instant.parse("2024-08-20T12:45:33Z"));
-        when(userProfileRepository.findUserProfileByUserId(USER_ID)).thenReturn(userProfile);
+        when(userProfileRepository.findUserProfileByUserId(USER_ID)).thenReturn(Optional.of(userProfile));
 
-        UserProfileDto actual = userProfileService.getFullProfile();
+        UserFullProfileDto userFullProfileDto = new UserFullProfileDto(
+                userProfile.publicUsername(),
+                userProfile.publicName(),
+                userProfile.profilePicture(),
+                userProfile.createdAt(),
+                profileVisibility);
+        when(userProfileMapper.toDto(userProfile, profileVisibility)).thenReturn(userFullProfileDto);
+
+        UserFullProfileDto actual = userProfileService.getFullProfile();
 
         assertThat(actual.publicUsername()).isEqualTo(userProfile.publicUsername());
         assertThat(actual.publicName()).isEqualTo(userProfile.publicName());
