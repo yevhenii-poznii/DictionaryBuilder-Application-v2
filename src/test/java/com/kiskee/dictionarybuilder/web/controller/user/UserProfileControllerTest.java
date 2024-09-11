@@ -8,8 +8,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kiskee.dictionarybuilder.enums.user.ProfileVisibility;
 import com.kiskee.dictionarybuilder.exception.user.DuplicateUserException;
 import com.kiskee.dictionarybuilder.model.dto.user.profile.UpdateUserProfileDto;
+import com.kiskee.dictionarybuilder.model.dto.user.profile.UserFullProfileDto;
 import com.kiskee.dictionarybuilder.model.dto.user.profile.UserMiniProfileDto;
 import com.kiskee.dictionarybuilder.model.dto.user.profile.UserProfileDto;
 import com.kiskee.dictionarybuilder.service.user.profile.UserProfileService;
@@ -72,8 +74,12 @@ public class UserProfileControllerTest {
     @Test
     @SneakyThrows
     void testGetFullProfile_WhenProfileExists_ThenReturnUserProfileDto() {
-        UserProfileDto profileDto = new UserProfileDto(
-                "username", "public name", "someEncodedPicture", Instant.parse("2024-08-20T12:45:33Z"));
+        UserFullProfileDto profileDto = new UserFullProfileDto(
+                "username",
+                "public name",
+                "someEncodedPicture",
+                Instant.parse("2024-08-20T12:45:33Z"),
+                ProfileVisibility.PRIVATE);
 
         when(userProfileService.getFullProfile()).thenReturn(profileDto);
 
