@@ -1,6 +1,7 @@
 package com.kiskee.dictionarybuilder.service.user.profile;
 
 import com.kiskee.dictionarybuilder.config.properties.user.DefaultUserProfileProperties;
+import com.kiskee.dictionarybuilder.exception.user.DuplicateUserException;
 import com.kiskee.dictionarybuilder.mapper.user.profile.UserProfileMapper;
 import com.kiskee.dictionarybuilder.model.dto.registration.RegistrationRequest;
 import com.kiskee.dictionarybuilder.model.dto.user.profile.UpdateUserProfileDto;
@@ -57,13 +58,19 @@ public class UserProfileServiceImpl extends AbstractUserProfilePreferenceInitial
     @Override
     public UserProfileDto updateProfile(UpdateUserProfileDto updateUserProfileDto) {
         UUID userId = IdentityUtil.getUserId();
-        UserProfile userProfile = repository
+        boolean exists = repository.existsByPublicUsernameIgnoreCase(updateUserProfileDto.publicUsername());
+        if (exists) {
+            throw new DuplicateUserException(
+                    String.format("Username \"%s\" already exists", updateUserProfileDto.publicUsername()));
+        }
+        UserProfileDto userProfileDto = repository
                 .findById(userId)
+                .map(userProfile -> mapper.toEntity(updateUserProfileDto, userProfile))
+                .map(repository::save)
+                .map(mapper::toDto)
                 .orElseThrow(ThrowUtil.throwNotFoundException(UserProfile.class.getSimpleName(), userId.toString()));
-        UserProfile updatedUserProfile = mapper.toEntity(updateUserProfileDto, userProfile);
-        repository.save(updatedUserProfile);
-        log.info("User profile updated for user: {}", updatedUserProfile);
-        return mapper.toDto(updatedUserProfile);
+        log.info("User profile updated for user: {}", userId);
+        return userProfileDto;
     }
 
     @Override

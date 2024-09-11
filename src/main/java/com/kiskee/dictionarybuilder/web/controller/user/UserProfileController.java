@@ -4,6 +4,7 @@ import com.kiskee.dictionarybuilder.model.dto.user.profile.UpdateUserProfileDto;
 import com.kiskee.dictionarybuilder.model.dto.user.profile.UserMiniProfileDto;
 import com.kiskee.dictionarybuilder.model.dto.user.profile.UserProfileDto;
 import com.kiskee.dictionarybuilder.service.user.profile.UserProfileService;
+import jakarta.validation.Valid;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,7 +32,7 @@ public class UserProfileController {
     }
 
     @PutMapping("/me")
-    public UserProfileDto updateProfile(@RequestBody UpdateUserProfileDto updateUserProfileDto) {
+    public UserProfileDto updateProfile(@RequestBody @Valid UpdateUserProfileDto updateUserProfileDto) {
         return userProfileService.updateProfile(updateUserProfileDto);
     }
 
