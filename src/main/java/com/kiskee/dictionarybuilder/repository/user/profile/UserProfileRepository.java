@@ -14,4 +14,6 @@ public interface UserProfileRepository extends JpaRepository<UserProfile, UUID> 
     UserProfileDto findUserProfileByUserId(UUID userId);
 
     UserCreatedAt findCreatedAtByUserId(UUID userId);
+
+    boolean existsByPublicUsernameIgnoreCase(String publicUsername);
 }
