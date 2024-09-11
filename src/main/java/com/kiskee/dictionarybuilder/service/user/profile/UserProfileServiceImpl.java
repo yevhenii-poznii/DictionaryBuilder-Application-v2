@@ -3,6 +3,7 @@ package com.kiskee.dictionarybuilder.service.user.profile;
 import com.kiskee.dictionarybuilder.config.properties.user.DefaultUserProfileProperties;
 import com.kiskee.dictionarybuilder.mapper.user.profile.UserProfileMapper;
 import com.kiskee.dictionarybuilder.model.dto.registration.RegistrationRequest;
+import com.kiskee.dictionarybuilder.model.dto.user.profile.UpdateUserProfileDto;
 import com.kiskee.dictionarybuilder.model.dto.user.profile.UserMiniProfileDto;
 import com.kiskee.dictionarybuilder.model.dto.user.profile.UserProfileDto;
 import com.kiskee.dictionarybuilder.model.entity.user.profile.UserProfile;
@@ -12,15 +13,18 @@ import com.kiskee.dictionarybuilder.service.user.AbstractUserProfilePreferenceIn
 import com.kiskee.dictionarybuilder.service.user.UserInitializingService;
 import com.kiskee.dictionarybuilder.service.vocabulary.dictionary.DictionaryCreationService;
 import com.kiskee.dictionarybuilder.util.IdentityUtil;
+import com.kiskee.dictionarybuilder.util.ThrowUtil;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @Order(2)
 @AllArgsConstructor
@@ -48,6 +52,18 @@ public class UserProfileServiceImpl extends AbstractUserProfilePreferenceInitial
     @Override
     public UserProfileDto getFullProfile() {
         return repository.findUserProfileByUserId(IdentityUtil.getUserId());
+    }
+
+    @Override
+    public UserProfileDto updateProfile(UpdateUserProfileDto updateUserProfileDto) {
+        UUID userId = IdentityUtil.getUserId();
+        UserProfile userProfile = repository
+                .findById(userId)
+                .orElseThrow(ThrowUtil.throwNotFoundException(UserProfile.class.getSimpleName(), userId.toString()));
+        UserProfile updatedUserProfile = mapper.toEntity(updateUserProfileDto, userProfile);
+        repository.save(updatedUserProfile);
+        log.info("User profile updated for user: {}", updatedUserProfile);
+        return mapper.toDto(updatedUserProfile);
     }
 
     @Override
