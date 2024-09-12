@@ -7,5 +7,7 @@ public interface UserPreferenceService {
 
     UserPreferenceDto getUserPreference();
 
+    UserPreferenceDto updateUserPreference(UserPreferenceDto userPreferenceDto);
+
     DictionaryPreference getDictionaryPreference();
 }
