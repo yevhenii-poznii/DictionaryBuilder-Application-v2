@@ -1,6 +1,7 @@
 package com.kiskee.dictionarybuilder.service.user.preference;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -8,6 +9,7 @@ import static org.mockito.Mockito.when;
 import com.kiskee.dictionarybuilder.config.properties.user.DefaultUserPreferenceProperties;
 import com.kiskee.dictionarybuilder.enums.user.ProfileVisibility;
 import com.kiskee.dictionarybuilder.enums.vocabulary.PageFilter;
+import com.kiskee.dictionarybuilder.exception.ResourceNotFoundException;
 import com.kiskee.dictionarybuilder.mapper.user.preference.UserPreferenceMapper;
 import com.kiskee.dictionarybuilder.model.dto.registration.InternalRegistrationRequest;
 import com.kiskee.dictionarybuilder.model.dto.user.preference.DictionaryPreference;
@@ -19,6 +21,7 @@ import com.kiskee.dictionarybuilder.model.entity.user.preference.UserPreference;
 import com.kiskee.dictionarybuilder.repository.user.preference.UserPreferenceRepository;
 import java.time.Duration;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -128,6 +131,55 @@ public class UserPreferenceServiceImplTest {
         assertThat(actualUserPreference.newWordsPerDayGoal()).isEqualTo(userPreferenceDto.newWordsPerDayGoal());
         assertThat(actualUserPreference.dailyRepetitionDurationGoal())
                 .isEqualTo(userPreferenceDto.dailyRepetitionDurationGoal());
+    }
+
+    @Test
+    void testUpdateUserPreference_WhenUserPreferenceExists_ThenUpdateAndReturnUserPreferenceDto() {
+        setAuth();
+        UserPreferenceDto userPreferenceDto = new UserPreferenceDto(
+                ProfileVisibility.PUBLIC, 100, true, PageFilter.BY_ADDED_AT_ASC, 10, 10, Duration.ofHours(1));
+
+        UserPreference userPreference = mock(UserPreference.class);
+        when(userPreferenceRepository.findById(USER_ID)).thenReturn(Optional.of(userPreference));
+        UserPreference updated = new UserPreference(
+                USER_ID,
+                userPreferenceDto.profileVisibility(),
+                userPreferenceDto.wordsPerPage(),
+                userPreferenceDto.blurTranslation(),
+                userPreferenceDto.pageFilter(),
+                userPreferenceDto.rightAnswersToDisableInRepetition(),
+                userPreferenceDto.newWordsPerDayGoal(),
+                userPreferenceDto.dailyRepetitionDurationGoal(),
+                mock(UserVocabularyApplication.class));
+        when(userPreferenceMapper.toEntity(userPreferenceDto, userPreference)).thenReturn(updated);
+        when(userPreferenceRepository.save(userPreferenceArgumentCaptor.capture()))
+                .thenReturn(userPreference);
+        when(userPreferenceMapper.toDto(userPreference)).thenReturn(userPreferenceDto);
+
+        UserPreferenceDto result = userPreferenceService.updateUserPreference(userPreferenceDto);
+
+        UserPreference actual = userPreferenceArgumentCaptor.getValue();
+        assertThat(actual.getUserId()).isEqualTo(USER_ID);
+        assertThat(actual.getProfileVisibility()).isEqualTo(result.profileVisibility());
+        assertThat(actual.getWordsPerPage()).isEqualTo(result.wordsPerPage());
+        assertThat(actual.isBlurTranslation()).isEqualTo(result.blurTranslation());
+        assertThat(actual.getPageFilter()).isEqualTo(result.pageFilter());
+        assertThat(actual.getRightAnswersToDisableInRepetition()).isEqualTo(result.rightAnswersToDisableInRepetition());
+        assertThat(actual.getNewWordsPerDayGoal()).isEqualTo(result.newWordsPerDayGoal());
+        assertThat(actual.getDailyRepetitionDurationGoal()).isEqualTo(result.dailyRepetitionDurationGoal());
+    }
+
+    @Test
+    void testUpdateUserPreference_WhenUserPreferenceDoesNotExist_ThenThrowResourceNotFoundException() {
+        setAuth();
+        UserPreferenceDto userPreferenceDto = new UserPreferenceDto(
+                ProfileVisibility.PUBLIC, 100, true, PageFilter.BY_ADDED_AT_ASC, 10, 10, Duration.ofHours(1));
+
+        when(userPreferenceRepository.findById(USER_ID)).thenReturn(Optional.empty());
+
+        assertThatExceptionOfType(ResourceNotFoundException.class)
+                .isThrownBy(() -> userPreferenceService.updateUserPreference(userPreferenceDto))
+                .withMessage(String.format("%s [%s] hasn't been found", UserPreference.class.getSimpleName(), USER_ID));
     }
 
     @Test
