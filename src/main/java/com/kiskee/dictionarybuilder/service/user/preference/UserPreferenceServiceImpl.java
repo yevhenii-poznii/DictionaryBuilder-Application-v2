@@ -13,6 +13,7 @@ import com.kiskee.dictionarybuilder.repository.user.preference.UserPreferenceRep
 import com.kiskee.dictionarybuilder.service.user.AbstractUserProfilePreferenceInitializationService;
 import com.kiskee.dictionarybuilder.service.user.UserInitializingService;
 import com.kiskee.dictionarybuilder.util.IdentityUtil;
+import com.kiskee.dictionarybuilder.util.ThrowUtil;
 import java.util.UUID;
 import java.util.function.Supplier;
 import lombok.AllArgsConstructor;
@@ -20,6 +21,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -47,6 +49,20 @@ public class UserPreferenceServiceImpl extends AbstractUserProfilePreferenceInit
     @Override
     public UserPreferenceDto getUserPreference() {
         return getPreference(() -> repository.findUserPreferenceByUserId(IdentityUtil.getUserId()));
+    }
+
+    @Override
+    @Transactional
+    public UserPreferenceDto updateUserPreference(UserPreferenceDto userPreferenceDto) {
+        UUID userId = IdentityUtil.getUserId();
+        UserPreferenceDto updatedUserPreference = repository
+                .findById(userId)
+                .map(userPreference -> mapper.toEntity(userPreferenceDto, userPreference))
+                .map(repository::save)
+                .map(mapper::toDto)
+                .orElseThrow(ThrowUtil.throwNotFoundException(UserPreference.class.getSimpleName(), userId.toString()));
+        log.info("User preference updated for user {}", userId);
+        return updatedUserPreference;
     }
 
     @Override
