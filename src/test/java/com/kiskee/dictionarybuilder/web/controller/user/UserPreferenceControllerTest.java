@@ -11,13 +11,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kiskee.dictionarybuilder.enums.user.ProfileVisibility;
 import com.kiskee.dictionarybuilder.enums.vocabulary.PageFilter;
 import com.kiskee.dictionarybuilder.exception.ResourceNotFoundException;
-import com.kiskee.dictionarybuilder.model.dto.user.preference.DictionaryPreference;
 import com.kiskee.dictionarybuilder.model.dto.user.preference.UserPreferenceDto;
+import com.kiskee.dictionarybuilder.model.dto.user.preference.UserPreferenceOptionsDto;
+import com.kiskee.dictionarybuilder.model.dto.user.preference.dictionary.DictionaryPreferenceOptionDto;
 import com.kiskee.dictionarybuilder.service.user.preference.UserPreferenceService;
 import com.kiskee.dictionarybuilder.util.TimeZoneContextHolder;
 import java.time.Duration;
 import java.util.stream.Stream;
 import lombok.SneakyThrows;
+import org.apache.commons.lang3.EnumUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -57,8 +59,16 @@ public class UserPreferenceControllerTest {
     @Test
     @SneakyThrows
     void testGetUserPreference_WhenPreferenceExists_ThenReturnUserPreferenceDto() {
-        UserPreferenceDto userPreferenceDto = new UserPreferenceDto(
-                ProfileVisibility.PUBLIC, 100, true, PageFilter.BY_ADDED_AT_ASC, 10, 10, Duration.ofHours(1));
+        UserPreferenceOptionsDto userPreferenceDto = new UserPreferenceOptionsDto(
+                ProfileVisibility.PUBLIC,
+                100,
+                true,
+                PageFilter.BY_ADDED_AT_ASC,
+                10,
+                10,
+                Duration.ofHours(1),
+                EnumUtils.getEnumMap(ProfileVisibility.class, ProfileVisibility::getVisibility),
+                EnumUtils.getEnumMap(PageFilter.class, PageFilter::getFilter));
 
         when(userPreferenceService.getUserPreference()).thenReturn(userPreferenceDto);
 
@@ -74,7 +84,8 @@ public class UserPreferenceControllerTest {
     @Test
     @SneakyThrows
     void testGetDictionaryPreference_WhenPreferenceExists_ThenReturnUserDictionaryPreferenceDto() {
-        DictionaryPreference dictionaryPreference = new DictionaryPreference(100, true, PageFilter.BY_ADDED_AT_ASC);
+        DictionaryPreferenceOptionDto dictionaryPreference = new DictionaryPreferenceOptionDto(
+                100, true, PageFilter.BY_ADDED_AT_ASC, EnumUtils.getEnumMap(PageFilter.class, PageFilter::getFilter));
 
         when(userPreferenceService.getDictionaryPreference()).thenReturn(dictionaryPreference);
 

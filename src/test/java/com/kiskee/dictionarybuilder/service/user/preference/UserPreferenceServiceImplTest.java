@@ -12,10 +12,12 @@ import com.kiskee.dictionarybuilder.enums.vocabulary.PageFilter;
 import com.kiskee.dictionarybuilder.exception.ResourceNotFoundException;
 import com.kiskee.dictionarybuilder.mapper.user.preference.UserPreferenceMapper;
 import com.kiskee.dictionarybuilder.model.dto.registration.InternalRegistrationRequest;
-import com.kiskee.dictionarybuilder.model.dto.user.preference.DictionaryPreference;
-import com.kiskee.dictionarybuilder.model.dto.user.preference.ProfilePreferenceDto;
 import com.kiskee.dictionarybuilder.model.dto.user.preference.UserPreferenceDto;
+import com.kiskee.dictionarybuilder.model.dto.user.preference.UserPreferenceOptionsDto;
 import com.kiskee.dictionarybuilder.model.dto.user.preference.WordPreference;
+import com.kiskee.dictionarybuilder.model.dto.user.preference.dictionary.DictionaryPreferenceDto;
+import com.kiskee.dictionarybuilder.model.dto.user.preference.dictionary.DictionaryPreferenceOptionDto;
+import com.kiskee.dictionarybuilder.model.dto.user.preference.profile.ProfilePreferenceDto;
 import com.kiskee.dictionarybuilder.model.entity.user.UserVocabularyApplication;
 import com.kiskee.dictionarybuilder.model.entity.user.preference.UserPreference;
 import com.kiskee.dictionarybuilder.repository.user.preference.UserPreferenceRepository;
@@ -23,6 +25,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.apache.commons.lang3.EnumUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -97,7 +100,7 @@ public class UserPreferenceServiceImplTest {
     }
 
     @Test
-    void testWordPreference_WhenUserIdIsGiven_ThenReturnWordPreference() {
+    void testGetWordPreference_WhenUserIdIsGiven_ThenReturnWordPreference() {
         UUID userId = UUID.fromString("75ab44f4-40a3-4094-a885-51ade9e6df4a");
         int rightAnswersToDisableInRepetition = 10;
         int newWordsPerDayGoal = 10;
@@ -113,14 +116,25 @@ public class UserPreferenceServiceImplTest {
     }
 
     @Test
-    void testUserPreference_WhenUserPreferenceExists_ThenReturnUserPreferenceDto() {
+    void testGetUserPreference_WhenUserPreferenceExists_ThenReturnUserPreferenceOptionsDto() {
         setAuth();
 
         UserPreferenceDto userPreferenceDto = new UserPreferenceDto(
                 ProfileVisibility.PUBLIC, 100, true, PageFilter.BY_ADDED_AT_ASC, 10, 10, Duration.ofHours(1));
         when(userPreferenceRepository.findUserPreferenceByUserId(USER_ID)).thenReturn(userPreferenceDto);
+        UserPreferenceOptionsDto userPreferenceOptionsDto = new UserPreferenceOptionsDto(
+                userPreferenceDto.profileVisibility(),
+                userPreferenceDto.wordsPerPage(),
+                userPreferenceDto.blurTranslation(),
+                userPreferenceDto.pageFilter(),
+                userPreferenceDto.rightAnswersToDisableInRepetition(),
+                userPreferenceDto.newWordsPerDayGoal(),
+                userPreferenceDto.dailyRepetitionDurationGoal(),
+                EnumUtils.getEnumMap(ProfileVisibility.class, ProfileVisibility::getVisibility),
+                EnumUtils.getEnumMap(PageFilter.class, PageFilter::getFilter));
+        when(userPreferenceMapper.toDto(userPreferenceDto)).thenReturn(userPreferenceOptionsDto);
 
-        UserPreferenceDto actualUserPreference = userPreferenceService.getUserPreference();
+        UserPreferenceOptionsDto actualUserPreference = userPreferenceService.getUserPreference();
 
         assertThat(actualUserPreference.profileVisibility()).isEqualTo(ProfileVisibility.PUBLIC);
         assertThat(actualUserPreference.wordsPerPage()).isEqualTo(userPreferenceDto.wordsPerPage());
@@ -183,19 +197,24 @@ public class UserPreferenceServiceImplTest {
     }
 
     @Test
-    void testDictionaryPreference_WhenDictionaryPreferenceExists_ThenReturnDictionaryPreferenceDto() {
+    void testGetDictionaryPreference_WhenDictionaryPreferenceExists_ThenReturnDictionaryPreferenceDto() {
         setAuth();
 
         int wordsPerPage = 100;
         boolean blurTranslation = true;
         PageFilter pageFilter = PageFilter.BY_ADDED_AT_ASC;
-        DictionaryPreference expectedDictionaryPreference =
-                new DictionaryPreference(wordsPerPage, blurTranslation, pageFilter);
-
+        DictionaryPreferenceDto expectedDictionaryPreference =
+                new DictionaryPreferenceDto(wordsPerPage, blurTranslation, pageFilter);
         when(userPreferenceRepository.findDictionaryPreferenceByUserId(USER_ID))
                 .thenReturn(expectedDictionaryPreference);
+        DictionaryPreferenceOptionDto dictionaryPreferenceOptionDto = new DictionaryPreferenceOptionDto(
+                wordsPerPage,
+                blurTranslation,
+                pageFilter,
+                EnumUtils.getEnumMap(PageFilter.class, PageFilter::getFilter));
+        when(userPreferenceMapper.toDto(expectedDictionaryPreference)).thenReturn(dictionaryPreferenceOptionDto);
 
-        DictionaryPreference actualDictionaryPreference = userPreferenceService.getDictionaryPreference();
+        DictionaryPreferenceOptionDto actualDictionaryPreference = userPreferenceService.getDictionaryPreference();
 
         assertThat(actualDictionaryPreference.wordsPerPage()).isEqualTo(wordsPerPage);
         assertThat(actualDictionaryPreference.blurTranslation()).isEqualTo(blurTranslation);
