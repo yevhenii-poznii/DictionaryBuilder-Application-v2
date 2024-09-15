@@ -1,4 +1,4 @@
-package com.kiskee.dictionarybuilder.model.dto.user.preference;
+package com.kiskee.dictionarybuilder.model.dto.user.preference.profile;
 
 import com.kiskee.dictionarybuilder.enums.user.ProfileVisibility;
 

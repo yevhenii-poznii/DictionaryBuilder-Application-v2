@@ -5,9 +5,11 @@ import com.kiskee.dictionarybuilder.enums.user.ProfileVisibility;
 import com.kiskee.dictionarybuilder.enums.vocabulary.PageFilter;
 import com.kiskee.dictionarybuilder.mapper.user.preference.UserPreferenceMapper;
 import com.kiskee.dictionarybuilder.model.dto.registration.RegistrationRequest;
-import com.kiskee.dictionarybuilder.model.dto.user.preference.DictionaryPreference;
 import com.kiskee.dictionarybuilder.model.dto.user.preference.UserPreferenceDto;
+import com.kiskee.dictionarybuilder.model.dto.user.preference.UserPreferenceOptionsDto;
 import com.kiskee.dictionarybuilder.model.dto.user.preference.WordPreference;
+import com.kiskee.dictionarybuilder.model.dto.user.preference.dictionary.DictionaryPreferenceDto;
+import com.kiskee.dictionarybuilder.model.dto.user.preference.dictionary.DictionaryPreferenceOptionDto;
 import com.kiskee.dictionarybuilder.model.entity.user.preference.UserPreference;
 import com.kiskee.dictionarybuilder.repository.user.preference.UserPreferenceRepository;
 import com.kiskee.dictionarybuilder.service.user.AbstractUserProfilePreferenceInitializationService;
@@ -47,8 +49,10 @@ public class UserPreferenceServiceImpl extends AbstractUserProfilePreferenceInit
     }
 
     @Override
-    public UserPreferenceDto getUserPreference() {
-        return getPreference(() -> repository.findUserPreferenceByUserId(IdentityUtil.getUserId()));
+    public UserPreferenceOptionsDto getUserPreference() {
+        UserPreferenceDto userPreferenceDto =
+                getPreference(() -> repository.findUserPreferenceByUserId(IdentityUtil.getUserId()));
+        return mapper.toDto(userPreferenceDto);
     }
 
     @Override
@@ -66,8 +70,10 @@ public class UserPreferenceServiceImpl extends AbstractUserProfilePreferenceInit
     }
 
     @Override
-    public DictionaryPreference getDictionaryPreference() {
-        return getPreference(() -> repository.findDictionaryPreferenceByUserId(IdentityUtil.getUserId()));
+    public DictionaryPreferenceOptionDto getDictionaryPreference() {
+        DictionaryPreferenceDto dictionaryPreferenceDto =
+                getPreference(() -> repository.findDictionaryPreferenceByUserId(IdentityUtil.getUserId()));
+        return mapper.toDto(dictionaryPreferenceDto);
     }
 
     @Override

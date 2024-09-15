@@ -6,12 +6,12 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum PageFilter {
-    BY_ADDED_AT_ASC("addedAtASC"),
-    BY_ADDED_AT_DESC("addedAtDESC"),
-    ONLY_USE_IN_REPETITION_ASC("onlyUseInRepetitionASC"),
-    ONLY_USE_IN_REPETITION_DESC("onlyUseInRepetitionDESC"),
-    ONLY_NOT_USE_IN_REPETITION_ASC("onlyNotUseInRepetitionASC"),
-    ONLY_NOT_USE_IN_REPETITION_DESC("onlyNotUseInRepetitionDESC");
+    BY_ADDED_AT_ASC("Oldest First"),
+    BY_ADDED_AT_DESC("Newest First"),
+    ONLY_USE_IN_REPETITION_ASC("In Repetition (A-Z)"),
+    ONLY_USE_IN_REPETITION_DESC("In Repetition (Z-A)"),
+    ONLY_NOT_USE_IN_REPETITION_ASC("Not in Repetition (A-Z)"),
+    ONLY_NOT_USE_IN_REPETITION_DESC("Not in Repetition (Z-A)");
 
     private final String filter;
 }
