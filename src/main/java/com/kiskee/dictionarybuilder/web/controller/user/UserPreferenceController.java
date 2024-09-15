@@ -1,7 +1,8 @@
 package com.kiskee.dictionarybuilder.web.controller.user;
 
-import com.kiskee.dictionarybuilder.model.dto.user.preference.DictionaryPreference;
 import com.kiskee.dictionarybuilder.model.dto.user.preference.UserPreferenceDto;
+import com.kiskee.dictionarybuilder.model.dto.user.preference.UserPreferenceOptionsDto;
+import com.kiskee.dictionarybuilder.model.dto.user.preference.dictionary.DictionaryPreferenceOptionDto;
 import com.kiskee.dictionarybuilder.service.user.preference.UserPreferenceService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +20,7 @@ public class UserPreferenceController {
     private final UserPreferenceService userPreferenceService;
 
     @GetMapping
-    public UserPreferenceDto getUserPreference() {
+    public UserPreferenceOptionsDto getUserPreference() {
         return userPreferenceService.getUserPreference();
     }
 
@@ -29,7 +30,7 @@ public class UserPreferenceController {
     }
 
     @GetMapping("/dictionary")
-    public DictionaryPreference getDictionaryPreference() {
+    public DictionaryPreferenceOptionDto getDictionaryPreference() {
         return userPreferenceService.getDictionaryPreference();
     }
 }

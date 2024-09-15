@@ -16,10 +16,10 @@ public class DictionaryPageLoaderFactoryImpl implements DictionaryPageLoaderFact
     public DictionaryPageLoaderFactoryImpl(List<DictionaryPageLoader> dictionaryPageLoaders) {
         this.loaders = new HashMap<>();
         dictionaryPageLoaders.forEach(
-                loader -> loaders.put(loader.getPageFilter().getFilter(), loader));
+                loader -> loaders.put(loader.getPageFilter().name(), loader));
     }
 
     public DictionaryPageLoader getLoader(PageFilter filter) {
-        return loaders.get(filter.getFilter());
+        return loaders.get(filter.name());
     }
 }
