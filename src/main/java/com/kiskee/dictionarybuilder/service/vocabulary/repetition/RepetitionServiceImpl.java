@@ -1,5 +1,6 @@
 package com.kiskee.dictionarybuilder.service.vocabulary.repetition;
 
+import com.kiskee.dictionarybuilder.enums.repetition.RepetitionType;
 import com.kiskee.dictionarybuilder.exception.repetition.RepetitionException;
 import com.kiskee.dictionarybuilder.mapper.repetition.RepetitionWordMapper;
 import com.kiskee.dictionarybuilder.model.dto.repetition.RepetitionResultDataDto;
@@ -17,7 +18,6 @@ import com.kiskee.dictionarybuilder.service.vocabulary.repetition.loader.Repetit
 import com.kiskee.dictionarybuilder.service.vocabulary.word.WordCounterUpdateService;
 import com.kiskee.dictionarybuilder.util.IdentityUtil;
 import com.kiskee.dictionarybuilder.util.TimeZoneContextHolder;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -26,33 +26,31 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Service;
 
 @Slf4j
-public abstract class AbstractRepetitionService {
+@Service
+@RequiredArgsConstructor
+public class RepetitionServiceImpl implements RepetitionService {
 
-    protected abstract RepetitionWordLoaderFactory getRepetitionWordLoaderFactory();
+    private final RepetitionWordLoaderFactory repetitionWordLoaderFactory;
+    private final RepetitionDataRepository repository;
+    private final RepetitionWordMapper mapper;
+    private final DictionaryAccessValidator dictionaryAccessValidator;
+    private final WordCounterUpdateService wordCounterUpdateService;
+    private final StatisticUpdateReportManager statisticUpdateReportManager;
 
-    protected abstract RepetitionDataRepository getRepository();
-
-    protected abstract RepetitionWordMapper getMapper();
-
-    protected abstract DictionaryAccessValidator getDictionaryAccessValidator();
-
-    protected abstract WordCounterUpdateService getWordCounterUpdateService();
-
-    protected abstract StatisticUpdateReportManager getStatisticUpdateReportManager();
-
-    protected abstract int getWordsToUpdateCount();
-
-    protected abstract RepetitionData buildRepetitionData(
-            List<WordDto> loadedWords, DictionaryDto dictionaryDto, UUID userId, ZoneId userTimeZone, boolean reversed);
+    @Value("${vocabulary.repetition.words-to-update-count}")
+    private int wordsToUpdateCount;
 
     public RepetitionRunningStatus isRepetitionRunning() {
         UUID userId = IdentityUtil.getUserId();
-        Optional<RepetitionData> repetitionDataOpt = getRepository().findById(userId.toString());
+        Optional<RepetitionData> repetitionDataOpt = repository.findById(userId.toString());
         if (repetitionDataOpt.isPresent()) {
             log.info("Repetition is running for user [{}]", userId);
             RepetitionData repetitionData = repetitionDataOpt.get();
@@ -62,14 +60,15 @@ public abstract class AbstractRepetitionService {
         return new RepetitionRunningStatus(false, false);
     }
 
-    public RepetitionRunningStatus start(long dictionaryId, RepetitionStartFilterRequest request) {
+    public RepetitionRunningStatus start(
+            long dictionaryId, RepetitionType repetitionType, RepetitionStartFilterRequest request) {
         UUID userId = IdentityUtil.getUserId();
-        if (getRepository().existsById(userId.toString())) {
+        if (repository.existsById(userId.toString())) {
             log.info("Repetition is already running for user [{}]", userId);
             throw new RepetitionException("Repetition is already running");
         }
-        DictionaryDto dictionaryDto = getDictionaryAccessValidator().getDictionaryByIdAndUserId(dictionaryId, userId);
-        List<WordDto> words = getRepetitionWordLoaderFactory()
+        DictionaryDto dictionaryDto = dictionaryAccessValidator.getDictionaryByIdAndUserId(dictionaryId, userId);
+        List<WordDto> words = repetitionWordLoaderFactory
                 .getLoader(request.getCriteriaFilter().getFilterType())
                 .loadRepetitionWordPage(dictionaryId, request);
 
@@ -79,23 +78,28 @@ public abstract class AbstractRepetitionService {
         }
         Collections.shuffle(words);
 
-        RepetitionData repetitionData = buildRepetitionData(
-                words, dictionaryDto, userId, TimeZoneContextHolder.getTimeZone(), request.getReversed());
-        getRepository().save(repetitionData);
+        RepetitionData repetitionData = RepetitionDataFactory.createRepetitionData(
+                repetitionType,
+                words,
+                dictionaryDto,
+                userId,
+                TimeZoneContextHolder.getTimeZone(),
+                request.getReversed());
+        repository.save(repetitionData);
         log.info("Repetition has been started for user [{}]", userId);
         return new RepetitionRunningStatus(true, repetitionData.isPaused(), repetitionData.getRepetitionType());
     }
 
     public RepetitionRunningStatus pause() {
         UUID userId = IdentityUtil.getUserId();
-        Optional<RepetitionData> repetitionDataOpt = getRepository().findById(userId.toString());
+        Optional<RepetitionData> repetitionDataOpt = repository.findById(userId.toString());
         if (repetitionDataOpt.isEmpty()) {
             throw new RepetitionException("Repetition is not running");
         }
         RepetitionData repetitionData = repetitionDataOpt.get();
         repetitionData.startPause();
 
-        getRepository().save(repetitionData);
+        repository.save(repetitionData);
         log.info("Repetition has been paused for user [{}]", userId);
         return new RepetitionRunningStatus(true, true, repetitionData.getRepetitionType());
     }
@@ -105,7 +109,7 @@ public abstract class AbstractRepetitionService {
         RepetitionData repetitionData = getRepetitionData(userId);
         repetitionData.endPause();
 
-        getRepository().save(repetitionData);
+        repository.save(repetitionData);
         log.info("Repetition has been unpaused for user [{}]", userId);
         return new RepetitionRunningStatus(true, false, repetitionData.getRepetitionType());
     }
@@ -117,11 +121,11 @@ public abstract class AbstractRepetitionService {
         List<WordDto> passedWords = repetitionData.getPassedWords();
         if (!passedWords.isEmpty()) {
             ArrayList<WordDto> wordsToUpdate = new ArrayList<>(passedWords);
-            getWordCounterUpdateService().updateRightAnswersCounters(userId, wordsToUpdate);
+            wordCounterUpdateService.updateRightAnswersCounters(userId, wordsToUpdate);
         }
         updateRepetitionProgress(repetitionData);
 
-        getRepository().delete(repetitionData);
+        repository.delete(repetitionData);
         log.info("Repetition has been stopped for user [{}]", userId);
         return new RepetitionRunningStatus(false, false);
     }
@@ -140,7 +144,7 @@ public abstract class AbstractRepetitionService {
     }
 
     private RepetitionData getRepetitionData(UUID userId) {
-        Optional<RepetitionData> repetitionDataOpt = getRepository().findById(userId.toString());
+        Optional<RepetitionData> repetitionDataOpt = repository.findById(userId.toString());
         if (repetitionDataOpt.isEmpty()) {
             throw new RepetitionException("Repetition is not running");
         }
@@ -158,23 +162,23 @@ public abstract class AbstractRepetitionService {
     private WSResponse handleStartOperation(RepetitionData repetitionData) {
         WordDto next = repetitionData.getCurrentWord();
         validateNextNonNull(next);
-        return getMapper().toWSResponse(repetitionData);
+        return mapper.toWSResponse(repetitionData);
     }
 
     private WSResponse handleSkipOperation(RepetitionData repetitionData, UUID userId) {
         RepetitionData updatedData = repetitionData.skip();
-        getRepository().save(updatedData);
+        repository.save(updatedData);
 
         validateNextNonNull(updatedData.getCurrentWord());
         log.info("Word has been skipped for user [{}]", userId);
-        return getMapper().toWSResponse(updatedData);
+        return mapper.toWSResponse(updatedData);
     }
 
     private WSResponse handleCheckOperation(WSRequest request, RepetitionData repetitionData, UUID userId) {
         List<WordDto> passedWords = repetitionData.getPassedWords();
-        if (CollectionUtils.isNotEmpty(passedWords) && passedWords.size() >= getWordsToUpdateCount()) {
+        if (CollectionUtils.isNotEmpty(passedWords) && passedWords.size() >= wordsToUpdateCount) {
             ArrayList<WordDto> wordsToUpdate = new ArrayList<>(passedWords);
-            getWordCounterUpdateService().updateRightAnswersCounters(userId, wordsToUpdate);
+            wordCounterUpdateService.updateRightAnswersCounters(userId, wordsToUpdate);
             passedWords.clear();
         }
         if (Objects.isNull(repetitionData.getCurrentWord())) {
@@ -186,9 +190,9 @@ public abstract class AbstractRepetitionService {
                 calculateCorrectTranslationsCount(repetitionData.getTranslations(), translationsToCheck);
 
         RepetitionData updatedRepetitionData = repetitionData.updateData(correctTranslationsCount > 0);
-        getRepository().save(updatedRepetitionData);
+        repository.save(updatedRepetitionData);
         log.info("Word has been checked for user [{}]", userId);
-        return getMapper().toWSResponse(updatedRepetitionData, correctTranslationsCount);
+        return mapper.toWSResponse(updatedRepetitionData, correctTranslationsCount);
     }
 
     private long calculateCorrectTranslationsCount(Set<String> wordTranslations, List<String> translationsToCheck) {
@@ -204,7 +208,7 @@ public abstract class AbstractRepetitionService {
     private void updateRepetitionProgress(RepetitionData repetitionData) {
         if (repetitionData.getTotalElementsPassed() > 0) {
             RepetitionResultDataDto repetitionResultData = repetitionData.toResult();
-            getStatisticUpdateReportManager().updateRepetitionProgress(repetitionResultData);
+            statisticUpdateReportManager.updateRepetitionProgress(repetitionResultData);
         }
     }
 }

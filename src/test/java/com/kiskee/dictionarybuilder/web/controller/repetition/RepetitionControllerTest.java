@@ -4,24 +4,34 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kiskee.dictionarybuilder.enums.ExceptionStatusesEnum;
+import com.kiskee.dictionarybuilder.enums.repetition.RepetitionType;
 import com.kiskee.dictionarybuilder.exception.ResourceNotFoundException;
 import com.kiskee.dictionarybuilder.exception.repetition.RepetitionException;
 import com.kiskee.dictionarybuilder.model.dto.repetition.RepetitionRunningStatus;
-import com.kiskee.dictionarybuilder.service.vocabulary.repetition.input.InputRepetitionService;
+import com.kiskee.dictionarybuilder.model.dto.repetition.RepetitionStartFilterRequest;
+import com.kiskee.dictionarybuilder.model.dto.repetition.filter.DefaultCriteriaFilter;
+import com.kiskee.dictionarybuilder.model.entity.vocabulary.Dictionary;
+import com.kiskee.dictionarybuilder.service.vocabulary.repetition.RepetitionService;
 import com.kiskee.dictionarybuilder.util.TimeZoneContextHolder;
+import java.util.stream.Stream;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -29,8 +39,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 @ExtendWith(SpringExtension.class)
-@WebMvcTest(CommonRepetitionController.class)
-public class CommonRepetitionControllerTest {
+@WebMvcTest(RepetitionController.class)
+public class RepetitionControllerTest {
 
     @Autowired
     private WebApplicationContext webApplicationContext;
@@ -38,7 +48,7 @@ public class CommonRepetitionControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private InputRepetitionService inputRepetitionService;
+    private RepetitionService repetitionService;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -54,7 +64,7 @@ public class CommonRepetitionControllerTest {
     void testIsRepetitionRunning_WhenRepetitionIsRunningAndNotPaused_ThenReturnRepetitionRunningStatus() {
         RepetitionRunningStatus runningStatus = new RepetitionRunningStatus(true, false);
 
-        when(inputRepetitionService.isRepetitionRunning()).thenReturn(runningStatus);
+        when(repetitionService.isRepetitionRunning()).thenReturn(runningStatus);
 
         MvcResult result = mockMvc.perform(get("/repetition/running"))
                 .andDo(print())
@@ -70,7 +80,7 @@ public class CommonRepetitionControllerTest {
     void testIsRepetitionRunning_WhenRepetitionIsRunningAndPaused_ThenReturnRepetitionRunningStatus() {
         RepetitionRunningStatus runningStatus = new RepetitionRunningStatus(true, true);
 
-        when(inputRepetitionService.isRepetitionRunning()).thenReturn(runningStatus);
+        when(repetitionService.isRepetitionRunning()).thenReturn(runningStatus);
 
         MvcResult result = mockMvc.perform(get("/repetition/running"))
                 .andDo(print())
@@ -86,7 +96,7 @@ public class CommonRepetitionControllerTest {
     void testIsRepetitionRunning_WhenRepetitionIsNotRunning_ThenReturnRepetitionRunningStatus() {
         RepetitionRunningStatus runningStatus = new RepetitionRunningStatus(false, false);
 
-        when(inputRepetitionService.isRepetitionRunning()).thenReturn(runningStatus);
+        when(repetitionService.isRepetitionRunning()).thenReturn(runningStatus);
 
         MvcResult result = mockMvc.perform(get("/repetition/running"))
                 .andDo(print())
@@ -102,7 +112,7 @@ public class CommonRepetitionControllerTest {
     void testIsRepetitionRunning_WhenRepetitionDataIsNull_ThenReturnNotFound() {
         TimeZoneContextHolder.setTimeZone("UTC");
 
-        when(inputRepetitionService.isRepetitionRunning())
+        when(repetitionService.isRepetitionRunning())
                 .thenThrow(new ResourceNotFoundException(
                         String.format("Repetition data not found for user [%s]", "userId")));
 
@@ -120,7 +130,7 @@ public class CommonRepetitionControllerTest {
     void testPause_WhenRepetitionIsRunningAndNotPaused_ThenReturnRepetitionRunningStatus() {
         RepetitionRunningStatus runningStatus = new RepetitionRunningStatus(true, true);
 
-        when(inputRepetitionService.pause()).thenReturn(runningStatus);
+        when(repetitionService.pause()).thenReturn(runningStatus);
 
         MvcResult result = mockMvc.perform(put("/repetition/pause"))
                 .andDo(print())
@@ -136,7 +146,7 @@ public class CommonRepetitionControllerTest {
     void testPause_WhenRepetitionIsNotRunning_ThenReturnBadRequest() {
         TimeZoneContextHolder.setTimeZone("UTC");
 
-        when(inputRepetitionService.pause()).thenThrow(new RepetitionException("Repetition is not running"));
+        when(repetitionService.pause()).thenThrow(new RepetitionException("Repetition is not running"));
 
         mockMvc.perform(put("/repetition/pause"))
                 .andDo(print())
@@ -152,7 +162,7 @@ public class CommonRepetitionControllerTest {
     void testPause_WhenRepetitionIsPaused_ThenReturnBadRequest() {
         TimeZoneContextHolder.setTimeZone("UTC");
 
-        when(inputRepetitionService.pause()).thenThrow(new RepetitionException("Pause already started"));
+        when(repetitionService.pause()).thenThrow(new RepetitionException("Pause already started"));
 
         mockMvc.perform(put("/repetition/pause"))
                 .andDo(print())
@@ -168,7 +178,7 @@ public class CommonRepetitionControllerTest {
     void testUnpause_WhenRepetitionIsRunningAndPaused_ThenReturnRepetitionRunningStatus() {
         RepetitionRunningStatus runningStatus = new RepetitionRunningStatus(true, false);
 
-        when(inputRepetitionService.unpause()).thenReturn(runningStatus);
+        when(repetitionService.unpause()).thenReturn(runningStatus);
 
         MvcResult result = mockMvc.perform(put("/repetition/unpause"))
                 .andDo(print())
@@ -184,7 +194,7 @@ public class CommonRepetitionControllerTest {
     void testUnpause_WhenRepetitionIsNotRunning_ThenReturnBadRequest() {
         TimeZoneContextHolder.setTimeZone("UTC");
 
-        when(inputRepetitionService.unpause()).thenThrow(new RepetitionException("Repetition is not running"));
+        when(repetitionService.unpause()).thenThrow(new RepetitionException("Repetition is not running"));
 
         mockMvc.perform(put("/repetition/unpause"))
                 .andDo(print())
@@ -200,7 +210,7 @@ public class CommonRepetitionControllerTest {
     void testUnpause_WhenThereAreNoStartedPauses_ThenReturnBadRequest() {
         TimeZoneContextHolder.setTimeZone("UTC");
 
-        when(inputRepetitionService.unpause()).thenThrow(new RepetitionException("No pause to end"));
+        when(repetitionService.unpause()).thenThrow(new RepetitionException("No pause to end"));
 
         mockMvc.perform(put("/repetition/unpause"))
                 .andDo(print())
@@ -216,7 +226,7 @@ public class CommonRepetitionControllerTest {
     void testStop_WhenRepetitionIsRunning_ThenReturnRepetitionRunningStatus() {
         RepetitionRunningStatus runningStatus = new RepetitionRunningStatus(false, false);
 
-        when(inputRepetitionService.stop()).thenReturn(runningStatus);
+        when(repetitionService.stop()).thenReturn(runningStatus);
 
         MvcResult result = mockMvc.perform(delete("/repetition"))
                 .andDo(print())
@@ -232,7 +242,7 @@ public class CommonRepetitionControllerTest {
     void testStop_WhenRepetitionIsNotRunning_ThenReturnBadRequest() {
         TimeZoneContextHolder.setTimeZone("UTC");
 
-        when(inputRepetitionService.stop()).thenThrow(new RepetitionException("Repetition is not running"));
+        when(repetitionService.stop()).thenThrow(new RepetitionException("Repetition is not running"));
 
         mockMvc.perform(delete("/repetition"))
                 .andDo(print())
@@ -241,5 +251,123 @@ public class CommonRepetitionControllerTest {
                         jsonPath("$.errors.responseMessage").value("Repetition is not running"));
 
         TimeZoneContextHolder.clear();
+    }
+
+    @SneakyThrows
+    @ParameterizedTest
+    @MethodSource("provideRepetitionTypes")
+    void testStart_WhenRepetitionIsNotRunning_ThenReturnRepetitionRunningStatus(RepetitionType repetitionType) {
+        long dictionaryId = 1L;
+        RepetitionStartFilterRequest requestBody = new RepetitionStartFilterRequest(
+                RepetitionStartFilterRequest.RepetitionFilter.REPETITION_ONLY,
+                new DefaultCriteriaFilter(DefaultCriteriaFilter.CriteriaFilterType.ALL),
+                false);
+
+        RepetitionRunningStatus runningStatus = new RepetitionRunningStatus(true, false, repetitionType);
+
+        when(repetitionService.start(dictionaryId, repetitionType, requestBody)).thenReturn(runningStatus);
+
+        MvcResult result = mockMvc.perform(post("/repetition/{dictionaryId}", dictionaryId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("repetitionType", repetitionType.name())
+                        .content(objectMapper.writeValueAsString(requestBody)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String actualResponseBody = result.getResponse().getContentAsString();
+        assertThat(actualResponseBody).isEqualTo(objectMapper.writeValueAsString(runningStatus));
+    }
+
+    @SneakyThrows
+    @ParameterizedTest
+    @MethodSource("provideRepetitionTypes")
+    void testStart_WhenRepetitionIsAlreadyRunning_ThenReturnBadRequest(RepetitionType repetitionType) {
+        TimeZoneContextHolder.setTimeZone("UTC");
+
+        long dictionaryId = 1L;
+        RepetitionStartFilterRequest requestBody = new RepetitionStartFilterRequest(
+                RepetitionStartFilterRequest.RepetitionFilter.REPETITION_ONLY,
+                new DefaultCriteriaFilter(DefaultCriteriaFilter.CriteriaFilterType.ALL),
+                false);
+
+        when(repetitionService.start(dictionaryId, repetitionType, requestBody))
+                .thenThrow(new RepetitionException("Repetition is already running"));
+
+        mockMvc.perform(post("/repetition/{dictionaryId}", dictionaryId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("repetitionType", repetitionType.name())
+                        .content(objectMapper.writeValueAsString(requestBody)))
+                .andDo(print())
+                .andExpectAll(
+                        status().isBadRequest(),
+                        jsonPath("$.errors.responseMessage").value("Repetition is already running"));
+
+        TimeZoneContextHolder.clear();
+    }
+
+    @SneakyThrows
+    @ParameterizedTest
+    @MethodSource("provideRepetitionTypes")
+    void testStart_WhenDictionaryDoesNotExistForUser_ThenReturnNotFound(RepetitionType repetitionType) {
+        TimeZoneContextHolder.setTimeZone("UTC");
+
+        long dictionaryId = 1L;
+        RepetitionStartFilterRequest requestBody = new RepetitionStartFilterRequest(
+                RepetitionStartFilterRequest.RepetitionFilter.REPETITION_ONLY,
+                new DefaultCriteriaFilter(DefaultCriteriaFilter.CriteriaFilterType.ALL),
+                false);
+
+        when(repetitionService.start(dictionaryId, repetitionType, requestBody))
+                .thenThrow(new ResourceNotFoundException(String.format(
+                        ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(),
+                        Dictionary.class.getSimpleName(),
+                        dictionaryId)));
+
+        mockMvc.perform(post("/repetition/{dictionaryId}", dictionaryId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("repetitionType", repetitionType.name())
+                        .content(objectMapper.writeValueAsString(requestBody)))
+                .andDo(print())
+                .andExpectAll(
+                        status().isNotFound(),
+                        jsonPath("$.errors.responseMessage")
+                                .value(String.format(
+                                        ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(),
+                                        Dictionary.class.getSimpleName(),
+                                        dictionaryId)));
+
+        TimeZoneContextHolder.clear();
+    }
+
+    @SneakyThrows
+    @ParameterizedTest
+    @MethodSource("provideRepetitionTypes")
+    void testStart_WhenNoWordsForRepetition_ThenReturnBadRequest(RepetitionType repetitionType) {
+        TimeZoneContextHolder.setTimeZone("UTC");
+
+        long dictionaryId = 1L;
+        RepetitionStartFilterRequest requestBody = new RepetitionStartFilterRequest(
+                RepetitionStartFilterRequest.RepetitionFilter.REPETITION_ONLY,
+                new DefaultCriteriaFilter(DefaultCriteriaFilter.CriteriaFilterType.ALL),
+                false);
+
+        when(repetitionService.start(dictionaryId, repetitionType, requestBody))
+                .thenThrow(new RepetitionException("No words to repeat"));
+
+        mockMvc.perform(post("/repetition/{dictionaryId}", dictionaryId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("repetitionType", repetitionType.name())
+                        .content(objectMapper.writeValueAsString(requestBody)))
+                .andDo(print())
+                .andExpectAll(
+                        status().isBadRequest(),
+                        jsonPath("$.errors.responseMessage").value("No words to repeat"));
+
+        TimeZoneContextHolder.clear();
+    }
+
+    private static Stream<RepetitionType> provideRepetitionTypes() {
+        return Stream.of(RepetitionType.values());
     }
 }
