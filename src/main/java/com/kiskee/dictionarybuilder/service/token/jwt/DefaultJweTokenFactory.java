@@ -1,7 +1,7 @@
 package com.kiskee.dictionarybuilder.service.token.jwt;
 
 import com.kiskee.dictionarybuilder.model.dto.authentication.AuthenticationData;
-import com.kiskee.dictionarybuilder.model.dto.token.JweToken;
+import com.kiskee.dictionarybuilder.model.dto.token.jwe.JweToken;
 import com.kiskee.dictionarybuilder.repository.user.projections.UserSecureProjection;
 import java.time.Duration;
 import java.time.Instant;
@@ -17,11 +17,8 @@ public class DefaultJweTokenFactory implements Function<AuthenticationData, JweT
     @Override
     public JweToken apply(AuthenticationData authenticationData) {
         Instant now = Instant.now();
-
         Duration tokenTtl = Duration.ofSeconds(authenticationData.tokenTtl());
-
         List<String> authorities = mapAuthenticationToAuthorities(authenticationData.authentication());
-
         return JweToken.builder()
                 .setId(((UserSecureProjection)
                                 authenticationData.authentication().getPrincipal())

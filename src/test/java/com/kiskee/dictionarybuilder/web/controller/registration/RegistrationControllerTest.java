@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kiskee.dictionarybuilder.enums.ExceptionStatusesEnum;
 import com.kiskee.dictionarybuilder.enums.registration.RegistrationStatus;
 import com.kiskee.dictionarybuilder.exception.ResourceNotFoundException;
-import com.kiskee.dictionarybuilder.exception.token.InvalidVerificationTokenException;
+import com.kiskee.dictionarybuilder.exception.token.InvalidTokenException;
 import com.kiskee.dictionarybuilder.exception.user.DuplicateUserException;
 import com.kiskee.dictionarybuilder.model.dto.ResponseMessage;
 import com.kiskee.dictionarybuilder.model.dto.registration.InternalRegistrationRequest;
@@ -202,7 +202,7 @@ public class RegistrationControllerTest {
         TimeZoneContextHolder.setTimeZone("UTC");
 
         when(registrationService.completeRegistration(verificationTokenRequestParam))
-                .thenThrow(new InvalidVerificationTokenException("Verification token is already invalidated"));
+                .thenThrow(new InvalidTokenException("Verification token is already invalidated"));
 
         mockMvc.perform(patch("/signup/activate")
                         .contentType(MediaType.APPLICATION_JSON)

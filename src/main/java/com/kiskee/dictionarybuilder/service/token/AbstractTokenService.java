@@ -13,11 +13,9 @@ public abstract class AbstractTokenService<T, S extends Token> {
 
     protected abstract Token buildToken(T tokenData, String tokenString);
 
-    public void saveToken(T tokenData, String tokenString) {
+    protected void saveToken(T tokenData, String tokenString) {
         Token token = buildToken(tokenData, tokenString);
-
         getTokenRepository().save(token);
-
         log.info("[{}] has been saved for [{}]", token.getClass().getSimpleName(), token.getUserId());
     }
 
@@ -30,9 +28,7 @@ public abstract class AbstractTokenService<T, S extends Token> {
     protected void invalidateToken(S token) {
         token.setInvalidated(true);
         token.setExpiresAt(Instant.now());
-
         getTokenRepository().save(token);
-
         log.info(
                 "[{}] for user [{}] has been successfully invalidated",
                 token.getClass().getSimpleName(),

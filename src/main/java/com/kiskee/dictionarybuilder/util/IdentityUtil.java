@@ -1,6 +1,6 @@
 package com.kiskee.dictionarybuilder.util;
 
-import com.kiskee.dictionarybuilder.model.dto.token.JweToken;
+import com.kiskee.dictionarybuilder.model.dto.token.jwe.JweToken;
 import com.kiskee.dictionarybuilder.model.entity.user.UserVocabularyApplication;
 import com.kiskee.dictionarybuilder.repository.user.projections.UserSecureProjection;
 import java.util.Collection;

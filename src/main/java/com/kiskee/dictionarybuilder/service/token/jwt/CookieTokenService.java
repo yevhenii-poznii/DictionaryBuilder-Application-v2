@@ -1,7 +1,7 @@
 package com.kiskee.dictionarybuilder.service.token.jwt;
 
-import com.kiskee.dictionarybuilder.model.dto.token.JweToken;
-import com.kiskee.dictionarybuilder.model.dto.token.TokenData;
+import com.kiskee.dictionarybuilder.model.dto.token.jwe.JweToken;
+import com.kiskee.dictionarybuilder.model.dto.token.jwe.TokenData;
 import com.kiskee.dictionarybuilder.model.entity.token.CookieToken;
 import com.kiskee.dictionarybuilder.model.entity.token.Token;
 import com.kiskee.dictionarybuilder.repository.token.TokenRepository;
@@ -22,7 +22,6 @@ public class CookieTokenService extends AbstractTokenService<JweToken, CookieTok
     @Override
     public String persistToken(TokenData tokenData) {
         saveToken(tokenData.jweToken(), tokenData.token());
-
         return tokenData.token();
     }
 

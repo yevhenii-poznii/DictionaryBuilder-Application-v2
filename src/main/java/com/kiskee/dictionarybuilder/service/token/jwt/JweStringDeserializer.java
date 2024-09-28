@@ -1,6 +1,6 @@
 package com.kiskee.dictionarybuilder.service.token.jwt;
 
-import com.kiskee.dictionarybuilder.model.dto.token.JweToken;
+import com.kiskee.dictionarybuilder.model.dto.token.jwe.JweToken;
 import com.nimbusds.jose.JWEDecrypter;
 import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jwt.EncryptedJWT;

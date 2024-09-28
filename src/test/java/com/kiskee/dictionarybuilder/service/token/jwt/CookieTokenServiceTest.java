@@ -8,10 +8,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.kiskee.dictionarybuilder.enums.ExceptionStatusesEnum;
-import com.kiskee.dictionarybuilder.enums.token.TokenEnum;
+import com.kiskee.dictionarybuilder.enums.token.TokenType;
 import com.kiskee.dictionarybuilder.exception.ResourceNotFoundException;
-import com.kiskee.dictionarybuilder.model.dto.token.JweToken;
-import com.kiskee.dictionarybuilder.model.dto.token.TokenData;
+import com.kiskee.dictionarybuilder.model.dto.token.jwe.JweToken;
+import com.kiskee.dictionarybuilder.model.dto.token.jwe.TokenData;
 import com.kiskee.dictionarybuilder.model.entity.token.CookieToken;
 import com.kiskee.dictionarybuilder.model.entity.token.Token;
 import com.kiskee.dictionarybuilder.repository.token.TokenRepository;
@@ -63,7 +63,7 @@ public class CookieTokenServiceTest {
 
         assertThat(cookieToken).isEqualTo(actualToken.getToken());
         assertThat(USER_ID).isEqualTo(actualToken.getUserId());
-        assertThat(TokenEnum.JWT_REFRESH_TOKEN.getValue()).isEqualTo(actualToken.getDiscriminatorValue());
+        assertThat(TokenType.JWT_REFRESH_TOKEN.getValue()).isEqualTo(actualToken.getDiscriminatorValue());
     }
 
     @Test

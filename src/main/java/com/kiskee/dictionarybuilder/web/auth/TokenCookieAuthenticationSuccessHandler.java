@@ -1,6 +1,6 @@
 package com.kiskee.dictionarybuilder.web.auth;
 
-import com.kiskee.dictionarybuilder.model.dto.token.TokenData;
+import com.kiskee.dictionarybuilder.model.dto.token.jwe.TokenData;
 import com.kiskee.dictionarybuilder.service.authentication.AuthenticationService;
 import com.kiskee.dictionarybuilder.util.CookieUtil;
 import jakarta.servlet.ServletException;

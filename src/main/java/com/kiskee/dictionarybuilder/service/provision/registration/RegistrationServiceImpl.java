@@ -1,7 +1,7 @@
 package com.kiskee.dictionarybuilder.service.provision.registration;
 
 import com.kiskee.dictionarybuilder.enums.registration.RegistrationStatus;
-import com.kiskee.dictionarybuilder.exception.token.InvalidVerificationTokenException;
+import com.kiskee.dictionarybuilder.exception.token.InvalidTokenException;
 import com.kiskee.dictionarybuilder.model.dto.ResponseMessage;
 import com.kiskee.dictionarybuilder.model.dto.registration.InternalRegistrationRequest;
 import com.kiskee.dictionarybuilder.model.entity.token.VerificationToken;
@@ -64,7 +64,7 @@ public class RegistrationServiceImpl extends AbstractUserProvisionService implem
 
     private void validate(VerificationToken verificationToken) {
         if (verificationToken.isInvalidated()) {
-            throw new InvalidVerificationTokenException("Verification token is already invalidated");
+            throw new InvalidTokenException("Verification token is already invalidated");
         }
     }
 }

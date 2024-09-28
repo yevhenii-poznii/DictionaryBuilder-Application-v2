@@ -9,9 +9,9 @@ import static org.mockito.Mockito.when;
 
 import com.kiskee.dictionarybuilder.model.dto.authentication.AuthenticationResponse;
 import com.kiskee.dictionarybuilder.model.dto.registration.OAuth2ProvisionRequest;
-import com.kiskee.dictionarybuilder.model.dto.token.JweToken;
-import com.kiskee.dictionarybuilder.model.dto.token.OAuth2ProvisionData;
-import com.kiskee.dictionarybuilder.model.dto.token.TokenData;
+import com.kiskee.dictionarybuilder.model.dto.token.jwe.JweToken;
+import com.kiskee.dictionarybuilder.model.dto.token.jwe.OAuth2ProvisionData;
+import com.kiskee.dictionarybuilder.model.dto.token.jwe.TokenData;
 import com.kiskee.dictionarybuilder.model.entity.user.UserVocabularyApplication;
 import com.kiskee.dictionarybuilder.service.authentication.AuthenticationService;
 import com.kiskee.dictionarybuilder.service.provision.oauth.OAuth2UserProvisionServiceImpl;

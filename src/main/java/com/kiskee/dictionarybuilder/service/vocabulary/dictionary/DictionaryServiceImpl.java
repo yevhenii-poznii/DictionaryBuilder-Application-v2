@@ -43,7 +43,6 @@ public class DictionaryServiceImpl extends AbstractDictionaryService
     @Override
     public DictionarySaveResponse addDictionary(DictionarySaveRequest dictionarySaveRequest) {
         Dictionary dictionary = createEmptyDictionary(dictionarySaveRequest.getDictionaryName());
-
         return mapToResponse(dictionary, VocabularyResponseMessageEnum.DICTIONARY_CREATED);
     }
 
@@ -64,7 +63,6 @@ public class DictionaryServiceImpl extends AbstractDictionaryService
     public List<DictionaryDto> getDictionaries() {
         UUID userProfileId = IdentityUtil.getUserId();
         List<DictionaryDto> dictionaries = repository.findAllByUserProfileId(userProfileId);
-
         log.info("Retrieved [{}] dictionaries for user [{}]", dictionaries.size(), userProfileId);
         return dictionaries;
     }
@@ -73,7 +71,6 @@ public class DictionaryServiceImpl extends AbstractDictionaryService
     public List<DictionaryDetailDto> getDetailedDictionaries() {
         UUID userProfileId = IdentityUtil.getUserId();
         List<DictionaryDetailDto> dictionaries = repository.findDetailedDictionariesByUserProfileId(userProfileId);
-
         log.info("Retrieved [{}] detailed dictionaries for user [{}]", dictionaries.size(), userProfileId);
         return dictionaries;
     }
@@ -81,15 +78,10 @@ public class DictionaryServiceImpl extends AbstractDictionaryService
     @Override
     public DictionarySaveResponse updateDictionary(Long dictionaryId, DictionarySaveRequest dictionarySaveRequest) {
         UUID userProfileId = IdentityUtil.getUserId();
-
         validateDictionaryName(dictionarySaveRequest.getDictionaryName(), userProfileId);
-
         Dictionary dictionaryToUpdate = repository.getUserDictionary(dictionaryId, userProfileId);
-
         dictionaryToUpdate.setDictionaryName(dictionarySaveRequest.getDictionaryName());
-
         Dictionary dictionary = repository.save(dictionaryToUpdate);
-
         return mapToResponse(dictionary, VocabularyResponseMessageEnum.DICTIONARY_UPDATED);
     }
 
@@ -106,7 +98,6 @@ public class DictionaryServiceImpl extends AbstractDictionaryService
         }
         repository.deleteAllById(userDictionaryIds);
         log.info("Deleted {} dictionaries for user [{}]", userDictionaryIds, userId);
-
         return new ResponseMessage(String.format(
                 VocabularyResponseMessageEnum.DICTIONARIES_DELETED.getResponseMessage(), userDictionaryIds.size()));
     }
@@ -115,13 +106,10 @@ public class DictionaryServiceImpl extends AbstractDictionaryService
     @Transactional
     public ResponseMessage deleteDictionary(Long dictionaryId) {
         UUID userProfileId = IdentityUtil.getUserId();
-
         Dictionary dictionary = repository.getUserDictionary(dictionaryId, userProfileId);
-
         repository.delete(dictionary);
 
         log.info("Dictionary with id [{}] deleted for user [{}]", dictionaryId, userProfileId);
-
         return new ResponseMessage(String.format(
                 VocabularyResponseMessageEnum.DICTIONARY_DELETED.getResponseMessage(), dictionary.getDictionaryName()));
     }
@@ -141,16 +129,13 @@ public class DictionaryServiceImpl extends AbstractDictionaryService
 
     private Dictionary createEmptyDictionary(String dictionaryName) {
         UUID userProfileId = IdentityUtil.getUserId();
-
         validateDictionaryName(dictionaryName, userProfileId);
-
         return buildDictionaryAndSave(dictionaryName, userProfileId);
     }
 
     private void validateDictionaryName(String dictionaryName, UUID userProfileId) {
         if (repository.existsByDictionaryNameEqualsIgnoreCaseAndUserProfileId(dictionaryName, userProfileId)) {
             log.info("Dictionary with name [{}] already exists for user [{}]", dictionaryName, userProfileId);
-
             throw new DuplicateResourceException(String.format(
                     VocabularyResponseMessageEnum.DICTIONARY_ALREADY_EXISTS.getResponseMessage(), dictionaryName));
         }
@@ -164,15 +149,12 @@ public class DictionaryServiceImpl extends AbstractDictionaryService
                 .build();
 
         Dictionary savedDictionary = repository.save(dictionary);
-
         log.info("New dictionary with name [{}] for user [{}] saved", dictionaryName, userProfileId);
-
         return savedDictionary;
     }
 
     private void ensureDictionaryBelongsToUser(Long dictionaryId) {
         UUID userProfileId = IdentityUtil.getUserId();
-
         if (!repository.existsByIdAndUserProfileId(dictionaryId, userProfileId)) {
             log.info("Dictionary with id [{}] not found for user [{}]", dictionaryId, userProfileId);
             throw new ResourceNotFoundException(String.format(
@@ -184,7 +166,6 @@ public class DictionaryServiceImpl extends AbstractDictionaryService
 
     private DictionarySaveResponse mapToResponse(Dictionary dictionary, VocabularyResponseMessageEnum responseMessage) {
         DictionaryProjection dictionaryProjection = mapper.toDto(dictionary);
-
         return new DictionarySaveResponse(
                 String.format(responseMessage.getResponseMessage(), dictionary.getDictionaryName()),
                 dictionaryProjection);

@@ -2,7 +2,8 @@ package com.kiskee.dictionarybuilder.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kiskee.dictionarybuilder.config.properties.email.MailSenderProperties;
-import com.kiskee.dictionarybuilder.config.properties.jwt.JwtProperties;
+import com.kiskee.dictionarybuilder.config.properties.token.cipher.CipherProperties;
+import com.kiskee.dictionarybuilder.config.properties.token.jwt.JwtProperties;
 import com.kiskee.dictionarybuilder.service.authentication.AuthenticationServiceImpl;
 import com.kiskee.dictionarybuilder.service.provision.oauth.OAuth2UserProvisionService;
 import com.kiskee.dictionarybuilder.service.provision.oauth.OAuth2UserProvisionServiceImpl;
@@ -66,6 +67,7 @@ public class WebSecurityConfig {
     private final TimeZoneRequestFilter timeZoneRequestFilter;
     private final DefaultJweTokenFactory defaultJweTokenFactory;
     private final JwtProperties jwtProperties;
+    private final CipherProperties cipherProperties;
     private final MailSenderProperties mailSenderProperties;
     private final ObjectMapper objectMapper;
     private final CookieTokenService cookieTokenService;
@@ -83,7 +85,13 @@ public class WebSecurityConfig {
                         .anonymous()
                         .requestMatchers("/actuator/**")
                         .hasRole("METRICS")
-                        .requestMatchers("/error", "/auth/access", "/swagger-ui**", "/swagger-ui/**", "/v3/api-docs/**")
+                        .requestMatchers(
+                                "/share/{sharingToken}",
+                                "/error",
+                                "/auth/access",
+                                "/swagger-ui**",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**")
                         .permitAll()
                         .anyRequest()
                         .authenticated())
@@ -109,32 +117,38 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public SecretKey secretKey() throws IOException {
+    public SecretKey cipherSecretKey() throws IOException {
+        byte[] secretKeyBytes = Files.readAllBytes(Paths.get(cipherProperties.getSecretKeyPath()));
+        return new SecretKeySpec(secretKeyBytes, cipherProperties.getAlgorithm());
+    }
+
+    @Bean
+    public SecretKey jweSecretKey() throws IOException {
         byte[] secretKeyBytes = Files.readAllBytes(Paths.get(jwtProperties.getSecretKeyPath()));
         return new SecretKeySpec(secretKeyBytes, jwtProperties.getJweAlgorithm());
     }
 
     @Bean
-    public JWEEncrypter jweEncrypter(SecretKey secretKey) throws KeyLengthException {
-        return new DirectEncrypter(secretKey);
+    public JWEEncrypter jweEncrypter(SecretKey jweSecretKey) throws KeyLengthException {
+        return new DirectEncrypter(jweSecretKey);
     }
 
     @Bean
-    public JWEDecrypter jweDecrypter(SecretKey secretKey) throws KeyLengthException {
-        return new DirectDecrypter(secretKey);
+    public JWEDecrypter jweDecrypter(SecretKey jweSecretKey) throws KeyLengthException {
+        return new DirectDecrypter(jweSecretKey);
     }
 
     @Bean
     public JweStringSerializer jweStringSerializer() throws KeyLengthException, IOException {
         return new JweStringSerializer(
-                jweEncrypter(secretKey()),
+                jweEncrypter(jweSecretKey()),
                 JWEAlgorithm.parse(jwtProperties.getJweAlgorithm()),
                 EncryptionMethod.parse(jwtProperties.getJweEncryptionMethod()));
     }
 
     @Bean
     public JweStringDeserializer jweStringDeserializer() throws KeyLengthException, IOException {
-        return new JweStringDeserializer(jweDecrypter(secretKey()));
+        return new JweStringDeserializer(jweDecrypter(jweSecretKey()));
     }
 
     @Bean
