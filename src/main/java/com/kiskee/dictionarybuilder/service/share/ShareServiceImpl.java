@@ -10,7 +10,7 @@ import com.kiskee.dictionarybuilder.model.dto.vocabulary.dictionary.page.Diction
 import com.kiskee.dictionarybuilder.model.dto.vocabulary.dictionary.page.DictionaryPageResponseDto;
 import com.kiskee.dictionarybuilder.service.security.token.deserializer.TokenDeserializer;
 import com.kiskee.dictionarybuilder.service.time.CurrentDateTimeService;
-import com.kiskee.dictionarybuilder.service.token.share.SharingTokenServiceImpl;
+import com.kiskee.dictionarybuilder.service.token.share.SharingTokenService;
 import com.kiskee.dictionarybuilder.service.vocabulary.AbstractDictionaryService;
 import com.kiskee.dictionarybuilder.service.vocabulary.dictionary.DictionaryAccessValidator;
 import com.kiskee.dictionarybuilder.service.vocabulary.dictionary.page.DictionaryPageLoaderFactory;
@@ -28,7 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ShareServiceImpl extends AbstractDictionaryService implements ShareService {
 
-    private final SharingTokenServiceImpl shareTokenService;
+    private final SharingTokenService sharingTokenService;
     private final TokenDeserializer<String, SharingTokenData> tokenDeserializer;
     private final DictionaryAccessValidator dictionaryAccessValidator;
     private final DictionaryPageLoaderFactory dictionaryPageLoaderFactory;
@@ -40,8 +40,8 @@ public class ShareServiceImpl extends AbstractDictionaryService implements Share
             String sharingToken, DictionaryPageRequestDto dictionaryPageRequest) {
         SharingTokenData sharingTokenData = tokenDeserializer.deserialize(sharingToken, SharingTokenData.class);
         if (currentDateTimeService.getCurrentInstant().isAfter(sharingTokenData.getExpiresAt())) {
-            if (shareTokenService.isNotInvalidated(sharingToken)) {
-                shareTokenService.invalidateToken(sharingToken);
+            if (sharingTokenService.isNotInvalidated(sharingToken)) {
+                sharingTokenService.invalidateToken(sharingToken);
             }
             throw new ExpiredTokenException("Token has expired");
         }
@@ -57,7 +57,7 @@ public class ShareServiceImpl extends AbstractDictionaryService implements Share
         dictionaryAccessValidator.verifyUserHasDictionary(request.dictionaryId());
         UUID userId = IdentityUtil.getUserId();
         SharingTokenData sharingTokenData = new SharingTokenData(userId, request.dictionaryId(), request.shareToDate());
-        String sharingToken = shareTokenService.persistToken(sharingTokenData);
+        String sharingToken = sharingTokenService.persistToken(sharingTokenData);
         return new SharedDictionaryDto(request.dictionaryId(), sharingToken, request.shareToDate());
     }
 }
