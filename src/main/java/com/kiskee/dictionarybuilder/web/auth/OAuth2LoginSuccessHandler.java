@@ -1,7 +1,7 @@
 package com.kiskee.dictionarybuilder.web.auth;
 
 import com.kiskee.dictionarybuilder.model.dto.registration.OAuth2ProvisionRequest;
-import com.kiskee.dictionarybuilder.model.dto.token.OAuth2ProvisionData;
+import com.kiskee.dictionarybuilder.model.dto.token.jwe.OAuth2ProvisionData;
 import com.kiskee.dictionarybuilder.service.provision.oauth.OAuth2UserProvisionService;
 import com.kiskee.dictionarybuilder.util.CookieUtil;
 import jakarta.servlet.ServletException;

@@ -1,7 +1,7 @@
 package com.kiskee.dictionarybuilder.service.authentication;
 
 import com.kiskee.dictionarybuilder.model.dto.authentication.AuthenticationResponse;
-import com.kiskee.dictionarybuilder.model.dto.token.TokenData;
+import com.kiskee.dictionarybuilder.model.dto.token.jwe.TokenData;
 import org.springframework.security.core.Authentication;
 
 public interface AuthenticationService {

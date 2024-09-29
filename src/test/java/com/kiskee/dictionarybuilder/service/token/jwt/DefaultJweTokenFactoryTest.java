@@ -4,7 +4,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import com.kiskee.dictionarybuilder.enums.user.UserRole;
 import com.kiskee.dictionarybuilder.model.dto.authentication.AuthenticationData;
-import com.kiskee.dictionarybuilder.model.dto.token.JweToken;
+import com.kiskee.dictionarybuilder.model.dto.token.jwe.JweToken;
 import com.kiskee.dictionarybuilder.model.entity.user.UserVocabularyApplication;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;

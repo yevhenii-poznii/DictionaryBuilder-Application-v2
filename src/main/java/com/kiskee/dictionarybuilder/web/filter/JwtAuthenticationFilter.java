@@ -1,7 +1,7 @@
 package com.kiskee.dictionarybuilder.web.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kiskee.dictionarybuilder.model.dto.token.JweToken;
+import com.kiskee.dictionarybuilder.model.dto.token.jwe.JweToken;
 import com.kiskee.dictionarybuilder.util.CookieUtil;
 import com.kiskee.dictionarybuilder.util.IdentityUtil;
 import jakarta.servlet.FilterChain;
@@ -49,7 +49,7 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationFilter {
         filterChain.doFilter(request, response);
     }
 
-    protected void auth(String jwt, HttpServletResponse response) throws IOException {
+    protected void auth(String jwt, HttpServletResponse response) throws IOException { // TODO refactor
         JweToken jweToken;
 
         try {

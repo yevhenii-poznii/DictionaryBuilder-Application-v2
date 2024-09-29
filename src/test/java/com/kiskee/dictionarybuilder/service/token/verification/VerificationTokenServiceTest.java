@@ -8,7 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.kiskee.dictionarybuilder.enums.ExceptionStatusesEnum;
-import com.kiskee.dictionarybuilder.enums.token.TokenEnum;
+import com.kiskee.dictionarybuilder.enums.token.TokenType;
 import com.kiskee.dictionarybuilder.exception.ResourceNotFoundException;
 import com.kiskee.dictionarybuilder.model.entity.token.Token;
 import com.kiskee.dictionarybuilder.model.entity.token.VerificationToken;
@@ -58,7 +58,7 @@ public class VerificationTokenServiceTest {
 
         assertThat(verificationToken).isEqualTo(actualToken.getToken());
         assertThat(USER_ID).isEqualTo(actualToken.getUserId());
-        assertThat(TokenEnum.VERIFICATION_TOKEN.getValue()).isEqualTo(actualToken.getDiscriminatorValue());
+        assertThat(TokenType.VERIFICATION_TOKEN.getValue()).isEqualTo(actualToken.getDiscriminatorValue());
     }
 
     @Test

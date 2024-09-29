@@ -1,6 +1,6 @@
 package com.kiskee.dictionarybuilder.service.token.jwt;
 
-import com.kiskee.dictionarybuilder.model.dto.token.JweToken;
+import com.kiskee.dictionarybuilder.model.dto.token.jwe.JweToken;
 import com.nimbusds.jose.EncryptionMethod;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWEAlgorithm;
@@ -11,6 +11,7 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import java.util.Date;
 import java.util.function.Function;
 import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -22,11 +23,11 @@ public class JweStringSerializer implements Function<JweToken, String> {
     private final EncryptionMethod encryptionMethod;
 
     @Override
+    @SneakyThrows
     public String apply(JweToken token) {
         JWEHeader jweHeader = new JWEHeader.Builder(jweAlgorithm, encryptionMethod)
                 .keyID(token.getId().toString())
                 .build();
-
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
                 .jwtID(token.getId().toString())
                 .subject(token.getSubject())
@@ -34,18 +35,14 @@ public class JweStringSerializer implements Function<JweToken, String> {
                 .expirationTime(Date.from(token.getExpiresAt()))
                 .claim("authorities", token.getAuthorities())
                 .build();
-
         EncryptedJWT encryptedJWT = new EncryptedJWT(jweHeader, jwtClaimsSet);
-
         try {
             encryptedJWT.encrypt(jweEncrypter);
-
             return encryptedJWT.serialize();
-
         } catch (JOSEException exception) {
             log.error(exception.getMessage(), exception);
         }
 
-        return null;
+        return null; // TODO throw exception
     }
 }

@@ -1,7 +1,7 @@
 package com.kiskee.dictionarybuilder.util;
 
 import com.kiskee.dictionarybuilder.exception.ForbiddenAccessException;
-import com.kiskee.dictionarybuilder.model.dto.token.TokenData;
+import com.kiskee.dictionarybuilder.model.dto.token.jwe.TokenData;
 import jakarta.servlet.http.Cookie;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;

@@ -1,4 +1,4 @@
-package com.kiskee.dictionarybuilder.model.dto.token;
+package com.kiskee.dictionarybuilder.model.dto.token.jwe;
 
 import java.time.Instant;
 import java.util.List;

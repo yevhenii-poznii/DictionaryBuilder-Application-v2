@@ -28,9 +28,7 @@ public class VerificationTokenService extends AbstractTokenService<UUID, Verific
     @Override
     public String persistToken(UUID tokenData) {
         String verificationToken = tokenGenerator.get();
-
         saveToken(tokenData, verificationToken);
-
         return verificationToken;
     }
 

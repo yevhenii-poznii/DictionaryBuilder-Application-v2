@@ -1,4 +1,4 @@
-package com.kiskee.dictionarybuilder.config.properties.jwt;
+package com.kiskee.dictionarybuilder.config.properties.token.jwt;
 
 import lombok.Getter;
 import lombok.Setter;

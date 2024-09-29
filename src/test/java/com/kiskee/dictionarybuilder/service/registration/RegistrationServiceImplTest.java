@@ -13,7 +13,7 @@ import static org.mockito.Mockito.when;
 import com.kiskee.dictionarybuilder.enums.ExceptionStatusesEnum;
 import com.kiskee.dictionarybuilder.enums.registration.RegistrationStatus;
 import com.kiskee.dictionarybuilder.exception.ResourceNotFoundException;
-import com.kiskee.dictionarybuilder.exception.token.InvalidVerificationTokenException;
+import com.kiskee.dictionarybuilder.exception.token.InvalidTokenException;
 import com.kiskee.dictionarybuilder.exception.user.DuplicateUserException;
 import com.kiskee.dictionarybuilder.model.dto.ResponseMessage;
 import com.kiskee.dictionarybuilder.model.dto.registration.InternalRegistrationRequest;
@@ -187,7 +187,7 @@ public class RegistrationServiceImplTest {
 
         when(tokenInvalidatorService.findTokenOrThrow(verificationToken)).thenReturn(tokenMock);
 
-        assertThatExceptionOfType(InvalidVerificationTokenException.class)
+        assertThatExceptionOfType(InvalidTokenException.class)
                 .isThrownBy(() -> service.completeRegistration(verificationToken))
                 .withMessage("Verification token is already invalidated");
 

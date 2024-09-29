@@ -1,8 +1,8 @@
 package com.kiskee.dictionarybuilder.service.provision.oauth;
 
 import com.kiskee.dictionarybuilder.model.dto.registration.OAuth2ProvisionRequest;
-import com.kiskee.dictionarybuilder.model.dto.token.OAuth2ProvisionData;
-import com.kiskee.dictionarybuilder.model.dto.token.TokenData;
+import com.kiskee.dictionarybuilder.model.dto.token.jwe.OAuth2ProvisionData;
+import com.kiskee.dictionarybuilder.model.dto.token.jwe.TokenData;
 import com.kiskee.dictionarybuilder.model.entity.user.UserVocabularyApplication;
 import com.kiskee.dictionarybuilder.repository.user.projections.UserSecureProjection;
 import com.kiskee.dictionarybuilder.service.authentication.AuthenticationService;
