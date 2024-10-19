@@ -20,7 +20,7 @@ public class DefaultJweTokenFactory implements Function<AuthenticationData, JweT
         Duration tokenTtl = Duration.ofSeconds(authenticationData.tokenTtl());
         List<String> authorities = mapAuthenticationToAuthorities(authenticationData.authentication());
         return JweToken.builder()
-                .setId(((UserSecureProjection)
+                .setUserId(((UserSecureProjection)
                                 authenticationData.authentication().getPrincipal())
                         .getId())
                 .setSubject(authenticationData.authentication().getName())

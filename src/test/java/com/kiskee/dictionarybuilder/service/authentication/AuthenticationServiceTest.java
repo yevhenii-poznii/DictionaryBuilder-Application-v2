@@ -13,12 +13,12 @@ import com.kiskee.dictionarybuilder.enums.user.UserRole;
 import com.kiskee.dictionarybuilder.model.dto.authentication.AuthenticationData;
 import com.kiskee.dictionarybuilder.model.dto.authentication.AuthenticationResponse;
 import com.kiskee.dictionarybuilder.model.dto.token.jwe.JweToken;
-import com.kiskee.dictionarybuilder.model.dto.token.jwe.TokenData;
+import com.kiskee.dictionarybuilder.model.dto.token.jwe.JweTokenData;
 import com.kiskee.dictionarybuilder.model.entity.token.CookieToken;
 import com.kiskee.dictionarybuilder.model.entity.user.UserVocabularyApplication;
+import com.kiskee.dictionarybuilder.service.security.token.serializer.JweStringSerializer;
 import com.kiskee.dictionarybuilder.service.token.jwt.CookieTokenIssuer;
 import com.kiskee.dictionarybuilder.service.token.jwt.DefaultJweTokenFactory;
-import com.kiskee.dictionarybuilder.service.token.jwt.JweStringSerializer;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -146,7 +146,7 @@ public class AuthenticationServiceTest {
         when(defaultJweTokenFactory.apply(any(AuthenticationData.class))).thenReturn(mock(JweToken.class));
         when(tokenStringSerializer.apply(any(JweToken.class))).thenReturn(tokenString);
 
-        TokenData tokenData = authenticationService.issueRefreshToken(authentication);
+        JweTokenData tokenData = authenticationService.issueRefreshToken(authentication);
 
         verify(cookieTokenIssuer).persistToken(tokenData);
 

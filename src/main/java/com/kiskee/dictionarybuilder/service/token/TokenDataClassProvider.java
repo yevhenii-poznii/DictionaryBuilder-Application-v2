@@ -2,7 +2,7 @@ package com.kiskee.dictionarybuilder.service.token;
 
 import com.kiskee.dictionarybuilder.model.dto.token.TokenData;
 
-public interface TokenPersistenceService<D extends TokenData> {
+public interface TokenDataClassProvider {
 
-    String persistToken(D tokenData);
+    Class<? extends TokenData> getSupportedTokenDataClass();
 }

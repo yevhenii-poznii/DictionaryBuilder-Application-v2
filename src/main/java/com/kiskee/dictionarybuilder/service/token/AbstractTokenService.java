@@ -1,37 +1,29 @@
 package com.kiskee.dictionarybuilder.service.token;
 
+import com.kiskee.dictionarybuilder.model.dto.token.TokenData;
 import com.kiskee.dictionarybuilder.model.entity.token.Token;
 import com.kiskee.dictionarybuilder.repository.token.TokenRepository;
-import com.kiskee.dictionarybuilder.util.ThrowUtil;
-import java.time.Instant;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public abstract class AbstractTokenService<T, S extends Token> {
+public abstract class AbstractTokenService {
 
     protected abstract TokenRepository getTokenRepository();
 
-    protected abstract Token buildToken(T tokenData, String tokenString);
+    protected abstract Token buildToken(TokenData tokenData, String tokenString);
 
-    protected void saveToken(T tokenData, String tokenString) {
+    protected String saveToken(TokenData tokenData, String tokenString) {
         Token token = buildToken(tokenData, tokenString);
         getTokenRepository().save(token);
         log.info("[{}] has been saved for [{}]", token.getClass().getSimpleName(), token.getUserId());
+        return tokenString;
     }
 
-    protected Token findTokenOrThrow(String tokenString) {
-        return getTokenRepository()
-                .findByToken(tokenString)
-                .orElseThrow(ThrowUtil.throwNotFoundException(Token.class.getSimpleName(), tokenString));
+    public void invalidateToken(String token) {
+        getTokenRepository().invalidateToken(token);
     }
 
-    protected void invalidateToken(S token) {
-        token.setInvalidated(true);
-        token.setExpiresAt(Instant.now());
-        getTokenRepository().save(token);
-        log.info(
-                "[{}] for user [{}] has been successfully invalidated",
-                token.getClass().getSimpleName(),
-                token.getUserId());
+    public boolean isNotInvalidated(String token) {
+        return getTokenRepository().existsByTokenAndIsInvalidatedFalse(token);
     }
 }

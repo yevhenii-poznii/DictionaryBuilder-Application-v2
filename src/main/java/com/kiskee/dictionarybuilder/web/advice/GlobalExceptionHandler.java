@@ -4,7 +4,6 @@ import com.kiskee.dictionarybuilder.exception.DuplicateResourceException;
 import com.kiskee.dictionarybuilder.exception.ForbiddenAccessException;
 import com.kiskee.dictionarybuilder.exception.ResourceNotFoundException;
 import com.kiskee.dictionarybuilder.exception.repetition.RepetitionException;
-import com.kiskee.dictionarybuilder.exception.token.ExpiredTokenException;
 import com.kiskee.dictionarybuilder.exception.token.InvalidTokenException;
 import com.kiskee.dictionarybuilder.exception.user.DuplicateUserException;
 import com.kiskee.dictionarybuilder.util.TimeZoneContextHolder;
@@ -65,12 +64,7 @@ public class GlobalExceptionHandler {
         return handleCustomException(exception, HttpStatus.UNAUTHORIZED);
     }
 
-    @ExceptionHandler({InvalidTokenException.class})
-    public ResponseEntity<ErrorResponse> handleInvalidTokenException(InvalidTokenException exception) {
-        return handleCustomException(exception, HttpStatus.CONFLICT);
-    }
-
-    @ExceptionHandler({ForbiddenAccessException.class, AccessDeniedException.class, ExpiredTokenException.class})
+    @ExceptionHandler({ForbiddenAccessException.class, AccessDeniedException.class, InvalidTokenException.class})
     public ResponseEntity<ErrorResponse> handleForbiddenAccessException(Exception exception) {
         return handleCustomException(exception, HttpStatus.FORBIDDEN);
     }

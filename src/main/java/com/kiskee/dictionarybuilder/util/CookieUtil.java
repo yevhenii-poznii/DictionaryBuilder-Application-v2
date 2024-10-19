@@ -1,7 +1,7 @@
 package com.kiskee.dictionarybuilder.util;
 
 import com.kiskee.dictionarybuilder.exception.ForbiddenAccessException;
-import com.kiskee.dictionarybuilder.model.dto.token.jwe.TokenData;
+import com.kiskee.dictionarybuilder.model.dto.token.jwe.JweTokenData;
 import jakarta.servlet.http.Cookie;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -13,7 +13,7 @@ public class CookieUtil {
 
     public static final String COOKIE_NAME = "RefreshAuthentication";
 
-    public Cookie buildCookie(TokenData tokenData) {
+    public Cookie buildCookie(JweTokenData tokenData) {
         Cookie cookie = new Cookie(COOKIE_NAME, tokenData.token());
         cookie.setPath("/api/v1");
         cookie.setHttpOnly(true);

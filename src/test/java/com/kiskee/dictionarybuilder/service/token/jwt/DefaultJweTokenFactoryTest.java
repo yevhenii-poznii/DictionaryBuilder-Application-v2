@@ -31,7 +31,7 @@ public class DefaultJweTokenFactoryTest {
         JweToken jweToken = defaultJweTokenFactory.apply(authenticationData);
 
         assertThat(jweToken).isNotNull();
-        assertThat(jweToken.getId()).isEqualTo(USER_ID);
+        assertThat(jweToken.getUserId()).isEqualTo(USER_ID);
         assertThat(jweToken.getSubject()).isEqualTo(user.getUsername());
     }
 }

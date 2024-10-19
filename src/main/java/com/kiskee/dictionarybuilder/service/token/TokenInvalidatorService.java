@@ -2,7 +2,9 @@ package com.kiskee.dictionarybuilder.service.token;
 
 import com.kiskee.dictionarybuilder.model.entity.token.Token;
 
-public interface TokenInvalidatorService<T extends Token> extends TokenFinderService<T> {
+public interface TokenInvalidatorService<T extends Token> extends TokenDataClassProvider {
 
-    void invalidateToken(T token);
+    boolean isNotInvalidated(String token);
+
+    void invalidateToken(String token);
 }

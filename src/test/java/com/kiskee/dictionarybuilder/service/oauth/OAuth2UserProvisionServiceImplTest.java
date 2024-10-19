@@ -10,8 +10,8 @@ import static org.mockito.Mockito.when;
 import com.kiskee.dictionarybuilder.model.dto.authentication.AuthenticationResponse;
 import com.kiskee.dictionarybuilder.model.dto.registration.OAuth2ProvisionRequest;
 import com.kiskee.dictionarybuilder.model.dto.token.jwe.JweToken;
+import com.kiskee.dictionarybuilder.model.dto.token.jwe.JweTokenData;
 import com.kiskee.dictionarybuilder.model.dto.token.jwe.OAuth2ProvisionData;
-import com.kiskee.dictionarybuilder.model.dto.token.jwe.TokenData;
 import com.kiskee.dictionarybuilder.model.entity.user.UserVocabularyApplication;
 import com.kiskee.dictionarybuilder.service.authentication.AuthenticationService;
 import com.kiskee.dictionarybuilder.service.provision.oauth.OAuth2UserProvisionServiceImpl;
@@ -54,11 +54,11 @@ public class OAuth2UserProvisionServiceImplTest {
         String refreshToken = "refreshToken";
         String accessToken = "accessToken";
         JweToken refreshJweToken = JweToken.builder()
-                .setId(USER_ID)
+                .setUserId(USER_ID)
                 .setSubject("username")
                 .setAuthorities(List.of("ROLE_USER"))
                 .build();
-        TokenData issuedRefreshToken = new TokenData(refreshToken, refreshJweToken);
+        JweTokenData issuedRefreshToken = new JweTokenData(refreshToken, refreshJweToken);
         AuthenticationResponse issuedAccessToken = mock(AuthenticationResponse.class);
         when(issuedAccessToken.getToken()).thenReturn(accessToken);
 
@@ -87,11 +87,11 @@ public class OAuth2UserProvisionServiceImplTest {
         String refreshToken = "refreshToken";
         String accessToken = "accessToken";
         JweToken refreshJweToken = JweToken.builder()
-                .setId(USER_ID)
+                .setUserId(USER_ID)
                 .setSubject("username")
                 .setAuthorities(List.of("ROLE_USER"))
                 .build();
-        TokenData issuedRefreshToken = new TokenData(refreshToken, refreshJweToken);
+        JweTokenData issuedRefreshToken = new JweTokenData(refreshToken, refreshJweToken);
         AuthenticationResponse issuedAccessToken = mock(AuthenticationResponse.class);
         when(issuedAccessToken.getToken()).thenReturn(accessToken);
 

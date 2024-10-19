@@ -2,6 +2,7 @@ package com.kiskee.dictionarybuilder.web.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kiskee.dictionarybuilder.model.dto.token.jwe.JweToken;
+import com.kiskee.dictionarybuilder.service.security.token.deserializer.TokenDeserializer;
 import com.kiskee.dictionarybuilder.util.CookieUtil;
 import com.kiskee.dictionarybuilder.util.IdentityUtil;
 import jakarta.servlet.FilterChain;
@@ -10,7 +11,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Objects;
-import java.util.function.Function;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -21,9 +21,10 @@ import org.springframework.util.StringUtils;
 @Slf4j
 public class JwtAuthenticationFilter extends AbstractAuthenticationFilter {
 
-    private final Function<String, JweToken> jweStringDeserializer;
+    private final TokenDeserializer<String, JweToken> jweStringDeserializer;
 
-    public JwtAuthenticationFilter(ObjectMapper objectMapper, Function<String, JweToken> jweStringDeserializer) {
+    public JwtAuthenticationFilter(
+            ObjectMapper objectMapper, TokenDeserializer<String, JweToken> jweStringDeserializer) {
         super(objectMapper);
         this.jweStringDeserializer = jweStringDeserializer;
     }
@@ -53,7 +54,7 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationFilter {
         JweToken jweToken;
 
         try {
-            jweToken = jweStringDeserializer.apply(jwt);
+            jweToken = jweStringDeserializer.deserialize(jwt);
         } catch (Exception exception) {
             handleRequestException(exception, response);
 
