@@ -196,7 +196,7 @@ public class RegistrationControllerTest {
 
     @Test
     @SneakyThrows
-    void testConfirmRegistration_WhenGivenVerificationTokenIsAlreadyInvalid_ThenReturnConflictStatus() {
+    void testConfirmRegistration_WhenGivenVerificationTokenIsAlreadyInvalid_ThenReturnForbiddenStatus() {
         String verificationTokenRequestParam = "some_verification_token";
 
         TimeZoneContextHolder.setTimeZone("UTC");
@@ -209,8 +209,8 @@ public class RegistrationControllerTest {
                         .param("verificationToken", verificationTokenRequestParam))
                 .andDo(print())
                 .andExpectAll(
-                        status().isConflict(),
-                        jsonPath("$.status").value("Conflict"),
+                        status().isForbidden(),
+                        jsonPath("$.status").value("Forbidden"),
                         jsonPath("$.errors.responseMessage").value("Verification token is already invalidated"));
 
         TimeZoneContextHolder.clear();

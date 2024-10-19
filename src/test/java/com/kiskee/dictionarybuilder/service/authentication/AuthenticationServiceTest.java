@@ -13,12 +13,12 @@ import com.kiskee.dictionarybuilder.enums.user.UserRole;
 import com.kiskee.dictionarybuilder.model.dto.authentication.AuthenticationData;
 import com.kiskee.dictionarybuilder.model.dto.authentication.AuthenticationResponse;
 import com.kiskee.dictionarybuilder.model.dto.token.jwe.JweToken;
-import com.kiskee.dictionarybuilder.model.dto.token.jwe.TokenData;
+import com.kiskee.dictionarybuilder.model.dto.token.jwe.JweTokenData;
 import com.kiskee.dictionarybuilder.model.entity.token.CookieToken;
 import com.kiskee.dictionarybuilder.model.entity.user.UserVocabularyApplication;
+import com.kiskee.dictionarybuilder.service.security.token.serializer.TokenSerializer;
 import com.kiskee.dictionarybuilder.service.token.jwt.CookieTokenIssuer;
 import com.kiskee.dictionarybuilder.service.token.jwt.DefaultJweTokenFactory;
-import com.kiskee.dictionarybuilder.service.token.jwt.JweStringSerializer;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -49,7 +49,7 @@ public class AuthenticationServiceTest {
     private DefaultJweTokenFactory defaultJweTokenFactory;
 
     @Mock
-    private JweStringSerializer tokenStringSerializer;
+    private TokenSerializer<JweToken, String> tokenStringSerializer;
 
     @Mock
     private CookieTokenIssuer cookieTokenIssuer;
@@ -71,7 +71,7 @@ public class AuthenticationServiceTest {
         when(jwtProperties.getAccessExpirationTime()).thenReturn(1000L);
 
         when(defaultJweTokenFactory.apply(any(AuthenticationData.class))).thenReturn(mock(JweToken.class));
-        when(tokenStringSerializer.apply(any(JweToken.class))).thenReturn(tokenString);
+        when(tokenStringSerializer.serialize(any(JweToken.class))).thenReturn(tokenString);
 
         AuthenticationResponse authenticationResponse = authenticationService.issueAccessToken();
 
@@ -98,7 +98,7 @@ public class AuthenticationServiceTest {
         when(cookieTokenIssuer.findTokenOrThrow(refreshToken)).thenReturn(cookieToken);
 
         when(defaultJweTokenFactory.apply(any(AuthenticationData.class))).thenReturn(mock(JweToken.class));
-        when(tokenStringSerializer.apply(any(JweToken.class))).thenReturn(tokenString);
+        when(tokenStringSerializer.serialize(any(JweToken.class))).thenReturn(tokenString);
 
         AuthenticationResponse authenticationResponse = authenticationService.issueAccessToken(refreshToken);
 
@@ -144,9 +144,9 @@ public class AuthenticationServiceTest {
 
         when(jwtProperties.getRefreshExpirationTime()).thenReturn(1000L);
         when(defaultJweTokenFactory.apply(any(AuthenticationData.class))).thenReturn(mock(JweToken.class));
-        when(tokenStringSerializer.apply(any(JweToken.class))).thenReturn(tokenString);
+        when(tokenStringSerializer.serialize(any(JweToken.class))).thenReturn(tokenString);
 
-        TokenData tokenData = authenticationService.issueRefreshToken(authentication);
+        JweTokenData tokenData = authenticationService.issueRefreshToken(authentication);
 
         verify(cookieTokenIssuer).persistToken(tokenData);
 
@@ -161,11 +161,12 @@ public class AuthenticationServiceTest {
         CookieToken cookieToken = mock(CookieToken.class);
         when(cookieToken.getUserId()).thenReturn(USER_ID);
         when(cookieToken.isInvalidated()).thenReturn(false);
+        when(cookieToken.getToken()).thenReturn(refreshToken);
         when(cookieTokenIssuer.findTokenOrThrow(refreshToken)).thenReturn(cookieToken);
 
         authenticationService.revokeRefreshToken(refreshToken);
 
-        verify(cookieTokenIssuer).invalidateToken(cookieToken);
+        verify(cookieTokenIssuer).invalidateToken(refreshToken);
     }
 
     @Test

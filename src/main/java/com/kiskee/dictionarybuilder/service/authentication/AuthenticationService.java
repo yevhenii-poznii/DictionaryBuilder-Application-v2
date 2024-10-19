@@ -1,7 +1,7 @@
 package com.kiskee.dictionarybuilder.service.authentication;
 
 import com.kiskee.dictionarybuilder.model.dto.authentication.AuthenticationResponse;
-import com.kiskee.dictionarybuilder.model.dto.token.jwe.TokenData;
+import com.kiskee.dictionarybuilder.model.dto.token.jwe.JweTokenData;
 import org.springframework.security.core.Authentication;
 
 public interface AuthenticationService {
@@ -10,5 +10,5 @@ public interface AuthenticationService {
 
     AuthenticationResponse issueAccessToken(String refreshToken);
 
-    TokenData issueRefreshToken(Authentication authentication);
+    JweTokenData issueRefreshToken(Authentication authentication);
 }

@@ -1,6 +1,6 @@
 package com.kiskee.dictionarybuilder.web.auth;
 
-import com.kiskee.dictionarybuilder.model.dto.token.jwe.TokenData;
+import com.kiskee.dictionarybuilder.model.dto.token.jwe.JweTokenData;
 import com.kiskee.dictionarybuilder.service.authentication.AuthenticationService;
 import com.kiskee.dictionarybuilder.util.CookieUtil;
 import jakarta.servlet.ServletException;
@@ -25,10 +25,8 @@ public class TokenCookieAuthenticationSuccessHandler extends SavedRequestAwareAu
             HttpServletRequest request, HttpServletResponse response, Authentication authentication)
             throws IOException, ServletException {
         if (authentication instanceof UsernamePasswordAuthenticationToken) {
-            TokenData tokenData = authenticationService.issueRefreshToken(authentication);
-
+            JweTokenData tokenData = authenticationService.issueRefreshToken(authentication);
             Cookie cookie = CookieUtil.buildCookie(tokenData);
-
             response.addCookie(cookie);
         }
     }

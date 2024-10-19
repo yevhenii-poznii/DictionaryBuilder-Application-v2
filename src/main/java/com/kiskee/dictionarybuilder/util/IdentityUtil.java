@@ -46,7 +46,7 @@ public class IdentityUtil {
 
     public void setAuthentication(JweToken jweToken) {
         UserVocabularyApplication user = UserVocabularyApplication.builder()
-                .setId(jweToken.getId())
+                .setId(jweToken.getUserId())
                 .setUsername(jweToken.getSubject())
                 .build();
 

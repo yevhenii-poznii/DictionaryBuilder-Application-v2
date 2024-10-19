@@ -1,4 +1,4 @@
-package com.kiskee.dictionarybuilder.service.token.jwt;
+package com.kiskee.dictionarybuilder.service.security.token.serializer;
 
 import com.kiskee.dictionarybuilder.model.dto.token.jwe.JweToken;
 import com.nimbusds.jose.EncryptionMethod;
@@ -9,14 +9,13 @@ import com.nimbusds.jose.JWEHeader;
 import com.nimbusds.jwt.EncryptedJWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import java.util.Date;
-import java.util.function.Function;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @AllArgsConstructor
-public class JweStringSerializer implements Function<JweToken, String> {
+public class JweStringSerializer implements TokenSerializer<JweToken, String> {
 
     private final JWEEncrypter jweEncrypter;
     private final JWEAlgorithm jweAlgorithm;
@@ -24,16 +23,16 @@ public class JweStringSerializer implements Function<JweToken, String> {
 
     @Override
     @SneakyThrows
-    public String apply(JweToken token) {
+    public String serialize(JweToken data) {
         JWEHeader jweHeader = new JWEHeader.Builder(jweAlgorithm, encryptionMethod)
-                .keyID(token.getId().toString())
+                .keyID(data.getUserId().toString())
                 .build();
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
-                .jwtID(token.getId().toString())
-                .subject(token.getSubject())
-                .issueTime(Date.from(token.getCreatedAt()))
-                .expirationTime(Date.from(token.getExpiresAt()))
-                .claim("authorities", token.getAuthorities())
+                .jwtID(data.getUserId().toString())
+                .subject(data.getSubject())
+                .issueTime(Date.from(data.getCreatedAt()))
+                .expirationTime(Date.from(data.getExpiresAt()))
+                .claim("authorities", data.getAuthorities())
                 .build();
         EncryptedJWT encryptedJWT = new EncryptedJWT(jweHeader, jwtClaimsSet);
         try {

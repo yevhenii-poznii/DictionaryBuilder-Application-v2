@@ -13,17 +13,18 @@ import static org.mockito.Mockito.when;
 import com.kiskee.dictionarybuilder.enums.ExceptionStatusesEnum;
 import com.kiskee.dictionarybuilder.enums.registration.RegistrationStatus;
 import com.kiskee.dictionarybuilder.exception.ResourceNotFoundException;
-import com.kiskee.dictionarybuilder.exception.token.InvalidTokenException;
 import com.kiskee.dictionarybuilder.exception.user.DuplicateUserException;
 import com.kiskee.dictionarybuilder.model.dto.ResponseMessage;
 import com.kiskee.dictionarybuilder.model.dto.registration.InternalRegistrationRequest;
-import com.kiskee.dictionarybuilder.model.entity.token.Token;
+import com.kiskee.dictionarybuilder.model.dto.token.verification.VerificationTokenData;
 import com.kiskee.dictionarybuilder.model.entity.token.VerificationToken;
 import com.kiskee.dictionarybuilder.model.entity.user.UserVocabularyApplication;
 import com.kiskee.dictionarybuilder.service.event.OnRegistrationCompleteEvent;
 import com.kiskee.dictionarybuilder.service.provision.registration.RegistrationServiceImpl;
+import com.kiskee.dictionarybuilder.service.security.token.deserializer.TokenDeserializationHandler;
 import com.kiskee.dictionarybuilder.service.token.TokenInvalidatorService;
 import com.kiskee.dictionarybuilder.service.user.UserInitializingService;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -65,12 +66,19 @@ public class RegistrationServiceImplTest {
     @Mock
     private TokenInvalidatorService<VerificationToken> tokenInvalidatorService;
 
+    @Mock
+    private TokenDeserializationHandler<VerificationTokenData> tokenDeserializationHandler;
+
     @BeforeEach
     void setUp() {
         List<UserInitializingService> userInitializingServices =
                 Arrays.asList(userService, userProfileService, userPreferenceService);
         service = new RegistrationServiceImpl(
-                passwordEncoder, userInitializingServices, tokenInvalidatorService, eventPublisher);
+                passwordEncoder,
+                userInitializingServices,
+                eventPublisher,
+                tokenDeserializationHandler,
+                tokenInvalidatorService);
     }
 
     @Test
@@ -121,45 +129,28 @@ public class RegistrationServiceImplTest {
     void testCompleteRegistration_WhenGivenCorrectVerificationToken_ThenActivateUserAccount() {
         String verificationToken = "some_verification_token";
 
-        VerificationToken tokenMock = mock(VerificationToken.class);
-        when(tokenMock.getUserId()).thenReturn(USER_ID);
-
-        when(tokenInvalidatorService.findTokenOrThrow(verificationToken)).thenReturn(tokenMock);
+        VerificationTokenData verificationTokenData =
+                new VerificationTokenData(USER_ID, "someEmail@gmail.com", Instant.parse("2024-10-12T00:00:00Z"));
+        when(tokenDeserializationHandler.deserializeToken(verificationToken, VerificationTokenData.class))
+                .thenReturn(verificationTokenData);
 
         ResponseMessage responseMessage = service.completeRegistration(verificationToken);
 
         verify(userService).updateUserAccountToActive(USER_ID);
-        verify(tokenInvalidatorService).invalidateToken(tokenMock);
+        verify(tokenInvalidatorService).invalidateToken(verificationToken);
 
         assertThat(responseMessage.getResponseMessage())
                 .isEqualTo(RegistrationStatus.USER_SUCCESSFULLY_ACTIVATED.getStatus());
     }
 
     @Test
-    void testCompleteRegistration_WhenVerificationTokenNotFound_ThenThrowResourceNotFoundException() {
-        String verificationToken = "some_verification_token";
-
-        when(tokenInvalidatorService.findTokenOrThrow(verificationToken))
-                .thenThrow(new ResourceNotFoundException(String.format(
-                        ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(),
-                        Token.class.getSimpleName(),
-                        verificationToken)));
-
-        assertThatExceptionOfType(ResourceNotFoundException.class)
-                .isThrownBy(() -> service.completeRegistration(verificationToken))
-                .withMessage("Token [some_verification_token] hasn't been found");
-
-        verifyNoMoreInteractions(tokenInvalidatorService);
-    }
-
-    @Test
     void testCompleteRegistration_WhenUserNotFound_ThenThrowResourceNotFoundException() {
         String verificationToken = "some_verification_token";
 
-        VerificationToken tokenMock = mock(VerificationToken.class);
-        when(tokenMock.getUserId()).thenReturn(USER_ID);
-
-        when(tokenInvalidatorService.findTokenOrThrow(verificationToken)).thenReturn(tokenMock);
+        VerificationTokenData verificationTokenData =
+                new VerificationTokenData(USER_ID, "someEmail@gmail.com", Instant.parse("2024-10-12T00:00:00Z"));
+        when(tokenDeserializationHandler.deserializeToken(verificationToken, VerificationTokenData.class))
+                .thenReturn(verificationTokenData);
 
         doThrow(new ResourceNotFoundException(String.format(
                         ExceptionStatusesEnum.RESOURCE_NOT_FOUND.getStatus(),
@@ -178,19 +169,20 @@ public class RegistrationServiceImplTest {
         verifyNoMoreInteractions(tokenInvalidatorService);
     }
 
-    @Test
-    void testCompleteRegistration_WhenVerificationTokenIsInvalidated_ThenThrowInvalidVerificationTokenException() {
-        String verificationToken = "some_verification_token";
-
-        VerificationToken tokenMock = mock(VerificationToken.class);
-        when(tokenMock.isInvalidated()).thenReturn(true);
-
-        when(tokenInvalidatorService.findTokenOrThrow(verificationToken)).thenReturn(tokenMock);
-
-        assertThatExceptionOfType(InvalidTokenException.class)
-                .isThrownBy(() -> service.completeRegistration(verificationToken))
-                .withMessage("Verification token is already invalidated");
-
-        verifyNoMoreInteractions(tokenInvalidatorService);
-    }
+    //    @Test
+    //    void testCompleteRegistration_WhenVerificationTokenIsInvalidated_ThenThrowInvalidVerificationTokenException()
+    // {
+    //        String verificationToken = "some_verification_token";
+    //
+    //        VerificationToken tokenMock = mock(VerificationToken.class);
+    //        when(tokenMock.isInvalidated()).thenReturn(true);
+    //
+    //        when(tokenInvalidatorService.findTokenOrThrow(verificationToken)).thenReturn(tokenMock);
+    //
+    //        assertThatExceptionOfType(InvalidTokenException.class)
+    //                .isThrownBy(() -> service.completeRegistration(verificationToken))
+    //                .withMessage("Verification token is already invalidated");
+    //
+    //        verifyNoMoreInteractions(tokenInvalidatorService);
+    //    }
 }

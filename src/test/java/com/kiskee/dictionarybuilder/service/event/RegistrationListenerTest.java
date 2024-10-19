@@ -1,13 +1,17 @@
 package com.kiskee.dictionarybuilder.service.event;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.kiskee.dictionarybuilder.enums.user.UserRole;
+import com.kiskee.dictionarybuilder.model.dto.token.verification.VerificationTokenData;
 import com.kiskee.dictionarybuilder.model.entity.user.UserVocabularyApplication;
 import com.kiskee.dictionarybuilder.repository.user.projections.UserSecureProjection;
 import com.kiskee.dictionarybuilder.service.email.EmailSenderService;
+import com.kiskee.dictionarybuilder.service.time.CurrentDateTimeService;
 import com.kiskee.dictionarybuilder.service.token.TokenPersistenceService;
+import java.time.Instant;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,10 +26,13 @@ public class RegistrationListenerTest {
     private RegistrationListener registrationListener;
 
     @Mock
-    private TokenPersistenceService<UUID, String> tokenService;
+    private TokenPersistenceService<VerificationTokenData> tokenService;
 
     @Mock
     private EmailSenderService emailSenderService;
+
+    @Mock
+    private CurrentDateTimeService currentDateTimeService;
 
     @Test
     void testGenerateVerificationTokenAndSendEmail_When_Then() {
@@ -35,11 +42,12 @@ public class RegistrationListenerTest {
         OnRegistrationCompleteEvent event = new OnRegistrationCompleteEvent(userSecureProjection);
 
         String verificationTokenDto = "someVerificationToken";
-        when(tokenService.persistToken(userId)).thenReturn(verificationTokenDto);
+        when(currentDateTimeService.getCurrentInstant()).thenReturn(Instant.parse("2024-10-12T00:00:00Z"));
+        when(tokenService.persistToken(any(VerificationTokenData.class))).thenReturn(verificationTokenDto);
 
         registrationListener.onApplicationEvent(event);
 
-        verify(tokenService).persistToken(userId);
+        verify(tokenService).persistToken(any(VerificationTokenData.class));
         verify(emailSenderService).sendVerificationEmail(userSecureProjection, verificationTokenDto);
     }
 }

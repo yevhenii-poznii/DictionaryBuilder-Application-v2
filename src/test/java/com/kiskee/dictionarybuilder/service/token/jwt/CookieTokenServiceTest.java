@@ -11,7 +11,7 @@ import com.kiskee.dictionarybuilder.enums.ExceptionStatusesEnum;
 import com.kiskee.dictionarybuilder.enums.token.TokenType;
 import com.kiskee.dictionarybuilder.exception.ResourceNotFoundException;
 import com.kiskee.dictionarybuilder.model.dto.token.jwe.JweToken;
-import com.kiskee.dictionarybuilder.model.dto.token.jwe.TokenData;
+import com.kiskee.dictionarybuilder.model.dto.token.jwe.JweTokenData;
 import com.kiskee.dictionarybuilder.model.entity.token.CookieToken;
 import com.kiskee.dictionarybuilder.model.entity.token.Token;
 import com.kiskee.dictionarybuilder.repository.token.TokenRepository;
@@ -44,14 +44,14 @@ public class CookieTokenServiceTest {
     @Test
     void testGenerateToken_WhenJweTokenParamIsProvided_ThenGenerateCookieTokenAndSave() {
         JweToken jweToken = JweToken.builder()
-                .setId(USER_ID)
+                .setUserId(USER_ID)
                 .setSubject("username")
                 .setAuthorities(List.of())
                 .setCreatedAt(Instant.parse("2024-01-30T12:00:00Z"))
                 .setExpiresAt(Instant.parse("2024-01-31T12:00:00Z"))
                 .build();
         String generatedCookieTokenString = "some_cookie_token_string";
-        TokenData tokenData = new TokenData(generatedCookieTokenString, jweToken);
+        JweTokenData tokenData = new JweTokenData(generatedCookieTokenString, jweToken);
 
         when(tokenRepository.save(cookieTokenArgumentCaptor.capture())).thenReturn(mock(CookieToken.class));
 
@@ -97,17 +97,10 @@ public class CookieTokenServiceTest {
 
     @Test
     void testInvalidateToken_WhenGivenCookieToken_ThenInvalidateUnnecessaryCookieToken() {
-        String verificationTokenString = "some_verification_token_string";
-        Instant createdAt = Instant.parse("2024-01-30T12:00:00Z");
-        Instant expiresAt = Instant.parse("2024-01-31T12:00:00Z");
-        CookieToken token = new CookieToken(verificationTokenString, USER_ID, createdAt, expiresAt);
+        String cookieTokenString = "some_verification_token_string";
 
-        service.invalidateToken(token);
+        service.invalidateToken(cookieTokenString);
 
-        verify(tokenRepository).save(cookieTokenArgumentCaptor.capture());
-
-        CookieToken actual = cookieTokenArgumentCaptor.getValue();
-        assertThat(actual.getToken()).isEqualTo(verificationTokenString);
-        assertThat(actual.isInvalidated()).isTrue();
+        verify(tokenRepository).invalidateToken(cookieTokenString);
     }
 }

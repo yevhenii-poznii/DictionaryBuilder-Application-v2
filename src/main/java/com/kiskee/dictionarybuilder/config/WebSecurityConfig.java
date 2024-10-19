@@ -4,13 +4,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kiskee.dictionarybuilder.config.properties.email.MailSenderProperties;
 import com.kiskee.dictionarybuilder.config.properties.token.cipher.CipherProperties;
 import com.kiskee.dictionarybuilder.config.properties.token.jwt.JwtProperties;
+import com.kiskee.dictionarybuilder.model.dto.token.jwe.JweToken;
 import com.kiskee.dictionarybuilder.service.authentication.AuthenticationServiceImpl;
 import com.kiskee.dictionarybuilder.service.provision.oauth.OAuth2UserProvisionService;
 import com.kiskee.dictionarybuilder.service.provision.oauth.OAuth2UserProvisionServiceImpl;
+import com.kiskee.dictionarybuilder.service.security.token.deserializer.JweStringDeserializer;
+import com.kiskee.dictionarybuilder.service.security.token.deserializer.TokenDeserializer;
+import com.kiskee.dictionarybuilder.service.security.token.serializer.JweStringSerializer;
+import com.kiskee.dictionarybuilder.service.security.token.serializer.TokenSerializer;
 import com.kiskee.dictionarybuilder.service.token.jwt.CookieTokenService;
 import com.kiskee.dictionarybuilder.service.token.jwt.DefaultJweTokenFactory;
-import com.kiskee.dictionarybuilder.service.token.jwt.JweStringDeserializer;
-import com.kiskee.dictionarybuilder.service.token.jwt.JweStringSerializer;
 import com.kiskee.dictionarybuilder.service.user.UserInitializingService;
 import com.kiskee.dictionarybuilder.service.user.UserService;
 import com.kiskee.dictionarybuilder.util.CookieUtil;
@@ -139,7 +142,7 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public JweStringSerializer jweStringSerializer() throws KeyLengthException, IOException {
+    public TokenSerializer<JweToken, String> jweStringSerializer() throws KeyLengthException, IOException {
         return new JweStringSerializer(
                 jweEncrypter(jweSecretKey()),
                 JWEAlgorithm.parse(jwtProperties.getJweAlgorithm()),
@@ -147,7 +150,7 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public JweStringDeserializer jweStringDeserializer() throws KeyLengthException, IOException {
+    public TokenDeserializer<String, JweToken> jweStringDeserializer() throws KeyLengthException, IOException {
         return new JweStringDeserializer(jweDecrypter(jweSecretKey()));
     }
 

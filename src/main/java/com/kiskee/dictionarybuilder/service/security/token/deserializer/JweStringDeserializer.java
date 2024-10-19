@@ -1,4 +1,4 @@
-package com.kiskee.dictionarybuilder.service.token.jwt;
+package com.kiskee.dictionarybuilder.service.security.token.deserializer;
 
 import com.kiskee.dictionarybuilder.model.dto.token.jwe.JweToken;
 import com.nimbusds.jose.JWEDecrypter;
@@ -8,20 +8,17 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.proc.DefaultJWTClaimsVerifier;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.Function;
 import lombok.AllArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @AllArgsConstructor
-public class JweStringDeserializer implements Function<String, JweToken> {
+public class JweStringDeserializer implements TokenDeserializer<String, JweToken> {
 
     private final JWEDecrypter jweDecrypter;
 
     @Override
-    @SneakyThrows
-    public JweToken apply(String tokenString) {
+    public JweToken deserialize(String tokenString) throws Exception {
         EncryptedJWT encryptedJWT = EncryptedJWT.parse(tokenString);
 
         encryptedJWT.decrypt(jweDecrypter);
@@ -33,7 +30,7 @@ public class JweStringDeserializer implements Function<String, JweToken> {
         claimsVerifier.verify(claimsSet, null);
 
         return JweToken.builder()
-                .setId(UUID.fromString(claimsSet.getJWTID()))
+                .setUserId(UUID.fromString(claimsSet.getJWTID()))
                 .setSubject(claimsSet.getSubject())
                 .setAuthorities(claimsSet.getStringListClaim("authorities"))
                 .setCreatedAt(claimsSet.getIssueTime().toInstant())

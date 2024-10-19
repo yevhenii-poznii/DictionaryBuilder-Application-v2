@@ -35,11 +35,8 @@ public class UserService extends AbstractUserProfilePreferenceInitializationServ
     @Override
     public <R extends RegistrationRequest> void initUser(R registrationRequest) {
         ensureUniqueUser(registrationRequest.getUsername(), registrationRequest.getEmail());
-
         UserVocabularyApplication user = initEntityAndSave(registrationRequest);
-
         registrationRequest.setUser(user);
-
         log.info(
                 "[{}] has been successfully created for [{}]",
                 UserVocabularyApplication.class.getSimpleName(),
@@ -74,7 +71,6 @@ public class UserService extends AbstractUserProfilePreferenceInitializationServ
 
     private void ensureUniqueUser(String username, String email) {
         boolean userExists = repository.existsByUsernameOrEmail(username, email);
-
         if (userExists) {
             throw new DuplicateUserException(RegistrationStatus.USER_ALREADY_EXISTS.getStatus());
         }

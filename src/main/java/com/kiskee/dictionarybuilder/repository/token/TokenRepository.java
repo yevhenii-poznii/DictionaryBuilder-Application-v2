@@ -10,6 +10,8 @@ public interface TokenRepository extends JpaRepository<Token, Long> {
 
     Optional<Token> findByToken(String token);
 
+    boolean existsByToken(String token);
+
     boolean existsByTokenAndIsInvalidatedFalse(String token);
 
     @Modifying

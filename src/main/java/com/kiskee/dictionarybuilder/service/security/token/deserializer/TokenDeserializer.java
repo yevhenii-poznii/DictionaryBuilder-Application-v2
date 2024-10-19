@@ -1,6 +1,8 @@
 package com.kiskee.dictionarybuilder.service.security.token.deserializer;
 
-public interface TokenDeserializer<S, D> {
+import com.kiskee.dictionarybuilder.model.dto.token.TokenData;
 
-    D deserialize(S string, Class<D> cls);
+public interface TokenDeserializer<S, D extends TokenData> {
+
+    D deserialize(S string) throws Exception;
 }
