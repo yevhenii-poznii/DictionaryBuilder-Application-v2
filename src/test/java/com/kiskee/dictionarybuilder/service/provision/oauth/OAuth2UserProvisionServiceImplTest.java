@@ -1,4 +1,4 @@
-package com.kiskee.dictionarybuilder.service.oauth;
+package com.kiskee.dictionarybuilder.service.provision.oauth;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -14,7 +14,6 @@ import com.kiskee.dictionarybuilder.model.dto.token.jwe.JweTokenData;
 import com.kiskee.dictionarybuilder.model.dto.token.jwe.OAuth2ProvisionData;
 import com.kiskee.dictionarybuilder.model.entity.user.UserVocabularyApplication;
 import com.kiskee.dictionarybuilder.service.authentication.AuthenticationService;
-import com.kiskee.dictionarybuilder.service.provision.oauth.OAuth2UserProvisionServiceImpl;
 import com.kiskee.dictionarybuilder.service.user.OAuth2UserService;
 import com.kiskee.dictionarybuilder.service.user.UserInitializingService;
 import java.util.List;
