@@ -9,7 +9,6 @@ import com.kiskee.dictionarybuilder.model.dto.vocabulary.dictionary.DictionaryDt
 import com.kiskee.dictionarybuilder.model.dto.vocabulary.dictionary.page.DictionaryPageRequestDto;
 import com.kiskee.dictionarybuilder.model.dto.vocabulary.dictionary.page.DictionaryPageResponseDto;
 import com.kiskee.dictionarybuilder.service.security.token.deserializer.TokenDeserializationHandler;
-import com.kiskee.dictionarybuilder.service.time.CurrentDateTimeService;
 import com.kiskee.dictionarybuilder.service.token.TokenPersistenceService;
 import com.kiskee.dictionarybuilder.service.vocabulary.AbstractDictionaryService;
 import com.kiskee.dictionarybuilder.service.vocabulary.dictionary.DictionaryAccessValidator;
@@ -33,7 +32,6 @@ public class ShareServiceImpl extends AbstractDictionaryService implements Share
     private final TokenDeserializationHandler<SharingTokenData> tokenDeserializationHandler;
     private final DictionaryAccessValidator dictionaryAccessValidator;
     private final DictionaryPageLoaderFactory dictionaryPageLoaderFactory;
-    private final CurrentDateTimeService currentDateTimeService;
 
     @Override
     @Transactional(noRollbackFor = InvalidTokenException.class)

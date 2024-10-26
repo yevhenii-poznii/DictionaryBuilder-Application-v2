@@ -1,7 +1,6 @@
 package com.kiskee.dictionarybuilder.service.token.verification;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -39,7 +38,7 @@ public class VerificationTokenServiceTest {
     private ArgumentCaptor<VerificationToken> verificationTokenArgumentCaptor;
 
     @Test
-    void testGenerateToken_WhenUserIdParamIsProvided_ThenGenerateVerificationTokenAndSave() {
+    void testPersistToken_WhenGivenTokenData_ThenGenerateVerificationTokenAndSave() {
         VerificationTokenData verificationTokenData =
                 new VerificationTokenData(USER_ID, "someEmail@gmail.com", Instant.parse("2024-10-12T12:00:00Z"));
         String generatedVerificationTokenString = "some_verification_token_string";
@@ -48,8 +47,6 @@ public class VerificationTokenServiceTest {
         when(tokenRepository.save(verificationTokenArgumentCaptor.capture())).thenReturn(mock(VerificationToken.class));
 
         String verificationToken = service.persistToken(verificationTokenData);
-
-        verify(tokenRepository).save(any(VerificationToken.class));
 
         VerificationToken actualToken = verificationTokenArgumentCaptor.getValue();
 
@@ -65,5 +62,26 @@ public class VerificationTokenServiceTest {
         service.invalidateToken(verificationTokenString);
 
         verify(tokenRepository).invalidateToken(verificationTokenString);
+    }
+
+    @Test
+    void testIsNotInvalidated_WhenTokenIsNotInvalidated_ThenReturnTrue() {
+        String tokenString = "sharingTokenString";
+        when(tokenRepository.existsByTokenAndIsInvalidatedFalse(tokenString)).thenReturn(true);
+
+        assertThat(service.isNotInvalidated(tokenString)).isTrue();
+    }
+
+    @Test
+    void testIsNotInvalidated_WhenTokenIsInvalidated_ThenReturnTrue() {
+        String tokenString = "sharingTokenString";
+        when(tokenRepository.existsByTokenAndIsInvalidatedFalse(tokenString)).thenReturn(false);
+
+        assertThat(service.isNotInvalidated(tokenString)).isFalse();
+    }
+
+    @Test
+    void testGetSupportedTokenDataClass_WhenCalled_ThenReturnVerificationTokenDataClass() {
+        assertThat(service.getSupportedTokenDataClass()).isEqualTo(VerificationTokenData.class);
     }
 }

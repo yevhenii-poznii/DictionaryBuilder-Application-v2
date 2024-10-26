@@ -42,7 +42,7 @@ public class CookieTokenServiceTest {
     private ArgumentCaptor<CookieToken> cookieTokenArgumentCaptor;
 
     @Test
-    void testGenerateToken_WhenJweTokenParamIsProvided_ThenGenerateCookieTokenAndSave() {
+    void testPersistToken_WhenJweTokenParamIsProvided_ThenGenerateCookieTokenAndSave() {
         JweToken jweToken = JweToken.builder()
                 .setUserId(USER_ID)
                 .setSubject("username")
@@ -68,7 +68,7 @@ public class CookieTokenServiceTest {
 
     @Test
     void testFindTokenOrThrow_WhenCookieTokenExists_ThenReturnCookieToken() {
-        String cookieTokenParam = "some_cookie_token_string";
+        String cookieTokenParam = "cookieTokenString";
 
         CookieToken foundToken = mock(CookieToken.class);
         when(foundToken.getToken()).thenReturn(cookieTokenParam);
@@ -83,7 +83,7 @@ public class CookieTokenServiceTest {
 
     @Test
     void testFindTokenOrThrow_WhenCookieTokenDoesNotExist_ThenThrowResourceNotFoundException() {
-        String cookieTokenParam = "some_verification_token_string";
+        String cookieTokenParam = "cookieTokenString";
 
         when(tokenRepository.findByToken(cookieTokenParam)).thenReturn(Optional.empty());
 
@@ -97,10 +97,33 @@ public class CookieTokenServiceTest {
 
     @Test
     void testInvalidateToken_WhenGivenCookieToken_ThenInvalidateUnnecessaryCookieToken() {
-        String cookieTokenString = "some_verification_token_string";
+        String cookieTokenString = "cookieTokenString";
 
         service.invalidateToken(cookieTokenString);
 
         verify(tokenRepository).invalidateToken(cookieTokenString);
+    }
+
+    @Test
+    void testIsNotInvalidated_WhenTokenIsNotInvalidated_ThenReturnTrue() {
+        String cookieTokenString = "cookieTokenString";
+        when(tokenRepository.existsByTokenAndIsInvalidatedFalse(cookieTokenString))
+                .thenReturn(true);
+
+        assertThat(service.isNotInvalidated(cookieTokenString)).isTrue();
+    }
+
+    @Test
+    void testIsNotInvalidated_WhenTokenIsInvalidated_ThenReturnTrue() {
+        String cookieTokenString = "cookieTokenString";
+        when(tokenRepository.existsByTokenAndIsInvalidatedFalse(cookieTokenString))
+                .thenReturn(false);
+
+        assertThat(service.isNotInvalidated(cookieTokenString)).isFalse();
+    }
+
+    @Test
+    void testGetSupportedTokenDataClass_ThenReturnJweTokenClass() {
+        assertThat(service.getSupportedTokenDataClass()).isEqualTo(JweToken.class);
     }
 }

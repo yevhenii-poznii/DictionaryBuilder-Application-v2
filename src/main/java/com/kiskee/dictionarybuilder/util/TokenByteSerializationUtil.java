@@ -53,7 +53,7 @@ public class TokenByteSerializationUtil {
                 return new SharingTokenData(userId, dictionaryId, expiresAt);
             }
             case VERIFICATION_TOKEN -> {
-                int lastIndexOfEmail = byteBuffer.capacity() - Long.BYTES * 4;
+                int lastIndexOfEmail = byteBuffer.capacity() - Long.BYTES * 3 - Integer.BYTES;
                 int firstIndexOfEmail = byteBuffer.position();
                 byte[] emailBytes = new byte[lastIndexOfEmail - firstIndexOfEmail];
                 byteBuffer.get(emailBytes);

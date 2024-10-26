@@ -1,4 +1,4 @@
-package com.kiskee.dictionarybuilder.service.registration;
+package com.kiskee.dictionarybuilder.service.provision.registration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 import com.kiskee.dictionarybuilder.enums.ExceptionStatusesEnum;
 import com.kiskee.dictionarybuilder.enums.registration.RegistrationStatus;
 import com.kiskee.dictionarybuilder.exception.ResourceNotFoundException;
+import com.kiskee.dictionarybuilder.exception.token.InvalidTokenException;
 import com.kiskee.dictionarybuilder.exception.user.DuplicateUserException;
 import com.kiskee.dictionarybuilder.model.dto.ResponseMessage;
 import com.kiskee.dictionarybuilder.model.dto.registration.InternalRegistrationRequest;
@@ -20,7 +21,6 @@ import com.kiskee.dictionarybuilder.model.dto.token.verification.VerificationTok
 import com.kiskee.dictionarybuilder.model.entity.token.VerificationToken;
 import com.kiskee.dictionarybuilder.model.entity.user.UserVocabularyApplication;
 import com.kiskee.dictionarybuilder.service.event.OnRegistrationCompleteEvent;
-import com.kiskee.dictionarybuilder.service.provision.registration.RegistrationServiceImpl;
 import com.kiskee.dictionarybuilder.service.security.token.deserializer.TokenDeserializationHandler;
 import com.kiskee.dictionarybuilder.service.token.TokenInvalidatorService;
 import com.kiskee.dictionarybuilder.service.user.UserInitializingService;
@@ -28,9 +28,12 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -169,20 +172,46 @@ public class RegistrationServiceImplTest {
         verifyNoMoreInteractions(tokenInvalidatorService);
     }
 
-    //    @Test
-    //    void testCompleteRegistration_WhenVerificationTokenIsInvalidated_ThenThrowInvalidVerificationTokenException()
-    // {
-    //        String verificationToken = "some_verification_token";
-    //
-    //        VerificationToken tokenMock = mock(VerificationToken.class);
-    //        when(tokenMock.isInvalidated()).thenReturn(true);
-    //
-    //        when(tokenInvalidatorService.findTokenOrThrow(verificationToken)).thenReturn(tokenMock);
-    //
-    //        assertThatExceptionOfType(InvalidTokenException.class)
-    //                .isThrownBy(() -> service.completeRegistration(verificationToken))
-    //                .withMessage("Verification token is already invalidated");
-    //
-    //        verifyNoMoreInteractions(tokenInvalidatorService);
-    //    }
+    @ParameterizedTest
+    @MethodSource("invalidTokenExceptionProvider")
+    void testCompleteRegistration_WhenGivenInvalidToken_ThenThrowInvalidTokenException(
+            InvalidTokenException exception) {
+        String verificationToken = "some_verification_token";
+
+        when(tokenDeserializationHandler.deserializeToken(verificationToken, VerificationTokenData.class))
+                .thenThrow(exception);
+
+        assertThatExceptionOfType(InvalidTokenException.class)
+                .isThrownBy(() -> service.completeRegistration(verificationToken))
+                .withMessage(exception.getMessage());
+
+        verifyNoMoreInteractions(tokenInvalidatorService);
+    }
+
+    @Test
+    void testGetPasswordEncode() {
+        assertThat(service.getPasswordEncoder()).isEqualTo(passwordEncoder);
+    }
+
+    @Test
+    void testGetEventPublisher() {
+        assertThat(service.getEventPublisher()).isEqualTo(eventPublisher);
+    }
+
+    @Test
+    void testGetTokenDeserializationHandler() {
+        assertThat(service.getTokenDeserializationHandler()).isEqualTo(tokenDeserializationHandler);
+    }
+
+    @Test
+    void testGetTokenInvalidatorService() {
+        assertThat(service.getTokenInvalidatorService()).isEqualTo(tokenInvalidatorService);
+    }
+
+    private static Stream<InvalidTokenException> invalidTokenExceptionProvider() {
+        return Stream.of(
+                new InvalidTokenException("Invalid token type"),
+                new InvalidTokenException("Invalid token"),
+                new InvalidTokenException("Token has expired"));
+    }
 }
