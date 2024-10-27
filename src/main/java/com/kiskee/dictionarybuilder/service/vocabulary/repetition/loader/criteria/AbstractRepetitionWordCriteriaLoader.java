@@ -25,7 +25,7 @@ public abstract class AbstractRepetitionWordCriteriaLoader {
 
     protected abstract List<Word> loadAll(Long dictionaryId, RepetitionStartFilterRequest request);
 
-    public List<WordDto> loadRepetitionWordPage(Long dictionaryId, RepetitionStartFilterRequest request) {
+    public List<WordDto> loadWords(Long dictionaryId, RepetitionStartFilterRequest request) {
         List<Word> repetitionWords = loadByFilter(dictionaryId, request);
         log.info("Loaded {} words for repetition for user: {}", repetitionWords.size(), IdentityUtil.getUserId());
         return mapper.toDto(repetitionWords);

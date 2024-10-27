@@ -2,7 +2,7 @@ package com.kiskee.dictionarybuilder.service.user.preference;
 
 import com.kiskee.dictionarybuilder.config.properties.user.DefaultUserPreferenceProperties;
 import com.kiskee.dictionarybuilder.enums.user.ProfileVisibility;
-import com.kiskee.dictionarybuilder.enums.vocabulary.PageFilter;
+import com.kiskee.dictionarybuilder.enums.vocabulary.filter.PageFilter;
 import com.kiskee.dictionarybuilder.mapper.user.preference.UserPreferenceMapper;
 import com.kiskee.dictionarybuilder.model.dto.registration.RegistrationRequest;
 import com.kiskee.dictionarybuilder.model.dto.user.preference.UserPreferenceDto;

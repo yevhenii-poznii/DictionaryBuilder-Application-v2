@@ -1,16 +1,16 @@
 package com.kiskee.dictionarybuilder.service.vocabulary;
 
-import com.kiskee.dictionarybuilder.enums.vocabulary.PageFilter;
+import com.kiskee.dictionarybuilder.enums.vocabulary.filter.PageFilter;
 import com.kiskee.dictionarybuilder.model.dto.vocabulary.dictionary.page.DictionaryPageRequestDto;
 import com.kiskee.dictionarybuilder.model.dto.vocabulary.dictionary.page.DictionaryPageResponseDto;
-import com.kiskee.dictionarybuilder.service.vocabulary.dictionary.page.DictionaryPageLoaderFactory;
+import com.kiskee.dictionarybuilder.service.vocabulary.loader.factory.WordLoaderFactory;
 import com.kiskee.dictionarybuilder.service.vocabulary.word.page.DictionaryPageLoader;
 import java.util.Optional;
 import org.springframework.data.domain.PageRequest;
 
 public abstract class AbstractDictionaryService {
 
-    protected abstract DictionaryPageLoaderFactory getDictionaryPageLoaderFactory();
+    protected abstract WordLoaderFactory<PageFilter, DictionaryPageLoader> getDictionaryPageLoaderFactory();
 
     protected DictionaryPageResponseDto load(long dictionaryId, DictionaryPageRequestDto request) {
         int page = Optional.ofNullable(request.getPage()).orElse(0);
@@ -19,6 +19,6 @@ public abstract class AbstractDictionaryService {
         PageRequest pageRequest = PageRequest.of(page, size);
         DictionaryPageLoader dictionaryPageLoader =
                 getDictionaryPageLoaderFactory().getLoader(pageFilter);
-        return dictionaryPageLoader.loadDictionaryPage(dictionaryId, pageRequest);
+        return dictionaryPageLoader.loadWords(dictionaryId, pageRequest);
     }
 }

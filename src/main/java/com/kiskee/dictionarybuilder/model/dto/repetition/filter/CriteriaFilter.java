@@ -2,6 +2,7 @@ package com.kiskee.dictionarybuilder.model.dto.repetition.filter;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.kiskee.dictionarybuilder.enums.vocabulary.filter.CriteriaFilterType;
 import com.kiskee.dictionarybuilder.model.dto.repetition.filter.criteria.CountCriteriaFilter;
 import com.kiskee.dictionarybuilder.model.dto.repetition.filter.criteria.DateCriteriaFilter;
 
@@ -15,7 +16,7 @@ import com.kiskee.dictionarybuilder.model.dto.repetition.filter.criteria.DateCri
         failOnRepeatedNames = true)
 public interface CriteriaFilter {
 
-    DefaultCriteriaFilter.CriteriaFilterType getFilterType();
+    CriteriaFilterType getFilterType();
 
     default Object getFilterValue() {
         return null;

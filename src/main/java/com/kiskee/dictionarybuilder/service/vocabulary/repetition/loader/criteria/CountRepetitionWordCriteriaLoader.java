@@ -1,9 +1,8 @@
 package com.kiskee.dictionarybuilder.service.vocabulary.repetition.loader.criteria;
 
+import com.kiskee.dictionarybuilder.enums.vocabulary.filter.CriteriaFilterType;
 import com.kiskee.dictionarybuilder.mapper.repetition.RepetitionWordMapper;
 import com.kiskee.dictionarybuilder.model.dto.repetition.RepetitionStartFilterRequest;
-import com.kiskee.dictionarybuilder.model.dto.repetition.filter.DefaultCriteriaFilter;
-import com.kiskee.dictionarybuilder.model.dto.vocabulary.word.WordIdDto;
 import com.kiskee.dictionarybuilder.model.entity.vocabulary.Word;
 import com.kiskee.dictionarybuilder.repository.repetition.RepetitionWordRepository;
 import java.util.List;
@@ -21,8 +20,8 @@ public class CountRepetitionWordCriteriaLoader extends AbstractRepetitionWordCri
     }
 
     @Override
-    public DefaultCriteriaFilter.CriteriaFilterType getCriteriaFilter() {
-        return DefaultCriteriaFilter.CriteriaFilterType.BY_COUNT;
+    public CriteriaFilterType getFilter() {
+        return CriteriaFilterType.BY_COUNT;
     }
 
     @Override
@@ -40,11 +39,8 @@ public class CountRepetitionWordCriteriaLoader extends AbstractRepetitionWordCri
     @Override
     protected List<Word> loadAll(Long dictionaryId, RepetitionStartFilterRequest request) {
         Pageable pageable = buildPageable(request);
-
-        List<Long> wordIds = getRepository().findByDictionaryId(dictionaryId, pageable).stream()
-                .map(WordIdDto::getId)
-                .toList();
-
+        List<Long> wordIds =
+                getRepository().findByDictionaryId(dictionaryId, pageable).toList();
         return getRepository().findByIdIn(wordIds);
     }
 
@@ -58,8 +54,8 @@ public class CountRepetitionWordCriteriaLoader extends AbstractRepetitionWordCri
     private List<Long> loadIdsByUseInRepetition(
             Long dictionaryId, boolean useInRepetition, RepetitionStartFilterRequest request) {
         Pageable pageable = buildPageable(request);
-        return getRepository().findByDictionaryIdAndUseInRepetition(dictionaryId, useInRepetition, pageable).stream()
-                .map(WordIdDto::getId)
+        return getRepository()
+                .findByDictionaryIdAndUseInRepetition(dictionaryId, useInRepetition, pageable)
                 .toList();
     }
 }

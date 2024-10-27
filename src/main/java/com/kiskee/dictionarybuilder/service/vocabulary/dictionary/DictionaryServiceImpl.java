@@ -2,6 +2,7 @@ package com.kiskee.dictionarybuilder.service.vocabulary.dictionary;
 
 import com.kiskee.dictionarybuilder.enums.ExceptionStatusesEnum;
 import com.kiskee.dictionarybuilder.enums.vocabulary.VocabularyResponseMessageEnum;
+import com.kiskee.dictionarybuilder.enums.vocabulary.filter.PageFilter;
 import com.kiskee.dictionarybuilder.exception.DuplicateResourceException;
 import com.kiskee.dictionarybuilder.exception.ResourceNotFoundException;
 import com.kiskee.dictionarybuilder.mapper.dictionary.DictionaryMapper;
@@ -16,7 +17,8 @@ import com.kiskee.dictionarybuilder.model.entity.vocabulary.Dictionary;
 import com.kiskee.dictionarybuilder.repository.vocabulary.DictionaryRepository;
 import com.kiskee.dictionarybuilder.repository.vocabulary.projections.DictionaryProjection;
 import com.kiskee.dictionarybuilder.service.vocabulary.AbstractDictionaryService;
-import com.kiskee.dictionarybuilder.service.vocabulary.dictionary.page.DictionaryPageLoaderFactory;
+import com.kiskee.dictionarybuilder.service.vocabulary.loader.factory.WordLoaderFactory;
+import com.kiskee.dictionarybuilder.service.vocabulary.word.page.DictionaryPageLoader;
 import com.kiskee.dictionarybuilder.util.IdentityUtil;
 import com.kiskee.dictionarybuilder.util.ThrowUtil;
 import java.util.List;
@@ -38,7 +40,7 @@ public class DictionaryServiceImpl extends AbstractDictionaryService
     private final DictionaryRepository repository;
     private final DictionaryMapper mapper;
 
-    private final DictionaryPageLoaderFactory dictionaryPageLoaderFactory;
+    private final WordLoaderFactory<PageFilter, DictionaryPageLoader> dictionaryPageLoaderFactory;
 
     @Override
     public DictionarySaveResponse addDictionary(DictionarySaveRequest dictionarySaveRequest) {

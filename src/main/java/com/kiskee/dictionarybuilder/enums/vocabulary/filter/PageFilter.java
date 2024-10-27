@@ -1,11 +1,11 @@
-package com.kiskee.dictionarybuilder.enums.vocabulary;
+package com.kiskee.dictionarybuilder.enums.vocabulary.filter;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum PageFilter {
+public enum PageFilter implements WordFilter {
     BY_ADDED_AT_ASC("Oldest First"),
     BY_ADDED_AT_DESC("Newest First"),
     ONLY_USE_IN_REPETITION_ASC("In Repetition (A-Z)"),

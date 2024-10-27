@@ -1,5 +1,6 @@
 package com.kiskee.dictionarybuilder.service.share;
 
+import com.kiskee.dictionarybuilder.enums.vocabulary.filter.PageFilter;
 import com.kiskee.dictionarybuilder.exception.token.InvalidTokenException;
 import com.kiskee.dictionarybuilder.model.dto.share.ShareDictionaryRequest;
 import com.kiskee.dictionarybuilder.model.dto.share.SharedDictionaryDto;
@@ -12,7 +13,8 @@ import com.kiskee.dictionarybuilder.service.security.token.deserializer.TokenDes
 import com.kiskee.dictionarybuilder.service.token.TokenPersistenceService;
 import com.kiskee.dictionarybuilder.service.vocabulary.AbstractDictionaryService;
 import com.kiskee.dictionarybuilder.service.vocabulary.dictionary.DictionaryAccessValidator;
-import com.kiskee.dictionarybuilder.service.vocabulary.dictionary.page.DictionaryPageLoaderFactory;
+import com.kiskee.dictionarybuilder.service.vocabulary.loader.factory.WordLoaderFactory;
+import com.kiskee.dictionarybuilder.service.vocabulary.word.page.DictionaryPageLoader;
 import com.kiskee.dictionarybuilder.util.IdentityUtil;
 import java.util.UUID;
 import lombok.AccessLevel;
@@ -31,7 +33,7 @@ public class ShareServiceImpl extends AbstractDictionaryService implements Share
     private final TokenPersistenceService<SharingTokenData> tokenPersistenceService;
     private final TokenDeserializationHandler<SharingTokenData> tokenDeserializationHandler;
     private final DictionaryAccessValidator dictionaryAccessValidator;
-    private final DictionaryPageLoaderFactory dictionaryPageLoaderFactory;
+    private final WordLoaderFactory<PageFilter, DictionaryPageLoader> dictionaryPageLoaderFactory;
 
     @Override
     @Transactional(noRollbackFor = InvalidTokenException.class)
