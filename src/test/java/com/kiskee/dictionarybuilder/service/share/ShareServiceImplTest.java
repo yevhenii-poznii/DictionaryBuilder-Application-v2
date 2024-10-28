@@ -9,7 +9,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.kiskee.dictionarybuilder.enums.vocabulary.PageFilter;
+import com.kiskee.dictionarybuilder.enums.vocabulary.filter.PageFilter;
 import com.kiskee.dictionarybuilder.exception.DuplicateResourceException;
 import com.kiskee.dictionarybuilder.exception.ResourceNotFoundException;
 import com.kiskee.dictionarybuilder.exception.token.InvalidTokenException;
@@ -25,7 +25,7 @@ import com.kiskee.dictionarybuilder.model.entity.user.UserVocabularyApplication;
 import com.kiskee.dictionarybuilder.service.security.token.deserializer.TokenDeserializationHandler;
 import com.kiskee.dictionarybuilder.service.token.TokenPersistenceService;
 import com.kiskee.dictionarybuilder.service.vocabulary.dictionary.DictionaryAccessValidator;
-import com.kiskee.dictionarybuilder.service.vocabulary.dictionary.page.DictionaryPageLoaderFactory;
+import com.kiskee.dictionarybuilder.service.vocabulary.loader.factory.WordLoaderFactory;
 import com.kiskee.dictionarybuilder.service.vocabulary.word.page.DictionaryPageLoader;
 import java.time.Instant;
 import java.util.List;
@@ -57,7 +57,7 @@ public class ShareServiceImplTest {
     private DictionaryAccessValidator dictionaryAccessValidator;
 
     @Mock
-    private DictionaryPageLoaderFactory dictionaryPageLoaderFactory;
+    private WordLoaderFactory<PageFilter, DictionaryPageLoader> dictionaryPageLoaderFactory;
 
     @Mock
     private SecurityContext securityContext;
@@ -87,7 +87,7 @@ public class ShareServiceImplTest {
         List<WordDto> words =
                 List.of(new WordDto(1L, "word", false, null, 1, null), new WordDto(2L, "word2", false, null, 1, null));
         DictionaryPageResponseDto dictionaryPageResponse = new DictionaryPageResponseDto(words, 2, 102);
-        when(dictionaryPageLoader.loadDictionaryPage(eq(dictionaryId), any())).thenReturn(dictionaryPageResponse);
+        when(dictionaryPageLoader.loadWords(eq(dictionaryId), any())).thenReturn(dictionaryPageResponse);
 
         SharedDictionaryPage result = shareService.getSharedDictionaryPage(sharingToken, dictionaryPageRequestDto);
 

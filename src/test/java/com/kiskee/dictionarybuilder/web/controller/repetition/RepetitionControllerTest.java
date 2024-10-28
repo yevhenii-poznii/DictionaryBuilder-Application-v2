@@ -13,6 +13,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kiskee.dictionarybuilder.enums.ExceptionStatusesEnum;
 import com.kiskee.dictionarybuilder.enums.repetition.RepetitionType;
+import com.kiskee.dictionarybuilder.enums.vocabulary.filter.CriteriaFilterType;
 import com.kiskee.dictionarybuilder.exception.ResourceNotFoundException;
 import com.kiskee.dictionarybuilder.exception.repetition.RepetitionException;
 import com.kiskee.dictionarybuilder.model.dto.repetition.RepetitionRunningStatus;
@@ -260,7 +261,7 @@ public class RepetitionControllerTest {
         long dictionaryId = 1L;
         RepetitionStartFilterRequest requestBody = new RepetitionStartFilterRequest(
                 RepetitionStartFilterRequest.RepetitionFilter.REPETITION_ONLY,
-                new DefaultCriteriaFilter(DefaultCriteriaFilter.CriteriaFilterType.ALL),
+                new DefaultCriteriaFilter(CriteriaFilterType.ALL),
                 false);
 
         RepetitionRunningStatus runningStatus = new RepetitionRunningStatus(true, false, repetitionType);
@@ -288,7 +289,7 @@ public class RepetitionControllerTest {
         long dictionaryId = 1L;
         RepetitionStartFilterRequest requestBody = new RepetitionStartFilterRequest(
                 RepetitionStartFilterRequest.RepetitionFilter.REPETITION_ONLY,
-                new DefaultCriteriaFilter(DefaultCriteriaFilter.CriteriaFilterType.ALL),
+                new DefaultCriteriaFilter(CriteriaFilterType.ALL),
                 false);
 
         when(repetitionService.start(dictionaryId, repetitionType, requestBody))
@@ -315,7 +316,7 @@ public class RepetitionControllerTest {
         long dictionaryId = 1L;
         RepetitionStartFilterRequest requestBody = new RepetitionStartFilterRequest(
                 RepetitionStartFilterRequest.RepetitionFilter.REPETITION_ONLY,
-                new DefaultCriteriaFilter(DefaultCriteriaFilter.CriteriaFilterType.ALL),
+                new DefaultCriteriaFilter(CriteriaFilterType.ALL),
                 false);
 
         when(repetitionService.start(dictionaryId, repetitionType, requestBody))
@@ -349,7 +350,7 @@ public class RepetitionControllerTest {
         long dictionaryId = 1L;
         RepetitionStartFilterRequest requestBody = new RepetitionStartFilterRequest(
                 RepetitionStartFilterRequest.RepetitionFilter.REPETITION_ONLY,
-                new DefaultCriteriaFilter(DefaultCriteriaFilter.CriteriaFilterType.ALL),
+                new DefaultCriteriaFilter(CriteriaFilterType.ALL),
                 false);
 
         when(repetitionService.start(dictionaryId, repetitionType, requestBody))

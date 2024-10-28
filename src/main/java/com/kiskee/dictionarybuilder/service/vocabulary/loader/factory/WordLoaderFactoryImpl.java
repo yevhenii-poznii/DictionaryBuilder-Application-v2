@@ -13,9 +13,8 @@ public class WordLoaderFactoryImpl<F extends Enum<F> & WordFilter, L extends Wor
 
     private final Map<String, L> loaders;
 
-    public WordLoaderFactoryImpl(List<L> dictionaryPageLoaders) {
-        System.out.println(dictionaryPageLoaders);
-        this.loaders = dictionaryPageLoaders.stream()
+    public WordLoaderFactoryImpl(List<L> wordLoaders) {
+        this.loaders = wordLoaders.stream()
                 .collect(Collectors.toMap(loader -> loader.getFilter().name(), Function.identity()));
     }
 

@@ -13,8 +13,8 @@ import static org.mockito.Mockito.when;
 
 import com.kiskee.dictionarybuilder.enums.ExceptionStatusesEnum;
 import com.kiskee.dictionarybuilder.enums.user.UserRole;
-import com.kiskee.dictionarybuilder.enums.vocabulary.PageFilter;
 import com.kiskee.dictionarybuilder.enums.vocabulary.VocabularyResponseMessageEnum;
+import com.kiskee.dictionarybuilder.enums.vocabulary.filter.PageFilter;
 import com.kiskee.dictionarybuilder.exception.DuplicateResourceException;
 import com.kiskee.dictionarybuilder.exception.ResourceNotFoundException;
 import com.kiskee.dictionarybuilder.mapper.dictionary.DictionaryMapper;
@@ -29,7 +29,7 @@ import com.kiskee.dictionarybuilder.model.dto.vocabulary.word.WordTranslationDto
 import com.kiskee.dictionarybuilder.model.entity.user.UserVocabularyApplication;
 import com.kiskee.dictionarybuilder.model.entity.vocabulary.Dictionary;
 import com.kiskee.dictionarybuilder.repository.vocabulary.DictionaryRepository;
-import com.kiskee.dictionarybuilder.service.vocabulary.dictionary.page.DictionaryPageLoaderFactory;
+import com.kiskee.dictionarybuilder.service.vocabulary.loader.factory.WordLoaderFactory;
 import com.kiskee.dictionarybuilder.service.vocabulary.word.page.DictionaryPageLoader;
 import java.util.Collections;
 import java.util.List;
@@ -67,7 +67,7 @@ public class DictionaryServiceImplTest {
     private DictionaryMapper dictionaryMapper;
 
     @Mock
-    private DictionaryPageLoaderFactory dictionaryPageLoaderFactory;
+    private WordLoaderFactory<PageFilter, DictionaryPageLoader> dictionaryPageLoaderFactory;
 
     @Mock
     private SecurityContext securityContext;
@@ -196,8 +196,7 @@ public class DictionaryServiceImplTest {
 
         DictionaryPageLoader loader = mock(DictionaryPageLoader.class);
         when(dictionaryPageLoaderFactory.getLoader(pageRequest.getFilter())).thenReturn(loader);
-        when(loader.loadDictionaryPage(eq(dictionaryId), any(PageRequest.class)))
-                .thenReturn(response);
+        when(loader.loadWords(eq(dictionaryId), any(PageRequest.class))).thenReturn(response);
 
         DictionaryPageResponseDto result = dictionaryService.getDictionaryPageByOwner(dictionaryId, pageRequest);
 
@@ -251,8 +250,7 @@ public class DictionaryServiceImplTest {
 
         DictionaryPageLoader loader = mock(DictionaryPageLoader.class);
         when(dictionaryPageLoaderFactory.getLoader(any(PageFilter.class))).thenReturn(loader);
-        when(loader.loadDictionaryPage(eq(dictionaryId), any(PageRequest.class)))
-                .thenReturn(response);
+        when(loader.loadWords(eq(dictionaryId), any(PageRequest.class))).thenReturn(response);
 
         DictionaryPageResponseDto result =
                 dictionaryService.getDictionaryPageByOwner(dictionaryId, dictionaryPageRequest);

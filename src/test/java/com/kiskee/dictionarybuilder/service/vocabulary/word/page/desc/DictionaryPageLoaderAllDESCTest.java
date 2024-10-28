@@ -6,11 +6,10 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.kiskee.dictionarybuilder.enums.vocabulary.PageFilter;
+import com.kiskee.dictionarybuilder.enums.vocabulary.filter.PageFilter;
 import com.kiskee.dictionarybuilder.mapper.dictionary.DictionaryPageMapper;
 import com.kiskee.dictionarybuilder.model.dto.vocabulary.dictionary.page.DictionaryPageResponseDto;
 import com.kiskee.dictionarybuilder.model.dto.vocabulary.word.WordDto;
-import com.kiskee.dictionarybuilder.model.dto.vocabulary.word.WordIdDto;
 import com.kiskee.dictionarybuilder.model.entity.vocabulary.Word;
 import com.kiskee.dictionarybuilder.repository.vocabulary.DictionaryPageRepository;
 import com.kiskee.dictionarybuilder.service.vocabulary.word.page.impl.desc.DictionaryPageLoaderAllDESC;
@@ -38,7 +37,7 @@ public class DictionaryPageLoaderAllDESCTest {
 
     @Test
     void testGetPageFilter_WhenDictionaryPageLoaderAllDESC_ThenReturnPageFilterBY_ADDED_AT_DESC() {
-        PageFilter pageFilter = dictionaryPageLoaderAllDESC.getPageFilter();
+        PageFilter pageFilter = dictionaryPageLoaderAllDESC.getFilter();
 
         assertThat(pageFilter).isEqualTo(PageFilter.BY_ADDED_AT_DESC);
     }
@@ -49,8 +48,8 @@ public class DictionaryPageLoaderAllDESCTest {
         PageRequest pageRequest = PageRequest.of(0, 100);
 
         Page page = mock(Page.class);
-        List<WordIdDto> wordIdDtos = List.of(new WordIdDto(2L), new WordIdDto(1L));
-        when(page.stream()).thenReturn(wordIdDtos.stream());
+        List<Long> wordIdDtos = List.of(2L, 1L);
+        when(page.toList()).thenReturn(wordIdDtos);
         when(page.getTotalPages()).thenReturn(1);
         when(page.getTotalElements()).thenReturn(2L);
 
@@ -67,7 +66,7 @@ public class DictionaryPageLoaderAllDESCTest {
                 new DictionaryPageResponseDto(wordDtos, page.getTotalPages(), (int) page.getTotalElements());
         when(mapper.toDto(words, page.getTotalPages(), page.getTotalElements())).thenReturn(expectedResult);
 
-        DictionaryPageResponseDto result = dictionaryPageLoaderAllDESC.loadDictionaryPage(dictionaryId, pageRequest);
+        DictionaryPageResponseDto result = dictionaryPageLoaderAllDESC.loadWords(dictionaryId, pageRequest);
 
         assertThat(result.getTotalPages()).isEqualTo(1);
         assertThat(result.getTotalElements()).isEqualTo(2);
