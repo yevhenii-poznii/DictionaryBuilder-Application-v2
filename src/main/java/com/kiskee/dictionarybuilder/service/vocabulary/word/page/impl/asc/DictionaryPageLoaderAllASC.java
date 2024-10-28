@@ -1,6 +1,6 @@
 package com.kiskee.dictionarybuilder.service.vocabulary.word.page.impl.asc;
 
-import com.kiskee.dictionarybuilder.enums.vocabulary.PageFilter;
+import com.kiskee.dictionarybuilder.enums.vocabulary.filter.PageFilter;
 import com.kiskee.dictionarybuilder.mapper.dictionary.DictionaryPageMapper;
 import com.kiskee.dictionarybuilder.model.entity.vocabulary.Word;
 import com.kiskee.dictionarybuilder.repository.vocabulary.DictionaryPageRepository;
@@ -18,7 +18,7 @@ public class DictionaryPageLoaderAllASC extends AbstractDictionaryPageLoaderASC 
     }
 
     @Override
-    public PageFilter getPageFilter() {
+    public PageFilter getFilter() {
         return PageFilter.BY_ADDED_AT_ASC;
     }
 

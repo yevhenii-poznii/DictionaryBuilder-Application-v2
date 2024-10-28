@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.kiskee.dictionarybuilder.enums.vocabulary.filter.CriteriaFilterType;
 import com.kiskee.dictionarybuilder.mapper.repetition.RepetitionWordMapper;
 import com.kiskee.dictionarybuilder.model.dto.repetition.RepetitionStartFilterRequest;
 import com.kiskee.dictionarybuilder.model.dto.repetition.filter.DefaultCriteriaFilter;
@@ -36,9 +37,9 @@ public class AllRepetitionWordCriteriaLoaderTest {
 
     @Test
     void testGetCriteriaFilter_WhenInvoked_ThenReturnCriteriaFilterType() {
-        DefaultCriteriaFilter.CriteriaFilterType criteriaFilter = allRepetitionWordCriteriaLoader.getCriteriaFilter();
+        CriteriaFilterType criteriaFilter = allRepetitionWordCriteriaLoader.getFilter();
 
-        assertThat(criteriaFilter).isEqualTo(DefaultCriteriaFilter.CriteriaFilterType.ALL);
+        assertThat(criteriaFilter).isEqualTo(CriteriaFilterType.ALL);
     }
 
     @Test
@@ -46,7 +47,7 @@ public class AllRepetitionWordCriteriaLoaderTest {
         long dictionaryId = 1L;
         RepetitionStartFilterRequest request = new RepetitionStartFilterRequest(
                 RepetitionStartFilterRequest.RepetitionFilter.REPETITION_ONLY,
-                new DefaultCriteriaFilter(DefaultCriteriaFilter.CriteriaFilterType.ALL),
+                new DefaultCriteriaFilter(CriteriaFilterType.ALL),
                 false);
 
         Word word = mock(Word.class);
@@ -58,7 +59,7 @@ public class AllRepetitionWordCriteriaLoaderTest {
 
         when(mapper.toDto(wordsCaptor.capture())).thenReturn(List.of(mock(WordDto.class)));
 
-        allRepetitionWordCriteriaLoader.loadRepetitionWordPage(dictionaryId, request);
+        allRepetitionWordCriteriaLoader.loadWords(dictionaryId, request);
 
         List<Word> words = wordsCaptor.getValue();
         assertThat(words.getFirst().getDictionaryId()).isEqualTo(dictionaryId);
@@ -70,7 +71,7 @@ public class AllRepetitionWordCriteriaLoaderTest {
         long dictionaryId = 1L;
         RepetitionStartFilterRequest request = new RepetitionStartFilterRequest(
                 RepetitionStartFilterRequest.RepetitionFilter.NOT_REPETITION_ONLY,
-                new DefaultCriteriaFilter(DefaultCriteriaFilter.CriteriaFilterType.ALL),
+                new DefaultCriteriaFilter(CriteriaFilterType.ALL),
                 false);
 
         Word word = mock(Word.class);
@@ -82,7 +83,7 @@ public class AllRepetitionWordCriteriaLoaderTest {
 
         when(mapper.toDto(wordsCaptor.capture())).thenReturn(List.of(mock(WordDto.class)));
 
-        allRepetitionWordCriteriaLoader.loadRepetitionWordPage(dictionaryId, request);
+        allRepetitionWordCriteriaLoader.loadWords(dictionaryId, request);
 
         List<Word> words = wordsCaptor.getValue();
         assertThat(words.getFirst().getDictionaryId()).isEqualTo(dictionaryId);
@@ -94,7 +95,7 @@ public class AllRepetitionWordCriteriaLoaderTest {
         long dictionaryId = 1L;
         RepetitionStartFilterRequest request = new RepetitionStartFilterRequest(
                 RepetitionStartFilterRequest.RepetitionFilter.ALL,
-                new DefaultCriteriaFilter(DefaultCriteriaFilter.CriteriaFilterType.ALL),
+                new DefaultCriteriaFilter(CriteriaFilterType.ALL),
                 false);
 
         Word firstWord = mock(Word.class);
@@ -108,7 +109,7 @@ public class AllRepetitionWordCriteriaLoaderTest {
 
         when(mapper.toDto(wordsCaptor.capture())).thenReturn(List.of(mock(WordDto.class), mock(WordDto.class)));
 
-        allRepetitionWordCriteriaLoader.loadRepetitionWordPage(dictionaryId, request);
+        allRepetitionWordCriteriaLoader.loadWords(dictionaryId, request);
 
         List<Word> words = wordsCaptor.getValue();
         assertThat(words)

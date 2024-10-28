@@ -9,7 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kiskee.dictionarybuilder.enums.user.ProfileVisibility;
-import com.kiskee.dictionarybuilder.enums.vocabulary.PageFilter;
+import com.kiskee.dictionarybuilder.enums.vocabulary.filter.PageFilter;
 import com.kiskee.dictionarybuilder.exception.ResourceNotFoundException;
 import com.kiskee.dictionarybuilder.model.dto.user.preference.UserPreferenceDto;
 import com.kiskee.dictionarybuilder.model.dto.user.preference.UserPreferenceOptionsDto;

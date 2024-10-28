@@ -6,9 +6,9 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.kiskee.dictionarybuilder.enums.vocabulary.filter.CriteriaFilterType;
 import com.kiskee.dictionarybuilder.mapper.repetition.RepetitionWordMapper;
 import com.kiskee.dictionarybuilder.model.dto.repetition.RepetitionStartFilterRequest;
-import com.kiskee.dictionarybuilder.model.dto.repetition.filter.DefaultCriteriaFilter;
 import com.kiskee.dictionarybuilder.model.dto.repetition.filter.criteria.DateCriteriaFilter;
 import com.kiskee.dictionarybuilder.model.dto.vocabulary.word.WordDto;
 import com.kiskee.dictionarybuilder.model.entity.vocabulary.Word;
@@ -41,9 +41,9 @@ public class DateRepetitionWordCriteriaLoaderTest {
 
     @Test
     void testGetCriteriaFilter_WhenInvoked_ThenReturnCriteriaFilterType() {
-        DefaultCriteriaFilter.CriteriaFilterType criteriaFilter = dateRepetitionWordCriteriaLoader.getCriteriaFilter();
+        CriteriaFilterType criteriaFilter = dateRepetitionWordCriteriaLoader.getFilter();
 
-        assertThat(criteriaFilter).isEqualTo(DefaultCriteriaFilter.CriteriaFilterType.BY_DATE);
+        assertThat(criteriaFilter).isEqualTo(CriteriaFilterType.BY_DATE);
     }
 
     @Test
@@ -66,7 +66,7 @@ public class DateRepetitionWordCriteriaLoaderTest {
 
         when(mapper.toDto(wordsCaptor.capture())).thenReturn(List.of(mock(WordDto.class)));
 
-        dateRepetitionWordCriteriaLoader.loadRepetitionWordPage(dictionaryId, request);
+        dateRepetitionWordCriteriaLoader.loadWords(dictionaryId, request);
 
         List<Word> words = wordsCaptor.getValue();
         assertThat(words.getFirst().getDictionaryId()).isEqualTo(dictionaryId);
@@ -93,7 +93,7 @@ public class DateRepetitionWordCriteriaLoaderTest {
 
         when(mapper.toDto(wordsCaptor.capture())).thenReturn(List.of(mock(WordDto.class)));
 
-        dateRepetitionWordCriteriaLoader.loadRepetitionWordPage(dictionaryId, request);
+        dateRepetitionWordCriteriaLoader.loadWords(dictionaryId, request);
 
         List<Word> words = wordsCaptor.getValue();
         assertThat(words.getFirst().getDictionaryId()).isEqualTo(dictionaryId);
@@ -122,7 +122,7 @@ public class DateRepetitionWordCriteriaLoaderTest {
 
         when(mapper.toDto(wordsCaptor.capture())).thenReturn(List.of(mock(WordDto.class)));
 
-        dateRepetitionWordCriteriaLoader.loadRepetitionWordPage(dictionaryId, request);
+        dateRepetitionWordCriteriaLoader.loadWords(dictionaryId, request);
 
         List<Word> words = wordsCaptor.getValue();
         assertThat(words)

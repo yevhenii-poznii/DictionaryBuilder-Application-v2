@@ -1,7 +1,7 @@
 package com.kiskee.dictionarybuilder.model.entity.user.preference;
 
 import com.kiskee.dictionarybuilder.enums.user.ProfileVisibility;
-import com.kiskee.dictionarybuilder.enums.vocabulary.PageFilter;
+import com.kiskee.dictionarybuilder.enums.vocabulary.filter.PageFilter;
 import com.kiskee.dictionarybuilder.model.converter.DurationStringConverter;
 import com.kiskee.dictionarybuilder.model.entity.user.UserProfilePreferenceType;
 import com.kiskee.dictionarybuilder.model.entity.user.UserVocabularyApplication;

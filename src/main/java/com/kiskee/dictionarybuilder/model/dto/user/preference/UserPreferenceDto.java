@@ -1,7 +1,7 @@
 package com.kiskee.dictionarybuilder.model.dto.user.preference;
 
 import com.kiskee.dictionarybuilder.enums.user.ProfileVisibility;
-import com.kiskee.dictionarybuilder.enums.vocabulary.PageFilter;
+import com.kiskee.dictionarybuilder.enums.vocabulary.filter.PageFilter;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Positive;

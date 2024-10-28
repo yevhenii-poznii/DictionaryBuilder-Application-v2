@@ -1,8 +1,7 @@
 package com.kiskee.dictionarybuilder.service.vocabulary.word.page.impl.desc;
 
-import com.kiskee.dictionarybuilder.enums.vocabulary.PageFilter;
+import com.kiskee.dictionarybuilder.enums.vocabulary.filter.PageFilter;
 import com.kiskee.dictionarybuilder.mapper.dictionary.DictionaryPageMapper;
-import com.kiskee.dictionarybuilder.model.dto.vocabulary.word.WordIdDto;
 import com.kiskee.dictionarybuilder.model.entity.vocabulary.Word;
 import com.kiskee.dictionarybuilder.repository.vocabulary.DictionaryPageRepository;
 import com.kiskee.dictionarybuilder.service.vocabulary.word.page.AbstractDictionaryPageLoaderDESC;
@@ -17,7 +16,7 @@ public class DictionaryPageLoaderOnlyUseInRepetitionDESC extends AbstractDiction
         implements DictionaryPageLoader {
 
     @Override
-    protected Page<WordIdDto> findWordIdsPage(Long dictionaryId, Pageable pageable) {
+    protected Page<Long> findWordIdsPage(Long dictionaryId, Pageable pageable) {
         return getRepository().findByDictionaryIdAndUseInRepetition(dictionaryId, true, pageable);
     }
 
@@ -27,7 +26,7 @@ public class DictionaryPageLoaderOnlyUseInRepetitionDESC extends AbstractDiction
     }
 
     @Override
-    public PageFilter getPageFilter() {
+    public PageFilter getFilter() {
         return PageFilter.ONLY_USE_IN_REPETITION_DESC;
     }
 

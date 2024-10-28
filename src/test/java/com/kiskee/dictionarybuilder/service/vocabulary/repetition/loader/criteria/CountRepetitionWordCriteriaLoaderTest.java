@@ -6,12 +6,11 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.kiskee.dictionarybuilder.enums.vocabulary.filter.CriteriaFilterType;
 import com.kiskee.dictionarybuilder.mapper.repetition.RepetitionWordMapper;
 import com.kiskee.dictionarybuilder.model.dto.repetition.RepetitionStartFilterRequest;
-import com.kiskee.dictionarybuilder.model.dto.repetition.filter.DefaultCriteriaFilter;
 import com.kiskee.dictionarybuilder.model.dto.repetition.filter.criteria.CountCriteriaFilter;
 import com.kiskee.dictionarybuilder.model.dto.vocabulary.word.WordDto;
-import com.kiskee.dictionarybuilder.model.dto.vocabulary.word.WordIdDto;
 import com.kiskee.dictionarybuilder.model.entity.vocabulary.Word;
 import com.kiskee.dictionarybuilder.repository.repetition.RepetitionWordRepository;
 import java.util.List;
@@ -43,9 +42,9 @@ public class CountRepetitionWordCriteriaLoaderTest {
 
     @Test
     void testGetCriteriaFilter_WhenInvoked_ThenReturnCriteriaFilterType() {
-        DefaultCriteriaFilter.CriteriaFilterType criteriaFilter = countRepetitionWordCriteriaLoader.getCriteriaFilter();
+        CriteriaFilterType criteriaFilter = countRepetitionWordCriteriaLoader.getFilter();
 
-        assertThat(criteriaFilter).isEqualTo(DefaultCriteriaFilter.CriteriaFilterType.BY_COUNT);
+        assertThat(criteriaFilter).isEqualTo(CriteriaFilterType.BY_COUNT);
     }
 
     @Test
@@ -54,7 +53,7 @@ public class CountRepetitionWordCriteriaLoaderTest {
         RepetitionStartFilterRequest request = new RepetitionStartFilterRequest(
                 RepetitionStartFilterRequest.RepetitionFilter.REPETITION_ONLY, new CountCriteriaFilter(10), false);
 
-        Page<WordIdDto> wordIds = new PageImpl<>(List.of(new WordIdDto(1L)));
+        Page<Long> wordIds = new PageImpl<>(List.of(1L));
         when(repository.findByDictionaryIdAndUseInRepetition(eq(dictionaryId), eq(true), any(Pageable.class)))
                 .thenReturn(wordIds);
 
@@ -66,7 +65,7 @@ public class CountRepetitionWordCriteriaLoaderTest {
 
         when(mapper.toDto(wordsCaptor.capture())).thenReturn(List.of(mock(WordDto.class)));
 
-        countRepetitionWordCriteriaLoader.loadRepetitionWordPage(dictionaryId, request);
+        countRepetitionWordCriteriaLoader.loadWords(dictionaryId, request);
 
         List<Word> words = wordsCaptor.getValue();
         assertThat(words.getFirst().getDictionaryId()).isEqualTo(dictionaryId);
@@ -79,7 +78,7 @@ public class CountRepetitionWordCriteriaLoaderTest {
         RepetitionStartFilterRequest request = new RepetitionStartFilterRequest(
                 RepetitionStartFilterRequest.RepetitionFilter.NOT_REPETITION_ONLY, new CountCriteriaFilter(10), false);
 
-        Page<WordIdDto> wordIds = new PageImpl<>(List.of(new WordIdDto(1L)));
+        Page<Long> wordIds = new PageImpl<>(List.of(1L));
         when(repository.findByDictionaryIdAndUseInRepetition(eq(dictionaryId), eq(false), any(Pageable.class)))
                 .thenReturn(wordIds);
 
@@ -91,7 +90,7 @@ public class CountRepetitionWordCriteriaLoaderTest {
 
         when(mapper.toDto(wordsCaptor.capture())).thenReturn(List.of(mock(WordDto.class)));
 
-        countRepetitionWordCriteriaLoader.loadRepetitionWordPage(dictionaryId, request);
+        countRepetitionWordCriteriaLoader.loadWords(dictionaryId, request);
 
         List<Word> words = wordsCaptor.getValue();
         assertThat(words.getFirst().getDictionaryId()).isEqualTo(dictionaryId);
@@ -104,7 +103,7 @@ public class CountRepetitionWordCriteriaLoaderTest {
         RepetitionStartFilterRequest request = new RepetitionStartFilterRequest(
                 RepetitionStartFilterRequest.RepetitionFilter.ALL, new CountCriteriaFilter(10), false);
 
-        Page<WordIdDto> wordIds = new PageImpl<>(List.of(new WordIdDto(1L), new WordIdDto(2L)));
+        Page<Long> wordIds = new PageImpl<>(List.of(1L, 2L));
         when(repository.findByDictionaryId(eq(dictionaryId), any(Pageable.class)))
                 .thenReturn(wordIds);
 
@@ -119,7 +118,7 @@ public class CountRepetitionWordCriteriaLoaderTest {
 
         when(mapper.toDto(wordsCaptor.capture())).thenReturn(List.of(mock(WordDto.class), mock(WordDto.class)));
 
-        countRepetitionWordCriteriaLoader.loadRepetitionWordPage(dictionaryId, request);
+        countRepetitionWordCriteriaLoader.loadWords(dictionaryId, request);
 
         List<Word> words = wordsCaptor.getValue();
         assertThat(words)

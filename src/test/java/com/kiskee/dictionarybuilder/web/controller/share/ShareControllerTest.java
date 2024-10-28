@@ -8,7 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kiskee.dictionarybuilder.enums.vocabulary.PageFilter;
+import com.kiskee.dictionarybuilder.enums.vocabulary.filter.PageFilter;
 import com.kiskee.dictionarybuilder.exception.DuplicateResourceException;
 import com.kiskee.dictionarybuilder.exception.ResourceNotFoundException;
 import com.kiskee.dictionarybuilder.exception.token.InvalidTokenException;

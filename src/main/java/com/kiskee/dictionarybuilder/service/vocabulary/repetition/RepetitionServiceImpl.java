@@ -1,6 +1,7 @@
 package com.kiskee.dictionarybuilder.service.vocabulary.repetition;
 
 import com.kiskee.dictionarybuilder.enums.repetition.RepetitionType;
+import com.kiskee.dictionarybuilder.enums.vocabulary.filter.CriteriaFilterType;
 import com.kiskee.dictionarybuilder.exception.repetition.RepetitionException;
 import com.kiskee.dictionarybuilder.mapper.repetition.RepetitionWordMapper;
 import com.kiskee.dictionarybuilder.model.dto.repetition.RepetitionResultDataDto;
@@ -14,7 +15,8 @@ import com.kiskee.dictionarybuilder.model.entity.redis.repetition.RepetitionData
 import com.kiskee.dictionarybuilder.repository.redis.RepetitionDataRepository;
 import com.kiskee.dictionarybuilder.service.report.StatisticUpdateReportManager;
 import com.kiskee.dictionarybuilder.service.vocabulary.dictionary.DictionaryAccessValidator;
-import com.kiskee.dictionarybuilder.service.vocabulary.repetition.loader.RepetitionWordLoaderFactory;
+import com.kiskee.dictionarybuilder.service.vocabulary.loader.factory.WordLoaderFactory;
+import com.kiskee.dictionarybuilder.service.vocabulary.repetition.loader.criteria.RepetitionWordCriteriaLoader;
 import com.kiskee.dictionarybuilder.service.vocabulary.word.WordCounterUpdateService;
 import com.kiskee.dictionarybuilder.util.IdentityUtil;
 import com.kiskee.dictionarybuilder.util.TimeZoneContextHolder;
@@ -38,7 +40,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class RepetitionServiceImpl implements RepetitionService {
 
-    private final RepetitionWordLoaderFactory repetitionWordLoaderFactory;
+    private final WordLoaderFactory<CriteriaFilterType, RepetitionWordCriteriaLoader> repetitionWordLoaderFactory;
     private final RepetitionDataRepository repository;
     private final RepetitionWordMapper mapper;
     private final DictionaryAccessValidator dictionaryAccessValidator;
@@ -70,7 +72,7 @@ public class RepetitionServiceImpl implements RepetitionService {
         DictionaryDto dictionaryDto = dictionaryAccessValidator.getDictionaryByIdAndUserId(dictionaryId, userId);
         List<WordDto> words = repetitionWordLoaderFactory
                 .getLoader(request.getCriteriaFilter().getFilterType())
-                .loadRepetitionWordPage(dictionaryId, request);
+                .loadWords(dictionaryId, request);
 
         if (words.isEmpty()) {
             log.info("No words to repeat for user [{}]", userId);

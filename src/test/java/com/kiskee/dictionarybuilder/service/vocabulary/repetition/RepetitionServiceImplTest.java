@@ -15,6 +15,7 @@ import static org.mockito.Mockito.when;
 import com.kiskee.dictionarybuilder.enums.ExceptionStatusesEnum;
 import com.kiskee.dictionarybuilder.enums.repetition.RepetitionType;
 import com.kiskee.dictionarybuilder.enums.user.UserRole;
+import com.kiskee.dictionarybuilder.enums.vocabulary.filter.CriteriaFilterType;
 import com.kiskee.dictionarybuilder.exception.ResourceNotFoundException;
 import com.kiskee.dictionarybuilder.exception.repetition.RepetitionException;
 import com.kiskee.dictionarybuilder.mapper.repetition.RepetitionWordMapper;
@@ -32,7 +33,7 @@ import com.kiskee.dictionarybuilder.model.entity.user.UserVocabularyApplication;
 import com.kiskee.dictionarybuilder.model.entity.vocabulary.Dictionary;
 import com.kiskee.dictionarybuilder.repository.redis.RepetitionDataRepository;
 import com.kiskee.dictionarybuilder.service.vocabulary.dictionary.DictionaryAccessValidator;
-import com.kiskee.dictionarybuilder.service.vocabulary.repetition.loader.RepetitionWordLoaderFactory;
+import com.kiskee.dictionarybuilder.service.vocabulary.loader.factory.WordLoaderFactory;
 import com.kiskee.dictionarybuilder.service.vocabulary.repetition.loader.criteria.RepetitionWordCriteriaLoader;
 import com.kiskee.dictionarybuilder.service.vocabulary.word.WordCounterUpdateService;
 import com.kiskee.dictionarybuilder.util.TimeZoneContextHolder;
@@ -71,7 +72,7 @@ public class RepetitionServiceImplTest {
     private RepetitionServiceImpl repetitionService;
 
     @Mock
-    private RepetitionWordLoaderFactory repetitionWordLoaderFactory;
+    private WordLoaderFactory<CriteriaFilterType, RepetitionWordCriteriaLoader> repetitionWordLoaderFactory;
 
     @Mock
     private RepetitionDataRepository repository;
@@ -160,7 +161,7 @@ public class RepetitionServiceImplTest {
         long dictionaryId = 1L;
         RepetitionStartFilterRequest startFilterRequest = new RepetitionStartFilterRequest(
                 RepetitionStartFilterRequest.RepetitionFilter.REPETITION_ONLY,
-                new DefaultCriteriaFilter(DefaultCriteriaFilter.CriteriaFilterType.ALL),
+                new DefaultCriteriaFilter(CriteriaFilterType.ALL),
                 false);
 
         when(repository.existsById(USER_ID.toString())).thenReturn(false);
@@ -174,7 +175,7 @@ public class RepetitionServiceImplTest {
                 .thenReturn(repetitionWordCriteriaLoader);
 
         List<WordDto> loadedWords = prepareLoadedWords();
-        when(repetitionWordCriteriaLoader.loadRepetitionWordPage(dictionaryId, startFilterRequest))
+        when(repetitionWordCriteriaLoader.loadWords(dictionaryId, startFilterRequest))
                 .thenReturn(loadedWords);
 
         RepetitionRunningStatus runningStatus =
@@ -206,7 +207,7 @@ public class RepetitionServiceImplTest {
         RepetitionType repetitionType = RepetitionType.CHOICE;
         RepetitionStartFilterRequest startFilterRequest = new RepetitionStartFilterRequest(
                 RepetitionStartFilterRequest.RepetitionFilter.REPETITION_ONLY,
-                new DefaultCriteriaFilter(DefaultCriteriaFilter.CriteriaFilterType.ALL),
+                new DefaultCriteriaFilter(CriteriaFilterType.ALL),
                 false);
 
         when(repository.existsById(USER_ID.toString())).thenReturn(false);
@@ -222,7 +223,7 @@ public class RepetitionServiceImplTest {
         List<WordDto> loadedWords = prepareLoadedWords();
         loadedWords.removeLast();
         loadedWords.removeLast();
-        when(repetitionWordCriteriaLoader.loadRepetitionWordPage(dictionaryId, startFilterRequest))
+        when(repetitionWordCriteriaLoader.loadWords(dictionaryId, startFilterRequest))
                 .thenReturn(loadedWords);
 
         assertThatExceptionOfType(RepetitionException.class)
@@ -240,7 +241,7 @@ public class RepetitionServiceImplTest {
         long dictionaryId = 1L;
         RepetitionStartFilterRequest startFilterRequest = new RepetitionStartFilterRequest(
                 RepetitionStartFilterRequest.RepetitionFilter.REPETITION_ONLY,
-                new DefaultCriteriaFilter(DefaultCriteriaFilter.CriteriaFilterType.ALL),
+                new DefaultCriteriaFilter(CriteriaFilterType.ALL),
                 false);
 
         when(repository.existsById(USER_ID.toString())).thenReturn(true);
@@ -259,7 +260,7 @@ public class RepetitionServiceImplTest {
         long dictionaryId = 1L;
         RepetitionStartFilterRequest startFilterRequest = new RepetitionStartFilterRequest(
                 RepetitionStartFilterRequest.RepetitionFilter.REPETITION_ONLY,
-                new DefaultCriteriaFilter(DefaultCriteriaFilter.CriteriaFilterType.ALL),
+                new DefaultCriteriaFilter(CriteriaFilterType.ALL),
                 false);
 
         when(repository.existsById(USER_ID.toString())).thenReturn(false);
@@ -286,7 +287,7 @@ public class RepetitionServiceImplTest {
         long dictionaryId = 1L;
         RepetitionStartFilterRequest startFilterRequest = new RepetitionStartFilterRequest(
                 RepetitionStartFilterRequest.RepetitionFilter.REPETITION_ONLY,
-                new DefaultCriteriaFilter(DefaultCriteriaFilter.CriteriaFilterType.ALL),
+                new DefaultCriteriaFilter(CriteriaFilterType.ALL),
                 false);
 
         when(repository.existsById(USER_ID.toString())).thenReturn(false);
@@ -300,7 +301,7 @@ public class RepetitionServiceImplTest {
                         startFilterRequest.getCriteriaFilter().getFilterType()))
                 .thenReturn(repetitionWordCriteriaLoader);
 
-        when(repetitionWordCriteriaLoader.loadRepetitionWordPage(dictionaryId, startFilterRequest))
+        when(repetitionWordCriteriaLoader.loadWords(dictionaryId, startFilterRequest))
                 .thenReturn(new ArrayList<>());
 
         assertThatExceptionOfType(RepetitionException.class)

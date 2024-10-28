@@ -6,11 +6,10 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.kiskee.dictionarybuilder.enums.vocabulary.PageFilter;
+import com.kiskee.dictionarybuilder.enums.vocabulary.filter.PageFilter;
 import com.kiskee.dictionarybuilder.mapper.dictionary.DictionaryPageMapper;
 import com.kiskee.dictionarybuilder.model.dto.vocabulary.dictionary.page.DictionaryPageResponseDto;
 import com.kiskee.dictionarybuilder.model.dto.vocabulary.word.WordDto;
-import com.kiskee.dictionarybuilder.model.dto.vocabulary.word.WordIdDto;
 import com.kiskee.dictionarybuilder.model.entity.vocabulary.Word;
 import com.kiskee.dictionarybuilder.repository.vocabulary.DictionaryPageRepository;
 import com.kiskee.dictionarybuilder.service.vocabulary.word.page.impl.asc.DictionaryPageLoaderOnlyNotUseInRepetitionASC;
@@ -39,7 +38,7 @@ public class DictionaryPageLoaderOnlyNotUseInRepetitionASCTest {
     @Test
     void
             testGetPageFilter_WhenDictionaryPageLoaderOnlyNotUseInRepetitionASC_ThenReturnPageFilterONLY_NOT_USE_IN_REPETITION_ASC() {
-        PageFilter pageFilter = dictionaryPageLoaderOnlyNotUseInRepetitionASC.getPageFilter();
+        PageFilter pageFilter = dictionaryPageLoaderOnlyNotUseInRepetitionASC.getFilter();
 
         assertThat(pageFilter).isEqualTo(PageFilter.ONLY_NOT_USE_IN_REPETITION_ASC);
     }
@@ -50,8 +49,8 @@ public class DictionaryPageLoaderOnlyNotUseInRepetitionASCTest {
         PageRequest pageRequest = PageRequest.of(0, 100);
 
         Page page = mock(Page.class);
-        List<WordIdDto> wordIdDtos = List.of(new WordIdDto(1L), new WordIdDto(2L));
-        when(page.stream()).thenReturn(wordIdDtos.stream());
+        List<Long> wordIdDtos = List.of(1L, 2L);
+        when(page.toList()).thenReturn(wordIdDtos);
         when(page.getTotalPages()).thenReturn(1);
         when(page.getTotalElements()).thenReturn(2L);
 
@@ -72,7 +71,7 @@ public class DictionaryPageLoaderOnlyNotUseInRepetitionASCTest {
         when(mapper.toDto(words, page.getTotalPages(), page.getTotalElements())).thenReturn(expectedResult);
 
         DictionaryPageResponseDto result =
-                dictionaryPageLoaderOnlyNotUseInRepetitionASC.loadDictionaryPage(dictionaryId, pageRequest);
+                dictionaryPageLoaderOnlyNotUseInRepetitionASC.loadWords(dictionaryId, pageRequest);
 
         assertThat(result.getTotalPages()).isEqualTo(1);
         assertThat(result.getTotalElements()).isEqualTo(2);

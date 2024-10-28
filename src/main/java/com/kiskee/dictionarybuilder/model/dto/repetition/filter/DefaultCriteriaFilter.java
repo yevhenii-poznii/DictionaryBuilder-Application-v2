@@ -1,5 +1,6 @@
 package com.kiskee.dictionarybuilder.model.dto.repetition.filter;
 
+import com.kiskee.dictionarybuilder.enums.vocabulary.filter.CriteriaFilterType;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,10 +12,4 @@ import lombok.NoArgsConstructor;
 public class DefaultCriteriaFilter implements CriteriaFilter {
 
     private CriteriaFilterType filterType;
-
-    public enum CriteriaFilterType {
-        ALL,
-        BY_DATE,
-        BY_COUNT
-    }
 }
