@@ -10,9 +10,11 @@ import com.kiskee.dictionarybuilder.service.security.token.serializer.TokenSeria
 import com.kiskee.dictionarybuilder.service.time.CurrentDateTimeService;
 import com.kiskee.dictionarybuilder.service.token.AbstractTokenService;
 import com.kiskee.dictionarybuilder.service.token.TokenInvalidatorService;
-import com.kiskee.dictionarybuilder.service.token.TokenPersistenceService;
 import com.kiskee.dictionarybuilder.util.IdentityUtil;
 import java.time.Instant;
+import java.util.List;
+import java.util.UUID;
+import java.util.function.Supplier;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +26,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Getter(AccessLevel.PROTECTED)
 public class SharingTokenService extends AbstractTokenService
-        implements TokenPersistenceService<SharingTokenData>, TokenInvalidatorService<SharingToken> {
+        implements SharingTokenIssuer, TokenInvalidatorService<SharingToken> {
 
     private final TokenRepository tokenRepository;
     private final TokenSerializer<SharingTokenData, String> tokenSerializer;
@@ -50,5 +52,25 @@ public class SharingTokenService extends AbstractTokenService
     @Override
     public Class<? extends TokenData> getSupportedTokenDataClass() {
         return SharingTokenData.class;
+    }
+
+    @Override
+    public List<String> getValidSharingTokens(UUID userId) {
+        return tokenRepository.findValidTokensByUserIdAndTokenType(userId, SharingToken.class);
+    }
+
+    @Override
+    public boolean invalidateTokenByUserId(UUID userId, String token) {
+        return invalidateTokenByParams(() -> tokenRepository.invalidateTokenByUserIdAndToken(userId, token));
+    }
+
+    @Override
+    public boolean invalidateAllTokensByUserId(UUID userId) {
+        return invalidateTokenByParams(
+                () -> tokenRepository.invalidateTokensByUserIdAndTokenType(userId, SharingToken.class));
+    }
+
+    private boolean invalidateTokenByParams(Supplier<Integer> invalidationAction) {
+        return invalidationAction.get() > 0;
     }
 }

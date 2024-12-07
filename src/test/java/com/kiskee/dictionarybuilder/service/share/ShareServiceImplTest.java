@@ -212,7 +212,7 @@ public class ShareServiceImplTest {
 
     @Test
     void getTokenPersistenceService() {
-        assertThat(shareService.getTokenPersistenceService()).isEqualTo(tokenPersistenceService);
+        assertThat(shareService.getSharingTokenIssuer()).isEqualTo(tokenPersistenceService);
     }
 
     @Test
