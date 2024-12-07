@@ -23,7 +23,7 @@ import com.kiskee.dictionarybuilder.model.dto.vocabulary.dictionary.page.Diction
 import com.kiskee.dictionarybuilder.model.dto.vocabulary.word.WordDto;
 import com.kiskee.dictionarybuilder.model.entity.user.UserVocabularyApplication;
 import com.kiskee.dictionarybuilder.service.security.token.deserializer.TokenDeserializationHandler;
-import com.kiskee.dictionarybuilder.service.token.TokenPersistenceService;
+import com.kiskee.dictionarybuilder.service.token.share.SharingTokenIssuer;
 import com.kiskee.dictionarybuilder.service.vocabulary.dictionary.DictionaryAccessValidator;
 import com.kiskee.dictionarybuilder.service.vocabulary.loader.factory.WordLoaderFactory;
 import com.kiskee.dictionarybuilder.service.vocabulary.word.page.DictionaryPageLoader;
@@ -48,7 +48,7 @@ public class ShareServiceImplTest {
     private ShareServiceImpl shareService;
 
     @Mock
-    private TokenPersistenceService<SharingTokenData> tokenPersistenceService;
+    private SharingTokenIssuer sharingTokenIssuer;
 
     @Mock
     private TokenDeserializationHandler<SharingTokenData> tokenDeserializationHandler;
@@ -166,7 +166,7 @@ public class ShareServiceImplTest {
         ShareDictionaryRequest request = new ShareDictionaryRequest(dictionaryId, shareToDate);
 
         String sharingToken = "sharingToken";
-        when(tokenPersistenceService.persistToken(any(SharingTokenData.class))).thenReturn(sharingToken);
+        when(sharingTokenIssuer.persistToken(any(SharingTokenData.class))).thenReturn(sharingToken);
 
         SharedDictionaryDto sharedDictionaryDto = shareService.shareDictionary(request);
 
@@ -200,7 +200,7 @@ public class ShareServiceImplTest {
         Instant shareToDate = Instant.parse("2024-10-25T14:00:00Z");
         ShareDictionaryRequest request = new ShareDictionaryRequest(dictionaryId, shareToDate);
 
-        when(tokenPersistenceService.persistToken(any(SharingTokenData.class)))
+        when(sharingTokenIssuer.persistToken(any(SharingTokenData.class)))
                 .thenThrow(new DuplicateResourceException("SharingToken already exists to specified date"));
 
         assertThatExceptionOfType(DuplicateResourceException.class)
@@ -212,7 +212,7 @@ public class ShareServiceImplTest {
 
     @Test
     void getTokenPersistenceService() {
-        assertThat(shareService.getSharingTokenIssuer()).isEqualTo(tokenPersistenceService);
+        assertThat(shareService.getSharingTokenIssuer()).isEqualTo(sharingTokenIssuer);
     }
 
     @Test
