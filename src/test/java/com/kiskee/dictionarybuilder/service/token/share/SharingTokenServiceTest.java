@@ -11,7 +11,6 @@ import com.kiskee.dictionarybuilder.model.dto.token.share.SharingTokenData;
 import com.kiskee.dictionarybuilder.model.entity.token.SharingToken;
 import com.kiskee.dictionarybuilder.model.entity.user.UserVocabularyApplication;
 import com.kiskee.dictionarybuilder.repository.token.TokenRepository;
-
 import com.kiskee.dictionarybuilder.service.security.token.serializer.TokenSerializer;
 import com.kiskee.dictionarybuilder.service.time.CurrentDateTimeService;
 import java.util.List;
