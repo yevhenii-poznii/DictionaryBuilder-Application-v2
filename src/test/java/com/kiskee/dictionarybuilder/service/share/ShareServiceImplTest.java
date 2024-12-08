@@ -14,6 +14,7 @@ import com.kiskee.dictionarybuilder.exception.DuplicateResourceException;
 import com.kiskee.dictionarybuilder.exception.ResourceNotFoundException;
 import com.kiskee.dictionarybuilder.exception.token.InvalidTokenException;
 import com.kiskee.dictionarybuilder.model.dto.share.ShareDictionaryRequest;
+import com.kiskee.dictionarybuilder.model.dto.share.SharedDictionaries;
 import com.kiskee.dictionarybuilder.model.dto.share.SharedDictionaryDto;
 import com.kiskee.dictionarybuilder.model.dto.share.SharedDictionaryPage;
 import com.kiskee.dictionarybuilder.model.dto.token.share.SharingTokenData;
@@ -208,6 +209,134 @@ public class ShareServiceImplTest {
                 .withMessage("SharingToken already exists to specified date");
 
         verify(dictionaryAccessValidator).verifyUserHasDictionary(dictionaryId);
+    }
+
+    @Test
+    void getSharedDictionaries_WhenSharingTokensExist_ThenReturnSharedDictionaries() {
+        setAuth();
+
+        List<String> validSharingTokens = List.of("sharingToken1", "sharingToken2");
+        when(sharingTokenIssuer.getValidSharingTokens(USER_ID)).thenReturn(validSharingTokens);
+        when(tokenDeserializationHandler.deserializeToken("sharingToken1", SharingTokenData.class))
+                .thenReturn(new SharingTokenData(USER_ID, 1L, Instant.MAX));
+        when(tokenDeserializationHandler.deserializeToken("sharingToken2", SharingTokenData.class))
+                .thenThrow(new InvalidTokenException("Invalid token"));
+
+        SharedDictionaries sharedDictionaries = shareService.getSharedDictionaries();
+
+        assertThat(sharedDictionaries.sharedDictionaries()).hasSize(1);
+    }
+
+    @Test
+    void getSharedDictionaries_WhenSharingTokensDoNotExist_ThenThrowResourceNotFoundException() {
+        setAuth();
+
+        when(sharingTokenIssuer.getValidSharingTokens(USER_ID)).thenReturn(List.of());
+
+        assertThatExceptionOfType(ResourceNotFoundException.class)
+                .isThrownBy(() -> shareService.getSharedDictionaries())
+                .withMessage("No shared dictionaries found");
+    }
+
+    @Test
+    void getSharedDictionaries_WhenSharingTokensNotInvalidatedYet_ThenThrowResourceNotFoundException() {
+        setAuth();
+
+        List<String> validSharingTokens = List.of("sharingToken1", "sharingToken2");
+        when(sharingTokenIssuer.getValidSharingTokens(USER_ID)).thenReturn(validSharingTokens);
+        when(tokenDeserializationHandler.deserializeToken("sharingToken1", SharingTokenData.class))
+                .thenThrow(new InvalidTokenException("Token has expired"));
+        when(tokenDeserializationHandler.deserializeToken("sharingToken2", SharingTokenData.class))
+                .thenThrow(new InvalidTokenException("Invalid token"));
+
+        assertThatExceptionOfType(ResourceNotFoundException.class)
+                .isThrownBy(() -> shareService.getSharedDictionaries())
+                .withMessage("No shared dictionaries found");
+    }
+
+    @Test
+    void getSharedTokensByDictionary_WhenSharingTokensExist_ThenReturnSharedDictionaries() {
+        setAuth();
+
+        List<String> validSharingTokens = List.of("sharingToken1", "sharingToken2");
+        when(sharingTokenIssuer.getValidSharingTokens(USER_ID)).thenReturn(validSharingTokens);
+        when(tokenDeserializationHandler.deserializeToken("sharingToken1", SharingTokenData.class))
+                .thenReturn(new SharingTokenData(USER_ID, 1L, Instant.MAX));
+        when(tokenDeserializationHandler.deserializeToken("sharingToken2", SharingTokenData.class))
+                .thenThrow(new InvalidTokenException("Invalid token"));
+
+        SharedDictionaries sharedDictionaries = shareService.getSharedTokensByDictionary(1L);
+
+        assertThat(sharedDictionaries.sharedDictionaries()).hasSize(1);
+    }
+
+    @Test
+    void getSharedTokensByDictionary_WhenSharingTokensDoNotExist_ThenThrowResourceNotFoundException() {
+        setAuth();
+
+        when(sharingTokenIssuer.getValidSharingTokens(USER_ID)).thenReturn(List.of());
+
+        assertThatExceptionOfType(ResourceNotFoundException.class)
+                .isThrownBy(() -> shareService.getSharedTokensByDictionary(1L))
+                .withMessage("No shared dictionaries found");
+    }
+
+    @Test
+    void getSharedTokensByDictionary_WhenSharingTokensNotInvalidatedYet_ThenThrowResourceNotFoundException() {
+        setAuth();
+
+        List<String> validSharingTokens = List.of("sharingToken1", "sharingToken2");
+        when(sharingTokenIssuer.getValidSharingTokens(USER_ID)).thenReturn(validSharingTokens);
+        when(tokenDeserializationHandler.deserializeToken("sharingToken1", SharingTokenData.class))
+                .thenThrow(new InvalidTokenException("Token has expired"));
+        when(tokenDeserializationHandler.deserializeToken("sharingToken2", SharingTokenData.class))
+                .thenThrow(new InvalidTokenException("Invalid token"));
+
+        assertThatExceptionOfType(ResourceNotFoundException.class)
+                .isThrownBy(() -> shareService.getSharedTokensByDictionary(1L))
+                .withMessage("No shared dictionaries found");
+    }
+
+    @Test
+    void testRevokeSharingToken_WhenTokenExists_ThenRevokeToken() {
+        setAuth();
+
+        String sharingToken = "sharingToken";
+        when(sharingTokenIssuer.invalidateTokenByUserId(USER_ID, sharingToken)).thenReturn(true);
+
+        shareService.revokeSharingToken(sharingToken);
+    }
+
+    @Test
+    void testRevokeSharingToken_WhenTokenDoesNotExistOrAlreadyInvalidated_ThenThrowResourceNotFoundException() {
+        setAuth();
+
+        String sharingToken = "sharingToken";
+        when(sharingTokenIssuer.invalidateTokenByUserId(USER_ID, sharingToken)).thenReturn(false);
+
+        assertThatExceptionOfType(ResourceNotFoundException.class)
+                .isThrownBy(() -> shareService.revokeSharingToken(sharingToken))
+                .withMessage("Token not found or already revoked");
+    }
+
+    @Test
+    void testRevokeAllSharingTokens_WhenTokensExist_ThenRevokeAllTokens() {
+        setAuth();
+
+        when(sharingTokenIssuer.invalidateAllTokensByUserId(USER_ID)).thenReturn(true);
+
+        shareService.revokeAllSharingTokens();
+    }
+
+    @Test
+    void testRevokeAllSharingTokens_WhenTokensDoNotExistOrAlreadyInvalidated_ThenThrowResourceNotFoundException() {
+        setAuth();
+
+        when(sharingTokenIssuer.invalidateAllTokensByUserId(USER_ID)).thenReturn(false);
+
+        assertThatExceptionOfType(ResourceNotFoundException.class)
+                .isThrownBy(() -> shareService.revokeAllSharingTokens())
+                .withMessage("Token not found or already revoked");
     }
 
     @Test

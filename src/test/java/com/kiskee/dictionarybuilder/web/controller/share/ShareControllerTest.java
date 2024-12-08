@@ -1,8 +1,11 @@
 package com.kiskee.dictionarybuilder.web.controller.share;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -13,6 +16,7 @@ import com.kiskee.dictionarybuilder.exception.DuplicateResourceException;
 import com.kiskee.dictionarybuilder.exception.ResourceNotFoundException;
 import com.kiskee.dictionarybuilder.exception.token.InvalidTokenException;
 import com.kiskee.dictionarybuilder.model.dto.share.ShareDictionaryRequest;
+import com.kiskee.dictionarybuilder.model.dto.share.SharedDictionaries;
 import com.kiskee.dictionarybuilder.model.dto.share.SharedDictionaryDto;
 import com.kiskee.dictionarybuilder.model.dto.share.SharedDictionaryPage;
 import com.kiskee.dictionarybuilder.model.dto.vocabulary.dictionary.page.DictionaryPageRequestDto;
@@ -217,6 +221,114 @@ public class ShareControllerTest {
                         .content(objectMapper.writeValueAsString(body)))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
+
+        TimeZoneContextHolder.clear();
+    }
+
+    @Test
+    @SneakyThrows
+    void testGetSharedDictionaries_WhenTokensExist_ThenReturnSharedDictionariesDto() {
+        SharedDictionaryDto sharedDictionaryDto1 = new SharedDictionaryDto(1L, "sharingToken1", Instant.MAX);
+        SharedDictionaries sharedDictionaries = new SharedDictionaries(List.of(sharedDictionaryDto1));
+        when(shareService.getSharedDictionaries()).thenReturn(sharedDictionaries);
+
+        MvcResult result = mockMvc.perform(get("/share/dictionaries"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String actualResponseBody = result.getResponse().getContentAsString();
+        assertThat(actualResponseBody).isEqualTo(objectMapper.writeValueAsString(sharedDictionaries));
+    }
+
+    @Test
+    @SneakyThrows
+    void testGetSharedDictionaries_WhenNoTokensExist_ThenReturnNotFound() {
+        TimeZoneContextHolder.setTimeZone("Asia/Tokyo");
+
+        when(shareService.getSharedDictionaries())
+                .thenThrow(new ResourceNotFoundException("No shared dictionaries found"));
+
+        mockMvc.perform(get("/share/dictionaries")).andDo(print()).andExpect(status().isNotFound());
+
+        TimeZoneContextHolder.clear();
+    }
+
+    @Test
+    @SneakyThrows
+    void testGetSharedTokensByDictionary_WhenTokensExist_ThenReturnSharedDictionariesDto() {
+        SharedDictionaryDto sharedDictionaryDto1 = new SharedDictionaryDto(1L, "sharingToken1", Instant.MAX);
+        SharedDictionaries sharedDictionaries = new SharedDictionaries(List.of(sharedDictionaryDto1));
+        when(shareService.getSharedTokensByDictionary(1L)).thenReturn(sharedDictionaries);
+
+        MvcResult result = mockMvc.perform(get("/share/dictionaries/{dictionaryId}", 1L))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String actualResponseBody = result.getResponse().getContentAsString();
+        assertThat(actualResponseBody).isEqualTo(objectMapper.writeValueAsString(sharedDictionaries));
+    }
+
+    @Test
+    @SneakyThrows
+    void testGetSharedTokensByDictionary_WhenNoTokensExist_ThenReturnNotFound() {
+        TimeZoneContextHolder.setTimeZone("Asia/Tokyo");
+
+        when(shareService.getSharedTokensByDictionary(1L))
+                .thenThrow(new ResourceNotFoundException("No shared dictionaries found"));
+
+        mockMvc.perform(get("/share/dictionaries/{dictionaryId}", 1L))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+
+        TimeZoneContextHolder.clear();
+    }
+
+    @Test
+    @SneakyThrows
+    void testRevokeSharingToken_WhenSharingTokenValid_ThenRevokeToken() {
+        doNothing().when(shareService).revokeSharingToken("sharingToken");
+
+        mockMvc.perform(patch("/share/{sharingToken}/revoke", "sharingToken"))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @SneakyThrows
+    void testRevokeSharingToken_WhenSharingTokenInvalid_ThenReturnNotFound() {
+        TimeZoneContextHolder.setTimeZone("Asia/Tokyo");
+
+        doThrow(new ResourceNotFoundException("Token not found or already revoked"))
+                .when(shareService)
+                .revokeSharingToken("sharingToken");
+
+        mockMvc.perform(patch("/share/{sharingToken}/revoke", "sharingToken"))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+
+        TimeZoneContextHolder.clear();
+    }
+
+    @Test
+    @SneakyThrows
+    void testRevokeAllSharingTokens_WhenTokensExist_ThenRevokeAllTokens() {
+        doNothing().when(shareService).revokeAllSharingTokens();
+
+        mockMvc.perform(patch("/share/revoke")).andDo(print()).andExpect(status().isOk());
+    }
+
+    @Test
+    @SneakyThrows
+    void testRevokeAllSharingTokens_WhenNoTokensExist_ThenReturnNotFound() {
+        TimeZoneContextHolder.setTimeZone("Asia/Tokyo");
+
+        doThrow(new ResourceNotFoundException("Token not found or already revoked"))
+                .when(shareService)
+                .revokeAllSharingTokens();
+
+        mockMvc.perform(patch("/share/revoke")).andDo(print()).andExpect(status().isNotFound());
 
         TimeZoneContextHolder.clear();
     }

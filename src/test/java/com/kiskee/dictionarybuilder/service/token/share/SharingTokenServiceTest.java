@@ -11,6 +11,7 @@ import com.kiskee.dictionarybuilder.model.dto.token.share.SharingTokenData;
 import com.kiskee.dictionarybuilder.model.entity.token.SharingToken;
 import com.kiskee.dictionarybuilder.model.entity.user.UserVocabularyApplication;
 import com.kiskee.dictionarybuilder.repository.token.TokenRepository;
+
 import com.kiskee.dictionarybuilder.service.security.token.serializer.TokenSerializer;
 import com.kiskee.dictionarybuilder.service.time.CurrentDateTimeService;
 import java.util.List;
@@ -114,6 +115,69 @@ public class SharingTokenServiceTest {
         when(tokenRepository.existsByTokenAndIsInvalidatedFalse(tokenString)).thenReturn(false);
 
         assertThat(service.isNotInvalidated(tokenString)).isFalse();
+    }
+
+    @Test
+    void testGetValidSharingTokens_WhenTokensExist_ThenReturnValidSharingTokens() {
+        List<String> tokens = List.of("token1", "token2");
+        when(tokenRepository.findValidTokensByUserIdAndTokenType(USER_ID, SharingToken.class))
+                .thenReturn(tokens);
+
+        List<String> validSharingTokens = service.getValidSharingTokens(USER_ID);
+
+        assertThat(validSharingTokens).isEqualTo(tokens);
+    }
+
+    @Test
+    void testGetValidSharingTokens_WhenNoTokensExist_ThenReturnEmptyList() {
+        when(tokenRepository.findValidTokensByUserIdAndTokenType(USER_ID, SharingToken.class))
+                .thenReturn(List.of());
+
+        List<String> validSharingTokens = service.getValidSharingTokens(USER_ID);
+
+        assertThat(validSharingTokens).isEmpty();
+    }
+
+    @Test
+    void testInvalidateTokenByUserId_WhenTokenExists_ThenInvalidateToken() {
+        String tokenString = "sharingTokenString";
+        when(tokenRepository.invalidateTokenByUserIdAndToken(USER_ID, tokenString))
+                .thenReturn(1);
+
+        boolean invalidated = service.invalidateTokenByUserId(USER_ID, tokenString);
+
+        assertThat(invalidated).isTrue();
+    }
+
+    @Test
+    void testInvalidateTokenByUserId_WhenTokenDoesNotExist_ThenReturnFalse() {
+        String tokenString = "sharingTokenString";
+        when(tokenRepository.invalidateTokenByUserIdAndToken(USER_ID, tokenString))
+                .thenReturn(0);
+
+        boolean invalidated = service.invalidateTokenByUserId(USER_ID, tokenString);
+
+        assertThat(invalidated).isFalse();
+    }
+
+    @Test
+    void testInvalidateAllTokensByUserId_WhenTokensExist_ThenInvalidateAllTokens() {
+        when(tokenRepository.invalidateTokensByUserIdAndTokenType(USER_ID, SharingToken.class))
+                .thenReturn(1);
+
+        boolean invalidated = service.invalidateAllTokensByUserId(USER_ID);
+
+        assertThat(invalidated).isTrue();
+    }
+
+    @Test
+    void testInvalidateAllTokensByUserId_WhenNoTokensExist_ThenReturnFalse() {
+        when(tokenRepository.invalidateTokensByUserIdAndTokenType(USER_ID, SharingToken.class))
+                .thenReturn(0);
+
+        boolean invalidated = service.invalidateAllTokensByUserId(USER_ID);
+
+        assertThat(invalidated).isFalse();
     }
 
     @Test

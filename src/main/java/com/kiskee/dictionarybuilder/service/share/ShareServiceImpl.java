@@ -120,6 +120,7 @@ public class ShareServiceImpl extends AbstractDictionaryService implements Share
     private void revokeTokens(Supplier<Boolean> revokeAction) {
         boolean invalidated = revokeAction.get();
         if (!invalidated) {
+            log.info("No tokens were invalidated");
             throw new ResourceNotFoundException("Token not found or already revoked");
         }
     }
