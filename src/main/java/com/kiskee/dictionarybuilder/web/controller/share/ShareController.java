@@ -54,4 +54,9 @@ public class ShareController {
     public void revokeAllSharingTokens() {
         shareService.revokeAllSharingTokens();
     }
+
+    @GetMapping("/{sharingToken}/repetition")
+    public void getRepetition(@PathVariable String sharingToken) {
+        System.out.println("Protected method");
+    }
 }

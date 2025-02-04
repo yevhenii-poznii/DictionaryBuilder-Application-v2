@@ -18,4 +18,6 @@ public class AuthenticationRequest {
 
     @NotBlank
     private String password;
+
+    private String redirectUri;
 }

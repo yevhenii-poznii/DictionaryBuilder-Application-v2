@@ -17,6 +17,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.web.util.ContentCachingRequestWrapper;
 
 @Slf4j
 public class LoginAuthenticationFilter extends AbstractAuthenticationFilter {
@@ -39,29 +40,21 @@ public class LoginAuthenticationFilter extends AbstractAuthenticationFilter {
 
         if (AntPathRequestMatcher.antMatcher(HttpMethod.POST, "/auth/access").matches(request)) {
             try {
+                ContentCachingRequestWrapper wrappedRequest = new ContentCachingRequestWrapper(request);
                 AuthenticationRequest credentials =
-                        getObjectMapper().readValue(request.getInputStream(), AuthenticationRequest.class);
-
+                        getObjectMapper().readValue(wrappedRequest.getInputStream(), AuthenticationRequest.class);
                 UsernamePasswordAuthenticationToken authRequest =
                         new UsernamePasswordAuthenticationToken(credentials.getLogin(), credentials.getPassword());
-
                 Authentication authentication = authenticationManager.authenticate(authRequest);
-
-                successHandler.onAuthenticationSuccess(request, response, authentication);
-
+                successHandler.onAuthenticationSuccess(wrappedRequest, response, authentication);
                 IdentityUtil.setAuthentication(authentication);
-
-                filterChain.doFilter(request, response);
-
+                filterChain.doFilter(wrappedRequest, response);
                 return;
-
             } catch (AuthenticationException | MismatchedInputException exception) {
                 handleRequestException(exception, response);
-
                 return;
             }
         }
-
         filterChain.doFilter(request, response);
     }
 }
