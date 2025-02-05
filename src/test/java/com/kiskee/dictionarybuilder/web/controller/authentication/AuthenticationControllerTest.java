@@ -57,7 +57,7 @@ public class AuthenticationControllerTest {
 
         AuthenticationResponse expectedResponseBody =
                 new AuthenticationResponse("someToken", Instant.parse("2024-02-01T00:00:00Z"));
-        when(authenticationService.issueAccessToken()).thenReturn(expectedResponseBody);
+        when(authenticationService.issueAccessToken(requestBody)).thenReturn(expectedResponseBody);
 
         MvcResult result = mockMvc.perform(post("/auth/access")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -77,7 +77,7 @@ public class AuthenticationControllerTest {
 
         TimeZoneContextHolder.setTimeZone("UTC");
 
-        when(authenticationService.issueAccessToken())
+        when(authenticationService.issueAccessToken(requestBody))
                 .thenThrow(new AuthenticationCredentialsNotFoundException("User is not authenticated"));
 
         mockMvc.perform(post("/auth/access")

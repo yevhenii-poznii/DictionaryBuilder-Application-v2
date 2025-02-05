@@ -1,5 +1,6 @@
 package com.kiskee.dictionarybuilder.model.dto.authentication;
 
+import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -19,5 +20,11 @@ public class AuthenticationRequest {
     @NotBlank
     private String password;
 
+    @Nullable
     private String redirectUri;
+
+    public AuthenticationRequest(String login, String password) {
+        this.login = login;
+        this.password = password;
+    }
 }

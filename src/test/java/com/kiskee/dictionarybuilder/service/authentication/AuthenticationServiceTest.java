@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 import com.kiskee.dictionarybuilder.config.properties.token.jwt.JwtProperties;
 import com.kiskee.dictionarybuilder.enums.user.UserRole;
 import com.kiskee.dictionarybuilder.model.dto.authentication.AuthenticationData;
+import com.kiskee.dictionarybuilder.model.dto.authentication.AuthenticationRequest;
 import com.kiskee.dictionarybuilder.model.dto.authentication.AuthenticationResponse;
 import com.kiskee.dictionarybuilder.model.dto.token.jwe.JweToken;
 import com.kiskee.dictionarybuilder.model.dto.token.jwe.JweTokenData;
@@ -73,7 +74,8 @@ public class AuthenticationServiceTest {
         when(defaultJweTokenFactory.apply(any(AuthenticationData.class))).thenReturn(mock(JweToken.class));
         when(tokenStringSerializer.serialize(any(JweToken.class))).thenReturn(tokenString);
 
-        AuthenticationResponse authenticationResponse = authenticationService.issueAccessToken();
+        AuthenticationResponse authenticationResponse =
+                authenticationService.issueAccessToken(mock(AuthenticationRequest.class));
 
         assertThat(authenticationResponse.getToken()).isEqualTo(tokenString);
     }
@@ -81,7 +83,7 @@ public class AuthenticationServiceTest {
     @Test
     void testIssueAccessToken_WhenAuthenticationHasNotSet_ThenThrowException() {
         assertThatExceptionOfType(AuthenticationCredentialsNotFoundException.class)
-                .isThrownBy(() -> authenticationService.issueAccessToken())
+                .isThrownBy(() -> authenticationService.issueAccessToken(mock(AuthenticationRequest.class)))
                 .withMessage("User is not authenticated");
     }
 
