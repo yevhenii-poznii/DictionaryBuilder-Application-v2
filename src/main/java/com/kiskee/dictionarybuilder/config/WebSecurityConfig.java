@@ -42,6 +42,7 @@ import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.http.HttpStatus;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
@@ -84,6 +85,7 @@ public class WebSecurityConfig {
     private final CookieTokenService cookieTokenService;
     private final List<UserInitializingService> userInitializingServices;
     private final ClientRegistrationRepository clientRegistrationRepository;
+    private final MessageSourceAccessor messages;
 
     private final String[] PERMIT_ALL_ENDPOINTS = {
         "/signup/**",
@@ -183,7 +185,7 @@ public class WebSecurityConfig {
     @Bean
     public LoginAuthenticationFilter loginAuthenticationFilter() throws Exception {
         return new LoginAuthenticationFilter(
-                objectMapper, authenticationManager(), tokenCookieAuthenticationSuccessHandler());
+                objectMapper, authenticationManager(), tokenCookieAuthenticationSuccessHandler(), messages);
     }
 
     @Bean

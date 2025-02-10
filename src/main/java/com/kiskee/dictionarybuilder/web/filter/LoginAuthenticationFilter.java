@@ -5,42 +5,46 @@ import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.kiskee.dictionarybuilder.model.dto.authentication.AuthenticationRequest;
 import com.kiskee.dictionarybuilder.util.IdentityUtil;
 import com.kiskee.dictionarybuilder.web.auth.TokenCookieAuthenticationSuccessHandler;
+import com.kiskee.dictionarybuilder.web.filter.wrapper.BodyCachingHttpServletRequestWrapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.web.util.ContentCachingRequestWrapper;
 
 @Slf4j
 public class LoginAuthenticationFilter extends AbstractAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
     private final TokenCookieAuthenticationSuccessHandler successHandler;
+    private final MessageSourceAccessor messages;
 
     public LoginAuthenticationFilter(
             ObjectMapper objectMapper,
             AuthenticationManager authenticationManager,
-            TokenCookieAuthenticationSuccessHandler successHandler) {
+            TokenCookieAuthenticationSuccessHandler successHandler,
+            MessageSourceAccessor messages) {
         super(objectMapper);
         this.authenticationManager = authenticationManager;
         this.successHandler = successHandler;
+        this.messages = messages;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException, AuthenticationException {
-
         if (AntPathRequestMatcher.antMatcher(HttpMethod.POST, "/auth/access").matches(request)) {
             try {
-                ContentCachingRequestWrapper wrappedRequest = new ContentCachingRequestWrapper(request);
+                BodyCachingHttpServletRequestWrapper wrappedRequest = new BodyCachingHttpServletRequestWrapper(request);
                 AuthenticationRequest credentials =
                         getObjectMapper().readValue(wrappedRequest.getInputStream(), AuthenticationRequest.class);
                 UsernamePasswordAuthenticationToken authRequest =
@@ -51,7 +55,12 @@ public class LoginAuthenticationFilter extends AbstractAuthenticationFilter {
                 filterChain.doFilter(wrappedRequest, response);
                 return;
             } catch (AuthenticationException | MismatchedInputException exception) {
-                handleRequestException(exception, response);
+                handleRequestException(
+                        exception instanceof MismatchedInputException
+                                ? new BadCredentialsException(this.messages.getMessage(
+                                        "AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"))
+                                : exception,
+                        response);
                 return;
             }
         }
