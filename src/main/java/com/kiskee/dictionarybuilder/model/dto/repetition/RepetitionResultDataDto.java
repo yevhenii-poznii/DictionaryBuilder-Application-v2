@@ -31,6 +31,16 @@ public class RepetitionResultDataDto implements RepetitionResultData {
     private int totalElements;
     private int totalElementsPassed;
 
+    public RepetitionResultDataDto(
+            UUID userId, long dictionaryId, String dictionaryName, ZoneId userTimeZone, int totalElements) {
+        this.userId = userId;
+        this.dictionaryId = dictionaryId;
+        this.dictionaryName = dictionaryName;
+        this.userTimeZone = userTimeZone;
+        this.startTime = Instant.now();
+        this.totalElements = totalElements;
+    }
+
     protected void incrementRightAnswersCount() {
         this.rightAnswersCount++;
     }

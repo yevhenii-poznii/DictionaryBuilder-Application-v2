@@ -8,7 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kiskee.dictionarybuilder.model.dto.authentication.AuthenticationRequest;
+import com.kiskee.dictionarybuilder.model.dto.authentication.AuthenticationRequestDto;
 import com.kiskee.dictionarybuilder.model.dto.authentication.AuthenticationResponse;
 import com.kiskee.dictionarybuilder.service.authentication.AuthenticationService;
 import com.kiskee.dictionarybuilder.util.TimeZoneContextHolder;
@@ -53,11 +53,11 @@ public class AuthenticationControllerTest {
     @Test
     @SneakyThrows
     void testSignIn_WhenAuthenticationHasSet_ThenReturnAccessToken() {
-        AuthenticationRequest requestBody = new AuthenticationRequest("login", "password");
+        AuthenticationRequestDto requestBody = new AuthenticationRequestDto("login", "password");
 
         AuthenticationResponse expectedResponseBody =
                 new AuthenticationResponse("someToken", Instant.parse("2024-02-01T00:00:00Z"));
-        when(authenticationService.issueAccessToken()).thenReturn(expectedResponseBody);
+        when(authenticationService.issueAccessToken(requestBody)).thenReturn(expectedResponseBody);
 
         MvcResult result = mockMvc.perform(post("/auth/access")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -73,11 +73,11 @@ public class AuthenticationControllerTest {
     @Test
     @SneakyThrows
     void testSignIn_WhenAuthenticationHasNotSet_ThenReturn401Unauthorized() {
-        AuthenticationRequest requestBody = new AuthenticationRequest("login", "password");
+        AuthenticationRequestDto requestBody = new AuthenticationRequestDto("login", "password");
 
         TimeZoneContextHolder.setTimeZone("UTC");
 
-        when(authenticationService.issueAccessToken())
+        when(authenticationService.issueAccessToken(requestBody))
                 .thenThrow(new AuthenticationCredentialsNotFoundException("User is not authenticated"));
 
         mockMvc.perform(post("/auth/access")

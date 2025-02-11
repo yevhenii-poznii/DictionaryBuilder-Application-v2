@@ -13,13 +13,13 @@ import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 @Slf4j
 @Component
@@ -28,8 +28,8 @@ public class OAuth2LoginSuccessHandler extends SavedRequestAwareAuthenticationSu
 
     private final OAuth2UserProvisionService oAuth2UserProvisionService;
 
-    @Value("${post-oauth2-redirect-url}")
-    private String POST_OAUTH2_REDIRECT_URL;
+    private static final String REDIRECT_URI_PARAM = "&redirect_uri=";
+    private static final String TOKEN_PARAM = "?token=";
 
     @Override
     public void onAuthenticationSuccess(
@@ -37,21 +37,25 @@ public class OAuth2LoginSuccessHandler extends SavedRequestAwareAuthenticationSu
             throws IOException, ServletException {
         if (authentication instanceof OAuth2AuthenticationToken oauthToken) {
             OAuth2User principal = oauthToken.getPrincipal();
-
             OAuth2ProvisionRequest userProvisionRequest = buildProvisionRequest(principal);
-
             OAuth2ProvisionData provisionData = oAuth2UserProvisionService.provisionUser(userProvisionRequest);
-
-            String redirectUrl = String.format(POST_OAUTH2_REDIRECT_URL, provisionData.accessToken());
 
             Cookie cookie = CookieUtil.buildCookie(provisionData.refreshToken());
             Cookie jsessionid = CookieUtil.removeJsessionIdCookie();
-
             response.addCookie(cookie);
             response.addCookie(jsessionid);
-            response.sendRedirect(redirectUrl);
-
             log.info("Cookie set successfully set for user");
+
+            String state = request.getParameter("state");
+            String redirectUri = null;
+            if (StringUtils.hasText(state) && state.contains(REDIRECT_URI_PARAM)) {
+                redirectUri = state.substring(state.indexOf(REDIRECT_URI_PARAM) + REDIRECT_URI_PARAM.length());
+            }
+            if (redirectUri != null) {
+                response.sendRedirect(redirectUri + TOKEN_PARAM + provisionData.accessToken());
+            } else {
+                super.onAuthenticationSuccess(request, response, authentication);
+            }
         }
     }
 
@@ -63,7 +67,6 @@ public class OAuth2LoginSuccessHandler extends SavedRequestAwareAuthenticationSu
         List<? extends GrantedAuthority> authorities = principal.getAuthorities().stream()
                 .filter(authority -> authority.getAuthority().equalsIgnoreCase("OAUTH2_USER"))
                 .toList();
-
         return new OAuth2ProvisionRequest(email, username, name, picture, authorities);
     }
 }

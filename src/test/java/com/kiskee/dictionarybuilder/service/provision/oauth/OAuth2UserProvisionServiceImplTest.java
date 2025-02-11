@@ -62,7 +62,7 @@ public class OAuth2UserProvisionServiceImplTest {
         when(issuedAccessToken.getToken()).thenReturn(accessToken);
 
         when(authenticationService.issueRefreshToken(any(Authentication.class))).thenReturn(issuedRefreshToken);
-        when(authenticationService.issueAccessToken()).thenReturn(issuedAccessToken);
+        when(authenticationService.issueAccessToken(issuedRefreshToken.token())).thenReturn(issuedAccessToken);
 
         OAuth2ProvisionData result = oAuth2UserProvisionService.provisionUser(provisionRequest);
 
@@ -95,7 +95,7 @@ public class OAuth2UserProvisionServiceImplTest {
         when(issuedAccessToken.getToken()).thenReturn(accessToken);
 
         when(authenticationService.issueRefreshToken(any(Authentication.class))).thenReturn(issuedRefreshToken);
-        when(authenticationService.issueAccessToken()).thenReturn(issuedAccessToken);
+        when(authenticationService.issueAccessToken(issuedRefreshToken.token())).thenReturn(issuedAccessToken);
 
         OAuth2ProvisionData result = oAuth2UserProvisionService.provisionUser(provisionRequest);
 

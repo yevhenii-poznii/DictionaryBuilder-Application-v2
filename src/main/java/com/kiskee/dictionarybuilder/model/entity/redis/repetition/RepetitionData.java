@@ -7,7 +7,6 @@ import com.kiskee.dictionarybuilder.model.dto.vocabulary.dictionary.DictionaryDt
 import com.kiskee.dictionarybuilder.model.dto.vocabulary.word.WordDto;
 import com.kiskee.dictionarybuilder.model.dto.vocabulary.word.WordTranslationDto;
 import jakarta.persistence.Id;
-import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,6 +41,7 @@ public class RepetitionData extends RepetitionResultDataDto implements Repetitio
     private String word;
     private Set<String> translations;
     private boolean reversed;
+    private boolean shared;
     private RepetitionType repetitionType;
 
     public RepetitionData(
@@ -50,38 +50,53 @@ public class RepetitionData extends RepetitionResultDataDto implements Repetitio
             UUID userId,
             ZoneId userTimeZone,
             RepetitionType repetitionType,
+            boolean reversed,
+            boolean shared) {
+        this(repetitionWords, dictionaryDto, userId, userTimeZone, repetitionType, reversed);
+        this.shared = shared;
+    }
+
+    public RepetitionData(
+            List<WordDto> repetitionWords,
+            DictionaryDto dictionaryDto,
+            UUID userId,
+            ZoneId userTimeZone,
+            RepetitionType repetitionType,
             boolean reversed) {
-        this.setId(userId.toString());
+        super(userId, dictionaryDto.getId(), dictionaryDto.getDictionaryName(), userTimeZone, repetitionWords.size());
+        //        this.setId(userId.toString());
+        this.id = userId.toString();
         this.repetitionWords = new ArrayList<>(repetitionWords);
         this.repetitionType = repetitionType;
         this.reversed = reversed;
         this.setNext();
-        super.setUserTimeZone(userTimeZone);
-        super.setStartTime(Instant.now());
-        super.setTotalElements(repetitionWords.size());
-        super.setDictionaryId(dictionaryDto.getId());
-        super.setDictionaryName(dictionaryDto.getDictionaryName());
-        super.setUserId(userId);
+        //        super.setUserTimeZone(userTimeZone);
+        //        super.setStartTime(Instant.now());
+        //        super.setTotalElements(repetitionWords.size());
+        //        super.setDictionaryId(dictionaryDto.getId());
+        //        super.setDictionaryName(dictionaryDto.getDictionaryName());
+        //        super.setUserId(userId);
     }
 
     public RepetitionResultDataDto toResult() {
         if (this.isPaused()) {
             this.endPause();
         }
-        return RepetitionResultDataDto.builder()
-                .userId(UUID.fromString(this.getId()))
-                .dictionaryId(this.getDictionaryId())
-                .dictionaryName(this.getDictionaryName())
-                .userTimeZone(this.getUserTimeZone())
-                .startTime(this.getStartTime())
-                .endTime(Instant.now())
-                .pauses(this.getPauses())
-                .rightAnswersCount(this.getRightAnswersCount())
-                .wrongAnswersCount(this.getWrongAnswersCount())
-                .skippedWordsCount(this.getSkippedWordsCount())
-                .totalElements(this.getTotalElements())
-                .totalElementsPassed(this.getTotalElementsPassed())
-                .build();
+        return this;
+        //        return RepetitionResultDataDto.builder()
+        //                .userId(UUID.fromString(this.getId()))
+        //                .dictionaryId(this.getDictionaryId())
+        //                .dictionaryName(this.getDictionaryName())
+        //                .userTimeZone(this.getUserTimeZone())
+        //                .startTime(this.getStartTime())
+        //                .endTime(Instant.now())
+        //                .pauses(this.getPauses())
+        //                .rightAnswersCount(this.getRightAnswersCount())
+        //                .wrongAnswersCount(this.getWrongAnswersCount())
+        //                .skippedWordsCount(this.getSkippedWordsCount())
+        //                .totalElements(this.getTotalElements())
+        //                .totalElementsPassed(this.getTotalElementsPassed())
+        //                .build();
     }
 
     public RepetitionData updateData(boolean isCorrect) {

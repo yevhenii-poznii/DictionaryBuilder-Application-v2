@@ -41,7 +41,9 @@ public class OAuth2UserProvisionServiceImpl extends AbstractUserProvisionService
                 new UsernamePasswordAuthenticationToken(user, null, provisionRequest.getAuthorities());
         JweTokenData issuedRefreshToken = authenticationService.issueRefreshToken(authenticationToken);
         IdentityUtil.setAuthentication(issuedRefreshToken.jweToken());
-        String issuedAccessToken = authenticationService.issueAccessToken().getToken();
+        String issuedAccessToken = authenticationService
+                .issueAccessToken(issuedRefreshToken.token())
+                .getToken();
         return new OAuth2ProvisionData(issuedAccessToken, issuedRefreshToken);
     }
 }

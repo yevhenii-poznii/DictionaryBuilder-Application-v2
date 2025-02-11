@@ -2,6 +2,7 @@ package com.kiskee.dictionarybuilder.service.authentication;
 
 import com.kiskee.dictionarybuilder.config.properties.token.jwt.JwtProperties;
 import com.kiskee.dictionarybuilder.model.dto.authentication.AuthenticationData;
+import com.kiskee.dictionarybuilder.model.dto.authentication.AuthenticationRequestDto;
 import com.kiskee.dictionarybuilder.model.dto.authentication.AuthenticationResponse;
 import com.kiskee.dictionarybuilder.model.dto.token.jwe.JweToken;
 import com.kiskee.dictionarybuilder.model.dto.token.jwe.JweTokenData;
@@ -16,6 +17,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.rememberme.CookieTheftException;
 import org.springframework.security.web.authentication.rememberme.InvalidCookieException;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 @Slf4j
 @AllArgsConstructor
@@ -27,9 +30,13 @@ public class AuthenticationServiceImpl implements AuthenticationService, LogoutS
     private final JwtProperties jwtProperties;
 
     @Override
-    public AuthenticationResponse issueAccessToken() {
+    public AuthenticationResponse issueAccessToken(AuthenticationRequestDto authenticationRequestDto) {
         Authentication authentication = IdentityUtil.getAuthentication();
-        return issueAccessToken(authentication);
+        AuthenticationResponse authenticationResponse = issueAccessToken(authentication);
+        if (StringUtils.hasText(authenticationRequestDto.getRedirectUri())) {
+            authenticationResponse.setRedirectUri(authenticationRequestDto.getRedirectUri());
+        }
+        return authenticationResponse;
     }
 
     @Override
@@ -49,6 +56,7 @@ public class AuthenticationServiceImpl implements AuthenticationService, LogoutS
     }
 
     @Override
+    @Transactional
     public void revokeRefreshToken(String refreshToken) {
         CookieToken cookieToken = cookieTokenIssuer.findTokenOrThrow(refreshToken);
         validate(cookieToken, IdentityUtil.getAuthentication());

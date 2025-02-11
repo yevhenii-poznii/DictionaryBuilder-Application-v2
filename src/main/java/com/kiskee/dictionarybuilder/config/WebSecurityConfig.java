@@ -31,6 +31,7 @@ import com.nimbusds.jose.JWEEncrypter;
 import com.nimbusds.jose.KeyLengthException;
 import com.nimbusds.jose.crypto.DirectDecrypter;
 import com.nimbusds.jose.crypto.DirectEncrypter;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -41,6 +42,7 @@ import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.http.HttpStatus;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
@@ -54,11 +56,18 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @Configuration
 @EnableWebSecurity
@@ -75,6 +84,19 @@ public class WebSecurityConfig {
     private final ObjectMapper objectMapper;
     private final CookieTokenService cookieTokenService;
     private final List<UserInitializingService> userInitializingServices;
+    private final ClientRegistrationRepository clientRegistrationRepository;
+    private final MessageSourceAccessor messages;
+
+    private final String[] PERMIT_ALL_ENDPOINTS = {
+        "/signup/**",
+        "/actuator/**",
+        "/share/{sharingToken}",
+        "/error",
+        "/auth/access",
+        "/swagger-ui**",
+        "/swagger-ui/**",
+        "/v3/api-docs/**",
+    };
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -88,17 +110,13 @@ public class WebSecurityConfig {
                         .anonymous()
                         .requestMatchers("/actuator/**")
                         .hasRole("METRICS")
-                        .requestMatchers(
-                                "/share/{sharingToken}",
-                                "/error",
-                                "/auth/access",
-                                "/swagger-ui**",
-                                "/swagger-ui/**",
-                                "/v3/api-docs/**")
+                        .requestMatchers(PERMIT_ALL_ENDPOINTS)
                         .permitAll()
                         .anyRequest()
                         .authenticated())
-                .oauth2Login(oauth2 -> oauth2.successHandler(oAuth2LoginSuccessHandler()))
+                .oauth2Login(oauth2 -> oauth2.authorizationEndpoint(
+                                auth -> auth.authorizationRequestResolver(oAuth2AuthorizationRequestResolver()))
+                        .successHandler(oAuth2LoginSuccessHandler()))
                 .logout(logout -> logout.logoutUrl("/auth/logout")
                         .addLogoutHandler(preLogoutHandler())
                         .deleteCookies(CookieUtil.COOKIE_NAME)
@@ -167,7 +185,7 @@ public class WebSecurityConfig {
     @Bean
     public LoginAuthenticationFilter loginAuthenticationFilter() throws Exception {
         return new LoginAuthenticationFilter(
-                objectMapper, authenticationManager(), tokenCookieAuthenticationSuccessHandler());
+                objectMapper, authenticationManager(), tokenCookieAuthenticationSuccessHandler(), messages);
     }
 
     @Bean
@@ -183,10 +201,29 @@ public class WebSecurityConfig {
     }
 
     @Bean
+    public OAuth2AuthorizationRequestResolver oAuth2AuthorizationRequestResolver() {
+        DefaultOAuth2AuthorizationRequestResolver oAuth2AuthorizationRequestResolver =
+                new DefaultOAuth2AuthorizationRequestResolver(
+                        clientRegistrationRepository,
+                        OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI);
+        oAuth2AuthorizationRequestResolver.setAuthorizationRequestCustomizer(requestBuilder -> {
+            HttpServletRequest currentRequest =
+                    ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+            String customRedirectUri = currentRequest.getParameter("redirect_uri");
+            if (customRedirectUri != null) {
+                String encodedFrontendRedirectUri = UriComponentsBuilder.fromHttpUrl(customRedirectUri)
+                        .encode()
+                        .toUriString();
+                requestBuilder.state(requestBuilder.build().getState() + "&redirect_uri=" + encodedFrontendRedirectUri);
+            }
+        });
+        return oAuth2AuthorizationRequestResolver;
+    }
+
+    @Bean
     public DaoAuthenticationProvider daoAuthenticationProvider() {
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider(passwordEncoder());
         authenticationProvider.setUserDetailsService(userService);
-
         return authenticationProvider;
     }
 

@@ -1,5 +1,6 @@
 package com.kiskee.dictionarybuilder.model.dto.authentication;
 
+import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -11,11 +12,19 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
-public class AuthenticationRequest {
+public class AuthenticationRequestDto {
 
     @NotBlank
     private String login;
 
     @NotBlank
     private String password;
+
+    @Nullable
+    private String redirectUri;
+
+    public AuthenticationRequestDto(String login, String password) {
+        this.login = login;
+        this.password = password;
+    }
 }
