@@ -2,7 +2,7 @@ package com.kiskee.dictionarybuilder.service.authentication;
 
 import com.kiskee.dictionarybuilder.config.properties.token.jwt.JwtProperties;
 import com.kiskee.dictionarybuilder.model.dto.authentication.AuthenticationData;
-import com.kiskee.dictionarybuilder.model.dto.authentication.AuthenticationRequest;
+import com.kiskee.dictionarybuilder.model.dto.authentication.AuthenticationRequestDto;
 import com.kiskee.dictionarybuilder.model.dto.authentication.AuthenticationResponse;
 import com.kiskee.dictionarybuilder.model.dto.token.jwe.JweToken;
 import com.kiskee.dictionarybuilder.model.dto.token.jwe.JweTokenData;
@@ -30,11 +30,11 @@ public class AuthenticationServiceImpl implements AuthenticationService, LogoutS
     private final JwtProperties jwtProperties;
 
     @Override
-    public AuthenticationResponse issueAccessToken(AuthenticationRequest authenticationRequest) {
+    public AuthenticationResponse issueAccessToken(AuthenticationRequestDto authenticationRequestDto) {
         Authentication authentication = IdentityUtil.getAuthentication();
         AuthenticationResponse authenticationResponse = issueAccessToken(authentication);
-        if (StringUtils.hasText(authenticationRequest.getRedirectUri())) {
-            authenticationResponse.setRedirectUri(authenticationRequest.getRedirectUri());
+        if (StringUtils.hasText(authenticationRequestDto.getRedirectUri())) {
+            authenticationResponse.setRedirectUri(authenticationRequestDto.getRedirectUri());
         }
         return authenticationResponse;
     }

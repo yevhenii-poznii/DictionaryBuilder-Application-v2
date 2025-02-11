@@ -2,7 +2,7 @@ package com.kiskee.dictionarybuilder.web.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
-import com.kiskee.dictionarybuilder.model.dto.authentication.AuthenticationRequest;
+import com.kiskee.dictionarybuilder.model.dto.authentication.AuthenticationRequestDto;
 import com.kiskee.dictionarybuilder.util.IdentityUtil;
 import com.kiskee.dictionarybuilder.web.auth.TokenCookieAuthenticationSuccessHandler;
 import com.kiskee.dictionarybuilder.web.filter.wrapper.BodyCachingHttpServletRequestWrapper;
@@ -45,25 +45,33 @@ public class LoginAuthenticationFilter extends AbstractAuthenticationFilter {
         if (AntPathRequestMatcher.antMatcher(HttpMethod.POST, "/auth/access").matches(request)) {
             try {
                 BodyCachingHttpServletRequestWrapper wrappedRequest = new BodyCachingHttpServletRequestWrapper(request);
-                AuthenticationRequest credentials =
-                        getObjectMapper().readValue(wrappedRequest.getInputStream(), AuthenticationRequest.class);
-                UsernamePasswordAuthenticationToken authRequest =
-                        new UsernamePasswordAuthenticationToken(credentials.getLogin(), credentials.getPassword());
-                Authentication authentication = authenticationManager.authenticate(authRequest);
-                successHandler.onAuthenticationSuccess(wrappedRequest, response, authentication);
-                IdentityUtil.setAuthentication(authentication);
+                AuthenticationRequestDto authenticationRequestDto =
+                        getObjectMapper().readValue(wrappedRequest.getInputStream(), AuthenticationRequestDto.class);
+                UsernamePasswordAuthenticationToken credentials = new UsernamePasswordAuthenticationToken(
+                        authenticationRequestDto.getLogin(), authenticationRequestDto.getPassword());
+                auth(credentials, wrappedRequest, response);
                 filterChain.doFilter(wrappedRequest, response);
                 return;
             } catch (AuthenticationException | MismatchedInputException exception) {
-                handleRequestException(
-                        exception instanceof MismatchedInputException
-                                ? new BadCredentialsException(this.messages.getMessage(
-                                        "AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"))
-                                : exception,
-                        response);
+                handleRequestException(handleException(exception), response);
                 return;
             }
         }
         filterChain.doFilter(request, response);
+    }
+
+    private void auth(
+            UsernamePasswordAuthenticationToken credentials, HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        Authentication authentication = authenticationManager.authenticate(credentials);
+        successHandler.onAuthenticationSuccess(request, response, authentication);
+        IdentityUtil.setAuthentication(authentication);
+    }
+
+    private Exception handleException(Exception exception) {
+        return exception instanceof MismatchedInputException
+                ? new BadCredentialsException(this.messages.getMessage(
+                        "AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"))
+                : exception;
     }
 }

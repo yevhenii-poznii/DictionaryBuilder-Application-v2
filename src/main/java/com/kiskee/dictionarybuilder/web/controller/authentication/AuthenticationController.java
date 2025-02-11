@@ -1,6 +1,6 @@
 package com.kiskee.dictionarybuilder.web.controller.authentication;
 
-import com.kiskee.dictionarybuilder.model.dto.authentication.AuthenticationRequest;
+import com.kiskee.dictionarybuilder.model.dto.authentication.AuthenticationRequestDto;
 import com.kiskee.dictionarybuilder.model.dto.authentication.AuthenticationResponse;
 import com.kiskee.dictionarybuilder.service.authentication.AuthenticationService;
 import com.kiskee.dictionarybuilder.util.CookieUtil;
@@ -19,8 +19,8 @@ public class AuthenticationController {
     private final AuthenticationService authenticationService;
 
     @PostMapping("/access")
-    public AuthenticationResponse signIn(@RequestBody AuthenticationRequest authenticationRequest) {
-        return authenticationService.issueAccessToken(authenticationRequest);
+    public AuthenticationResponse signIn(@RequestBody AuthenticationRequestDto authenticationRequestDto) {
+        return authenticationService.issueAccessToken(authenticationRequestDto);
     }
 
     @PostMapping("/refresh")

@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
-public class AuthenticationRequest {
+public class AuthenticationRequestDto {
 
     @NotBlank
     private String login;
@@ -23,7 +23,7 @@ public class AuthenticationRequest {
     @Nullable
     private String redirectUri;
 
-    public AuthenticationRequest(String login, String password) {
+    public AuthenticationRequestDto(String login, String password) {
         this.login = login;
         this.password = password;
     }
