@@ -1,4 +1,4 @@
-package com.kiskee.dictionarybuilder.util;
+package com.kiskee.dictionarybuilder.util.repetition;
 
 import java.util.HashSet;
 import java.util.List;

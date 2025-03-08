@@ -21,27 +21,30 @@ public class RepetitionDataFactory {
             UUID userId,
             ZoneId userTimeZone,
             boolean reversed) {
+        return createRepetitionData(repetitionType, loadedWords, dictionaryDto, userId, userTimeZone, reversed, false);
+    }
+
+    public static RepetitionData createRepetitionData(
+            RepetitionType repetitionType,
+            List<WordDto> loadedWords,
+            DictionaryDto dictionaryDto,
+            UUID userId,
+            ZoneId userTimeZone,
+            boolean reversed,
+            boolean shared) {
         return switch (repetitionType) {
-            case INPUT -> createInputRepetitionData(loadedWords, dictionaryDto, userId, userTimeZone, reversed);
-            case CHOICE -> createChoiceRepetitionData(loadedWords, dictionaryDto, userId, userTimeZone, reversed);
+            case INPUT -> new RepetitionData(
+                    loadedWords, dictionaryDto, userId, userTimeZone, RepetitionType.INPUT, reversed, shared);
+            case CHOICE -> {
+                validateChoiceRepetitionData(loadedWords, dictionaryDto, userId);
+                yield new ChoiceRepetitionData(
+                        loadedWords, dictionaryDto, userId, userTimeZone, RepetitionType.CHOICE, reversed, shared);
+            }
         };
     }
 
-    private static RepetitionData createInputRepetitionData(
-            List<WordDto> loadedWords,
-            DictionaryDto dictionaryDto,
-            UUID userId,
-            ZoneId userTimeZone,
-            boolean reversed) {
-        return new RepetitionData(loadedWords, dictionaryDto, userId, userTimeZone, RepetitionType.INPUT, reversed);
-    }
-
-    private static ChoiceRepetitionData createChoiceRepetitionData(
-            List<WordDto> loadedWords,
-            DictionaryDto dictionaryDto,
-            UUID userId,
-            ZoneId userTimeZone,
-            boolean reversed) {
+    private static void validateChoiceRepetitionData(
+            List<WordDto> loadedWords, DictionaryDto dictionaryDto, UUID userId) {
         if (loadedWords.size() < 4) {
             log.info(
                     "Not enough words to start repetition for dictionary [{}] for user: [{}]",
@@ -49,7 +52,5 @@ public class RepetitionDataFactory {
                     userId);
             throw new RepetitionException("Not enough words to start repetition");
         }
-        return new ChoiceRepetitionData(
-                loadedWords, dictionaryDto, userId, userTimeZone, RepetitionType.CHOICE, reversed);
     }
 }

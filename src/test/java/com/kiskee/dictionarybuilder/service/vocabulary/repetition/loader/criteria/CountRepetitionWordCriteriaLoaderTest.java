@@ -6,10 +6,11 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.kiskee.dictionarybuilder.enums.repetition.RepetitionType;
 import com.kiskee.dictionarybuilder.enums.vocabulary.filter.CriteriaFilterType;
 import com.kiskee.dictionarybuilder.mapper.repetition.RepetitionWordMapper;
-import com.kiskee.dictionarybuilder.model.dto.repetition.RepetitionStartFilterRequest;
 import com.kiskee.dictionarybuilder.model.dto.repetition.filter.criteria.CountCriteriaFilter;
+import com.kiskee.dictionarybuilder.model.dto.repetition.start.RepetitionStartFilterRequest;
 import com.kiskee.dictionarybuilder.model.dto.vocabulary.word.WordDto;
 import com.kiskee.dictionarybuilder.model.entity.vocabulary.Word;
 import com.kiskee.dictionarybuilder.repository.repetition.RepetitionWordRepository;
@@ -51,7 +52,10 @@ public class CountRepetitionWordCriteriaLoaderTest {
     void testLoadRepetitionWordPage_WhenGivenRepetitionOnlyRepetitionFilter_ThenLoadWordsByFilters() {
         long dictionaryId = 1L;
         RepetitionStartFilterRequest request = new RepetitionStartFilterRequest(
-                RepetitionStartFilterRequest.RepetitionFilter.REPETITION_ONLY, new CountCriteriaFilter(10), false);
+                RepetitionStartFilterRequest.RepetitionFilter.REPETITION_ONLY,
+                new CountCriteriaFilter(10),
+                RepetitionType.INPUT,
+                false);
 
         Page<Long> wordIds = new PageImpl<>(List.of(1L));
         when(repository.findByDictionaryIdAndUseInRepetition(eq(dictionaryId), eq(true), any(Pageable.class)))
@@ -76,7 +80,10 @@ public class CountRepetitionWordCriteriaLoaderTest {
     void testLoadRepetitionWordPage_WhenGivenNotRepetitionOnlyRepetitionFilter_ThenLoadWordsByFilters() {
         long dictionaryId = 1L;
         RepetitionStartFilterRequest request = new RepetitionStartFilterRequest(
-                RepetitionStartFilterRequest.RepetitionFilter.NOT_REPETITION_ONLY, new CountCriteriaFilter(10), false);
+                RepetitionStartFilterRequest.RepetitionFilter.NOT_REPETITION_ONLY,
+                new CountCriteriaFilter(10),
+                RepetitionType.INPUT,
+                false);
 
         Page<Long> wordIds = new PageImpl<>(List.of(1L));
         when(repository.findByDictionaryIdAndUseInRepetition(eq(dictionaryId), eq(false), any(Pageable.class)))
@@ -101,7 +108,10 @@ public class CountRepetitionWordCriteriaLoaderTest {
     void testLoadRepetitionWordPage_WhenGivenAllRepetitionFilter_ThenLoadWordsByFilters() {
         long dictionaryId = 1L;
         RepetitionStartFilterRequest request = new RepetitionStartFilterRequest(
-                RepetitionStartFilterRequest.RepetitionFilter.ALL, new CountCriteriaFilter(10), false);
+                RepetitionStartFilterRequest.RepetitionFilter.ALL,
+                new CountCriteriaFilter(10),
+                RepetitionType.INPUT,
+                false);
 
         Page<Long> wordIds = new PageImpl<>(List.of(1L, 2L));
         when(repository.findByDictionaryId(eq(dictionaryId), any(Pageable.class)))

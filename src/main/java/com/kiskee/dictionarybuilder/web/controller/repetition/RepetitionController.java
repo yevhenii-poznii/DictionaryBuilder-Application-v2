@@ -1,13 +1,14 @@
 package com.kiskee.dictionarybuilder.web.controller.repetition;
 
-import com.kiskee.dictionarybuilder.enums.repetition.RepetitionType;
 import com.kiskee.dictionarybuilder.model.dto.repetition.RepetitionRunningStatus;
-import com.kiskee.dictionarybuilder.model.dto.repetition.RepetitionStartFilterRequest;
 import com.kiskee.dictionarybuilder.model.dto.repetition.message.WSRequest;
 import com.kiskee.dictionarybuilder.model.dto.repetition.message.WSResponse;
-import com.kiskee.dictionarybuilder.service.vocabulary.repetition.RepetitionService;
+import com.kiskee.dictionarybuilder.model.dto.repetition.start.RepetitionStartRequest;
+import com.kiskee.dictionarybuilder.service.vocabulary.repetition.RepetitionServiceFactory;
+import com.kiskee.dictionarybuilder.service.vocabulary.repetition.handler.message.RepetitionMessageHandler;
+import com.kiskee.dictionarybuilder.service.vocabulary.repetition.handler.state.RepetitionStateHandler;
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.security.core.Authentication;
@@ -18,47 +19,46 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@AllArgsConstructor
+@RequiredArgsConstructor
 @RequestMapping("/repetition")
 public class RepetitionController {
 
-    private final RepetitionService repetitionService;
+    private final RepetitionServiceFactory repetitionService;
 
     @GetMapping("/running")
     public RepetitionRunningStatus isRepetitionRunning() {
-        return repetitionService.isRepetitionRunning();
+        return repetitionService.execute(service -> ((RepetitionStateHandler) service).isRepetitionRunning());
     }
 
     @PostMapping("/{dictionaryId}")
     public RepetitionRunningStatus start(
-            @PathVariable long dictionaryId,
-            @RequestParam RepetitionType repetitionType,
-            @RequestBody @Valid RepetitionStartFilterRequest request) {
-        return repetitionService.start(dictionaryId, repetitionType, request);
+            @PathVariable long dictionaryId, @RequestBody @Valid RepetitionStartRequest request) {
+        return repetitionService.execute(
+                request, service -> ((RepetitionStateHandler) service).start(dictionaryId, request));
     }
 
     @PutMapping("/pause")
     public RepetitionRunningStatus pause() {
-        return repetitionService.pause();
+        return repetitionService.execute(service -> ((RepetitionStateHandler) service).pause());
     }
 
     @PutMapping("/unpause")
     public RepetitionRunningStatus unpause() {
-        return repetitionService.unpause();
+        return repetitionService.execute(service -> ((RepetitionStateHandler) service).unpause());
     }
 
     @DeleteMapping
     public RepetitionRunningStatus stop() {
-        return repetitionService.stop();
+        return repetitionService.execute(service -> ((RepetitionStateHandler) service).stop());
     }
 
     @MessageMapping("/handle")
     @SendToUser("/queue/response")
     public WSResponse handleMessage(Authentication authentication, WSRequest request) {
-        return repetitionService.handleRepetitionMessage(authentication, request);
+        return repetitionService.execute(
+                service -> ((RepetitionMessageHandler) service).handleRepetitionMessage(authentication, request));
     }
 }

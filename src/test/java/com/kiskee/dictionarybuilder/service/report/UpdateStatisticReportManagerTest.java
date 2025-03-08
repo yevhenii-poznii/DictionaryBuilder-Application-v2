@@ -22,10 +22,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
-public class StatisticUpdateReportManagerTest {
+public class UpdateStatisticReportManagerTest {
 
     @InjectMocks
-    private StatisticUpdateReportManager statisticUpdateReportManager;
+    private UpdateStatisticReportManager updateStatisticReportManager;
 
     @Mock
     private List<RepetitionProgressUpdateReportService> repetitionProgressUpdateReportServices;
@@ -47,7 +47,7 @@ public class StatisticUpdateReportManagerTest {
         List<RepetitionProgressUpdateReportService> repetitionProgressUpdateReportServices =
                 List.of(repetitionStatisticReportService, repetitionTimeSpendGoalReportService);
         ReflectionTestUtils.setField(
-                statisticUpdateReportManager,
+                updateStatisticReportManager,
                 "repetitionProgressUpdateReportServices",
                 repetitionProgressUpdateReportServices);
     }
@@ -57,6 +57,6 @@ public class StatisticUpdateReportManagerTest {
         RepetitionResultData repetitionResultData = mock(RepetitionResultDataDto.class);
         when(repetitionResultData.getUserId()).thenReturn(USER_ID);
 
-        statisticUpdateReportManager.updateRepetitionProgress(repetitionResultData);
+        updateStatisticReportManager.updateRepetitionProgress(repetitionResultData);
     }
 }

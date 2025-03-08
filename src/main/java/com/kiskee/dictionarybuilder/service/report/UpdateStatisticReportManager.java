@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class StatisticUpdateReportManager {
+public class UpdateStatisticReportManager {
 
     private final List<RepetitionProgressUpdateReportService> repetitionProgressUpdateReportServices;
 

@@ -2,7 +2,7 @@ package com.kiskee.dictionarybuilder.service.vocabulary.repetition.loader.criter
 
 import com.kiskee.dictionarybuilder.enums.vocabulary.filter.CriteriaFilterType;
 import com.kiskee.dictionarybuilder.mapper.repetition.RepetitionWordMapper;
-import com.kiskee.dictionarybuilder.model.dto.repetition.RepetitionStartFilterRequest;
+import com.kiskee.dictionarybuilder.model.dto.repetition.start.RepetitionStartRequest;
 import com.kiskee.dictionarybuilder.model.entity.vocabulary.Word;
 import com.kiskee.dictionarybuilder.repository.repetition.RepetitionWordRepository;
 import java.util.List;
@@ -25,26 +25,26 @@ public class CountRepetitionWordCriteriaLoader extends AbstractRepetitionWordCri
     }
 
     @Override
-    protected List<Word> loadRepetitionOnly(Long dictionaryId, RepetitionStartFilterRequest request) {
+    protected List<Word> loadRepetitionOnly(Long dictionaryId, RepetitionStartRequest request) {
         List<Long> wordIds = loadIdsByUseInRepetition(dictionaryId, true, request);
         return getRepository().findByIdIn(wordIds);
     }
 
     @Override
-    protected List<Word> loadNotRepetitionOnly(Long dictionaryId, RepetitionStartFilterRequest request) {
+    protected List<Word> loadNotRepetitionOnly(Long dictionaryId, RepetitionStartRequest request) {
         List<Long> wordIds = loadIdsByUseInRepetition(dictionaryId, false, request);
         return getRepository().findByIdIn(wordIds);
     }
 
     @Override
-    protected List<Word> loadAll(Long dictionaryId, RepetitionStartFilterRequest request) {
+    protected List<Word> loadAll(Long dictionaryId, RepetitionStartRequest request) {
         Pageable pageable = buildPageable(request);
         List<Long> wordIds =
                 getRepository().findByDictionaryId(dictionaryId, pageable).toList();
         return getRepository().findByIdIn(wordIds);
     }
 
-    private Pageable buildPageable(RepetitionStartFilterRequest request) {
+    private Pageable buildPageable(RepetitionStartRequest request) {
         return PageRequest.of(
                 0,
                 (Integer) request.getCriteriaFilter().getFilterValue(),
@@ -52,7 +52,7 @@ public class CountRepetitionWordCriteriaLoader extends AbstractRepetitionWordCri
     }
 
     private List<Long> loadIdsByUseInRepetition(
-            Long dictionaryId, boolean useInRepetition, RepetitionStartFilterRequest request) {
+            Long dictionaryId, boolean useInRepetition, RepetitionStartRequest request) {
         Pageable pageable = buildPageable(request);
         return getRepository()
                 .findByDictionaryIdAndUseInRepetition(dictionaryId, useInRepetition, pageable)
