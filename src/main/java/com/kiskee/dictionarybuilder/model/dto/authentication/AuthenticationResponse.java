@@ -1,5 +1,6 @@
 package com.kiskee.dictionarybuilder.model.dto.authentication;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,6 +14,7 @@ public class AuthenticationResponse {
     private Instant expirationTime;
 
     @Setter
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String redirectUri;
 
     public AuthenticationResponse(String token, Instant expirationTime) {

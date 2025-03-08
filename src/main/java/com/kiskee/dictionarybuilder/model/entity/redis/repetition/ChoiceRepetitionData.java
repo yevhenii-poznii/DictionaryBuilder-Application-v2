@@ -4,7 +4,7 @@ import com.kiskee.dictionarybuilder.enums.repetition.RepetitionType;
 import com.kiskee.dictionarybuilder.model.dto.vocabulary.dictionary.DictionaryDto;
 import com.kiskee.dictionarybuilder.model.dto.vocabulary.word.WordDto;
 import com.kiskee.dictionarybuilder.model.dto.vocabulary.word.WordTranslationDto;
-import com.kiskee.dictionarybuilder.util.RandomElementsPicker;
+import com.kiskee.dictionarybuilder.util.repetition.RandomElementsPicker;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,8 +39,9 @@ public class ChoiceRepetitionData extends RepetitionData implements RepetitionDa
             UUID userId,
             ZoneId userTimeZone,
             RepetitionType repetitionType,
-            boolean reversed) {
-        super(repetitionWords, dictionaryDto, userId, userTimeZone, repetitionType, reversed);
+            boolean reversed,
+            boolean shared) {
+        super(repetitionWords, dictionaryDto, userId, userTimeZone, repetitionType, reversed, shared);
     }
 
     @Override

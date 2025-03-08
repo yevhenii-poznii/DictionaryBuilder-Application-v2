@@ -6,10 +6,11 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.kiskee.dictionarybuilder.enums.repetition.RepetitionType;
 import com.kiskee.dictionarybuilder.enums.vocabulary.filter.CriteriaFilterType;
 import com.kiskee.dictionarybuilder.mapper.repetition.RepetitionWordMapper;
-import com.kiskee.dictionarybuilder.model.dto.repetition.RepetitionStartFilterRequest;
 import com.kiskee.dictionarybuilder.model.dto.repetition.filter.criteria.DateCriteriaFilter;
+import com.kiskee.dictionarybuilder.model.dto.repetition.start.RepetitionStartFilterRequest;
 import com.kiskee.dictionarybuilder.model.dto.vocabulary.word.WordDto;
 import com.kiskee.dictionarybuilder.model.entity.vocabulary.Word;
 import com.kiskee.dictionarybuilder.repository.repetition.RepetitionWordRepository;
@@ -54,6 +55,7 @@ public class DateRepetitionWordCriteriaLoaderTest {
         RepetitionStartFilterRequest request = new RepetitionStartFilterRequest(
                 RepetitionStartFilterRequest.RepetitionFilter.REPETITION_ONLY,
                 new DateCriteriaFilter(new DateCriteriaFilter.DateRange(from, to)),
+                RepetitionType.INPUT,
                 false);
 
         Word word = mock(Word.class);
@@ -81,6 +83,7 @@ public class DateRepetitionWordCriteriaLoaderTest {
         RepetitionStartFilterRequest request = new RepetitionStartFilterRequest(
                 RepetitionStartFilterRequest.RepetitionFilter.NOT_REPETITION_ONLY,
                 new DateCriteriaFilter(new DateCriteriaFilter.DateRange(from, to)),
+                RepetitionType.INPUT,
                 false);
 
         Word word = mock(Word.class);
@@ -108,6 +111,7 @@ public class DateRepetitionWordCriteriaLoaderTest {
         RepetitionStartFilterRequest request = new RepetitionStartFilterRequest(
                 RepetitionStartFilterRequest.RepetitionFilter.ALL,
                 new DateCriteriaFilter(new DateCriteriaFilter.DateRange(from, to)),
+                RepetitionType.INPUT,
                 false);
 
         Word firstWord = mock(Word.class);

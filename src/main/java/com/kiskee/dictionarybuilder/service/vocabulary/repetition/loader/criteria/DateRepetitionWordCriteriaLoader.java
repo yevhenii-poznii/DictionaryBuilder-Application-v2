@@ -2,8 +2,8 @@ package com.kiskee.dictionarybuilder.service.vocabulary.repetition.loader.criter
 
 import com.kiskee.dictionarybuilder.enums.vocabulary.filter.CriteriaFilterType;
 import com.kiskee.dictionarybuilder.mapper.repetition.RepetitionWordMapper;
-import com.kiskee.dictionarybuilder.model.dto.repetition.RepetitionStartFilterRequest;
 import com.kiskee.dictionarybuilder.model.dto.repetition.filter.criteria.DateCriteriaFilter;
+import com.kiskee.dictionarybuilder.model.dto.repetition.start.RepetitionStartRequest;
 import com.kiskee.dictionarybuilder.model.entity.vocabulary.Word;
 import com.kiskee.dictionarybuilder.repository.repetition.RepetitionWordRepository;
 import java.time.Instant;
@@ -25,7 +25,7 @@ public class DateRepetitionWordCriteriaLoader extends AbstractRepetitionWordCrit
     }
 
     @Override
-    protected List<Word> loadRepetitionOnly(Long dictionaryId, RepetitionStartFilterRequest request) {
+    protected List<Word> loadRepetitionOnly(Long dictionaryId, RepetitionStartRequest request) {
         DateCriteriaFilter.DateRange criteriaFilter =
                 (DateCriteriaFilter.DateRange) request.getCriteriaFilter().getFilterValue();
         Instant from = criteriaFilter.getFrom().atStartOfDay().toInstant(ZoneOffset.UTC);
@@ -35,7 +35,7 @@ public class DateRepetitionWordCriteriaLoader extends AbstractRepetitionWordCrit
     }
 
     @Override
-    protected List<Word> loadNotRepetitionOnly(Long dictionaryId, RepetitionStartFilterRequest request) {
+    protected List<Word> loadNotRepetitionOnly(Long dictionaryId, RepetitionStartRequest request) {
         DateCriteriaFilter.DateRange criteriaFilter =
                 (DateCriteriaFilter.DateRange) request.getCriteriaFilter().getFilterValue();
         Instant from = criteriaFilter.getFrom().atStartOfDay().toInstant(ZoneOffset.UTC);
@@ -45,7 +45,7 @@ public class DateRepetitionWordCriteriaLoader extends AbstractRepetitionWordCrit
     }
 
     @Override
-    protected List<Word> loadAll(Long dictionaryId, RepetitionStartFilterRequest request) {
+    protected List<Word> loadAll(Long dictionaryId, RepetitionStartRequest request) {
         DateCriteriaFilter.DateRange criteriaFilter =
                 (DateCriteriaFilter.DateRange) request.getCriteriaFilter().getFilterValue();
         Instant from = criteriaFilter.getFrom().atStartOfDay().toInstant(ZoneOffset.UTC);
