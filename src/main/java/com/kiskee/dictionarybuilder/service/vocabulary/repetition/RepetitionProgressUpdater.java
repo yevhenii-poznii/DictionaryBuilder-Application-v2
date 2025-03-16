@@ -33,8 +33,11 @@ public class RepetitionProgressUpdater {
                 && passedWords.size() >= wordsToUpdateCount) {
             wordCounterUpdateService.updateRightAnswersCounters(
                     repetitionData.getUserId(), new ArrayList<>(passedWords));
+            log.info("Updated right-answers counters for {} words", passedWords.size());
             passedWords.clear();
+            log.info("Passed words is cleared");
         }
+        log.info("Updated right-answers counters haven't been updated for words");
     }
 
     public void updateRepetitionProgress(RepetitionData repetitionData) {

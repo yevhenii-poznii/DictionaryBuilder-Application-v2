@@ -10,7 +10,6 @@ import com.kiskee.dictionarybuilder.repository.redis.RepetitionDataRepository;
 import com.kiskee.dictionarybuilder.service.vocabulary.repetition.RepetitionProgressUpdater;
 import com.kiskee.dictionarybuilder.service.vocabulary.repetition.handler.AbstractRepetitionHandler;
 import com.kiskee.dictionarybuilder.service.vocabulary.repetition.handler.message.RepetitionMessageHandler;
-import com.kiskee.dictionarybuilder.service.vocabulary.word.WordCounterUpdateService;
 import com.kiskee.dictionarybuilder.util.IdentityUtil;
 import com.kiskee.dictionarybuilder.util.repetition.RepetitionUtils;
 import java.util.Arrays;
@@ -32,7 +31,6 @@ import org.springframework.stereotype.Service;
 public class RepetitionMessageHandlerImpl extends AbstractRepetitionHandler implements RepetitionMessageHandler {
 
     private final RepetitionWordMapper mapper;
-    private final WordCounterUpdateService wordCounterUpdateService;
 
     @Value("${vocabulary.repetition.words-to-update-count}")
     private int wordsToUpdateCount;
@@ -40,11 +38,9 @@ public class RepetitionMessageHandlerImpl extends AbstractRepetitionHandler impl
     public RepetitionMessageHandlerImpl(
             RepetitionDataRepository repository,
             RepetitionProgressUpdater repetitionProgressUpdater,
-            RepetitionWordMapper repetitionWordMapper,
-            WordCounterUpdateService wordCounterUpdateService) {
+            RepetitionWordMapper repetitionWordMapper) {
         super(repository, repetitionProgressUpdater);
         this.mapper = repetitionWordMapper;
-        this.wordCounterUpdateService = wordCounterUpdateService;
     }
 
     @Override

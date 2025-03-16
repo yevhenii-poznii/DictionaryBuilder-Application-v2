@@ -58,7 +58,7 @@ public class RepetitionController {
     @MessageMapping("/handle")
     @SendToUser("/queue/response")
     public WSResponse handleMessage(Authentication authentication, WSRequest request) {
-        return repetitionService.execute(
-                service -> ((RepetitionMessageHandler) service).handleRepetitionMessage(authentication, request));
+        return repetitionService.execute(request, service -> ((RepetitionMessageHandler) service)
+                .handleRepetitionMessage(authentication, request));
     }
 }
