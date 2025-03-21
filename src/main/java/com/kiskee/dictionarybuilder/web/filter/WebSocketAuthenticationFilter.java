@@ -27,7 +27,10 @@ public class WebSocketAuthenticationFilter extends JwtAuthenticationFilter {
         if (AntPathRequestMatcher.antMatcher(HttpMethod.GET, "/repetition-ws/**")
                 .matches(request)) {
             String jwt = CookieUtil.extractTokenFromCookie(request.getCookies());
-            auth(jwt, response);
+            boolean authenticated = auth(jwt, response);
+            if (!authenticated) {
+                return;
+            }
         }
 
         filterChain.doFilter(request, response);
